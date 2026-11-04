@@ -5,13 +5,12 @@ import datetime
 import urllib.request
 
 # ========================================================
-# CONFIGURAÇÕES DA SUA LIGA
+# CONFIGURAÇÃO DA SUA LIGA BRASIL TEAM
 # ========================================================
-LEAGUE_ID = "COLOQUE_SEU_LEAGUE_ID_AQUI"
-ANO_CORRENTE = 2026
+LEAGUE_ID = "1398124193773527040"
 HTML_FILE = "index.html"
 
-# Mapeamento: Username do Sleeper -> Nome Histórico Padrão da Liga
+# Mapeamento oficial dos 20 técnicos do Sleeper -> Nome Histórico
 SLEEPER_TO_PLAYER = {
     "sHikwOo": "Francisco",
     "JaimeOliveira": "Jaime",
@@ -46,7 +45,12 @@ def main():
     users = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/users")
     rosters = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/rosters")
 
-    # 1. Extrair nomes das Divisões definidos no Sleeper
+    # 1. Puxar o Ano da Temporada diretamente do Sleeper (dinâmico)
+    season_str = league_data.get("season")
+    ano_corrente = int(season_str) if season_str else datetime.date.today().year
+    print(f"📅 Temporada detectada automaticamente no Sleeper: {ano_corrente}")
+
+    # 2. Puxar nomes das Divisões configuradas na liga do Sleeper
     meta = league_data.get("metadata", {})
     division_names = {
         1: meta.get("division_1", "Divisão 1"),
@@ -55,7 +59,7 @@ def main():
         4: meta.get("division_4", "Divisão 4"),
     }
 
-    # 2. Mapear user_id -> username e team_name
+    # 3. Mapear user_id -> username e team_name
     user_info = {}
     for u in users:
         uid = u["user_id"]
@@ -63,7 +67,7 @@ def main():
         tname = u.get("metadata", {}).get("team_name") or f"Team {uname}"
         user_info[uid] = {"username": uname, "team_name": tname}
 
-    # 3. Mapear roster_id e agrupar times por Divisão
+    # 4. Mapear roster_id e agrupar participantes por Divisão dinamicamente
     roster_map = {}
     divisions_dict = {name: [] for name in division_names.values()}
 
@@ -91,7 +95,7 @@ def main():
     for dname, members in divisions_dict.items():
         print(f"  • {dname}: {', '.join(members)}")
 
-    # 4. Baixar confrontos de todas as semanas
+    # 5. Baixar confrontos de todas as semanas da temporada detectada
     novos_jogos_ano = []
     max_week_jogada = 0
 
@@ -122,7 +126,7 @@ def main():
                 fase = "Temporada Regular" if w <= 14 else "Playoffs"
 
                 novos_jogos_ano.append([
-                    ANO_CORRENTE,
+                    ano_corrente,
                     w,
                     p1["player"],
                     p1["team"],
@@ -133,28 +137,26 @@ def main():
                     fase
                 ])
 
-    print(f"✅ {len(novos_jogos_ano)} partidas processadas até a Semana {max_week_jogada}.")
+    print(f"✅ {len(novos_jogos_ano)} partidas processadas até a Semana {max_week_jogada} ({ano_corrente}).")
 
-    # 5. Atualizar o index.html
+    # 6. Atualizar o index.html
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
 
     # Atualizar RAW_DATA
     idx_raw_start = html.find("const RAW_DATA = [")
-    idx_raw_end = html.find(";\n// Schema: [0: year")
-    raw_list = json.loads(html[idx_raw_start + len("const RAW_DATA = "):idx_raw_end])
+    raw_list = json.loads(html[idx_raw_start + len("const RAW_DATA = "):html.find(";\n// Schema: [0: year")])
 
-    # Preserva histórico 2016-2025 e injeta o ano atual atualizado
-    raw_historico = [r for r in raw_list if r[0] != ANO_CORRENTE]
+    # Preserva o histórico de anos anteriores e substitui/adiciona os dados da temporada ativa
+    raw_historico = [r for r in raw_list if r[0] != ano_corrente]
     raw_historico.extend(novos_jogos_ano)
     raw_historico.sort(key=lambda x: (x[0], x[1]))
 
-    # Atualizar o bloco DIVISIONS_DATA (se já existir no HTML) ou criar
+    # Injetar ou atualizar DIVISIONS_DATA no index.html
     div_json = json.dumps(divisions_dict, ensure_ascii=False)
     if "const DIVISIONS_DATA =" in html:
         html = re.sub(r"const DIVISIONS_DATA = \{.*?\};", f"const DIVISIONS_DATA = {div_json};", html, flags=re.DOTALL)
     else:
-        # Injeta logo antes de RAW_DATA
         html = html.replace("const RAW_DATA = [", f"const DIVISIONS_DATA = {div_json};\nconst RAW_DATA = [")
 
     # Atualizar total de confrontos e data no cabeçalho
@@ -163,7 +165,7 @@ def main():
     html = re.sub(r"[0-9\.]+ Confrontos", f"{total_jogos} Confrontos", html)
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    # Gravar o RAW_DATA atualizado
+    # Injetar o novo array RAW_DATA no HTML
     idx_raw_start = html.find("const RAW_DATA = [")
     novo_raw_json = json.dumps(raw_historico, ensure_ascii=False)
     html = html[:idx_raw_start + len("const RAW_DATA = ")] + novo_raw_json + html[html.find(";\n// Schema: [0: year"):]
@@ -171,7 +173,7 @@ def main():
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print("🚀 index.html atualizado com sucesso!")
+    print(f"🚀 index.html atualizado e sincronizado com sucesso para a temporada {ano_corrente}!")
 
 if __name__ == "__main__":
     main()
