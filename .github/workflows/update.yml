@@ -1,0 +1,32 @@
+name: Atualizar Fantasy Dashboard
+
+on:
+  schedule:
+    # Executa toda terça-feira às 10:00 UTC (07:00 horário de Brasília)
+    - cron: '0 10 * * 2'
+  workflow_dispatch: # Permite rodar manualmente clicando em um botão a qualquer momento
+
+permissions:
+  contents: write
+
+jobs:
+  sync-sleeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Executar script do Sleeper
+        run: python update_sleeper.py
+
+      - name: Salvar alterações no GitHub Pages
+        run: |
+          git config --global user.name "Sleeper Bot"
+          git config --global user.email "bot@github.com"
+          git add index.html
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: sincronizacao automatica com Sleeper" && git push)
