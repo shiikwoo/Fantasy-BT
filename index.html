@@ -614,6 +614,7 @@
     <button class="tab-btn" onclick="switchTab('tab-leaderboard', this)">🏆 Ranking & Estatísticas Gerais</button>
     <button class="tab-btn" onclick="switchTab('tab-franchise', this)">🔬 Raio-X da Franquia</button>
     <button class="tab-btn" onclick="switchTab('tab-h2h', this)">⚔️ Confronto Direto (Head-to-Head)</button>
+    <button class="tab-btn" onclick="switchTab('tab-div-h2h', this)">🌐 Duelo de Divisões</button>
     <button class="tab-btn" onclick="switchTab('tab-records', this)">🔥 Hall de Recordes</button>
     <button class="tab-btn" onclick="switchTab('tab-games', this)">📋 Consulta de Partidas</button>
   </div>
@@ -964,6 +965,173 @@
           </thead>
           <tbody id="h2hOpponentsBody">
             <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: Duelo de Divisões (H2H) -->
+  <div id="tab-div-h2h" class="tab-content">
+    
+    <!-- Top Filter Bar da Aba Divisões -->
+    <div class="filter-bar" style="margin-bottom: 24px;">
+      <div class="filter-group">
+        <span class="filter-label">Temporada Divisional:</span>
+        <select id="divH2hYearSelect" onchange="renderDivisionH2H()" style="font-weight: 700; padding: 7px 14px;">
+          <option value="ALL">Histórico Geral das Divisões (2019 – 2026)</option>
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2019">2019</option>
+        </select>
+      </div>
+      <div class="filter-group" style="border-left: 1px solid var(--border-color); padding-left: 16px;">
+        <span class="filter-label">Fase:</span>
+        <div class="pill-group" id="divH2hStagePills">
+          <button class="pill-btn active" onclick="setDivStageFilter('ALL', this)">Todas</button>
+          <button class="pill-btn" onclick="setDivStageFilter('Temporada Regular', this)">Regular</button>
+          <button class="pill-btn" onclick="setDivStageFilter('Playoffs', this)">Playoffs / Consolation 🏆</button>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: var(--text-muted);">
+        📅 Divisões ativas desde 2019 (jogos intra e interdivisionais)
+      </div>
+    </div>
+
+    <!-- KPI Cards das Divisões -->
+    <div class="kpi-grid" id="divH2hKpiGrid">
+      <!-- Injetado via JS -->
+    </div>
+
+    <!-- Grid: Matriz Cruzada H2H e Classificação Histórica -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px;">
+      
+      <!-- Matriz Cruzada 4x4 -->
+      <div class="table-card">
+        <div class="table-header-bar" style="border-left: 4px solid var(--primary);">
+          <div>
+            <div class="table-title">⚔️ Matriz Head-to-Head Cruzada (Divisão vs Divisão)</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Clique em qualquer duelo na tabela para carregá-lo no raio-x abaixo</div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table style="text-align: center;">
+            <thead>
+              <tr>
+                <th style="text-align: left;">Divisão</th>
+                <th>MG</th>
+                <th>NE</th>
+                <th>SMT</th>
+                <th>SP</th>
+                <th>Saldo Interdiv.</th>
+              </tr>
+            </thead>
+            <tbody id="divMatrixBody">
+              <!-- Injetado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ranking de Força das Divisões -->
+      <div class="table-card">
+        <div class="table-header-bar" style="border-left: 4px solid var(--accent-gold);">
+          <div>
+            <div class="table-title">🏆 Ranking de Força das Divisões</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Aproveitamento em jogos contra as outras divisões</div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Divisão</th>
+                <th style="text-align: center;">Títulos 👑</th>
+                <th style="text-align: center;">Jogos</th>
+                <th style="text-align: center;">V - D - E</th>
+                <th style="text-align: center;">Aprov. %</th>
+                <th style="text-align: right;">Média PF</th>
+                <th style="text-align: right;">Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="divRankingBody">
+              <!-- Injetado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Seletor de Duelo Direto entre Divisões -->
+    <div class="table-card" style="margin-bottom: 24px;">
+      <div class="table-header-bar" style="background: rgba(30, 41, 59, 0.7);">
+        <div>
+          <div class="table-title" style="font-size: 18px; color: #fff;">🥊 Raio-X do Duelo Direto (Divisão vs Divisão)</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Selecione duas conferências para comparar o retrospecto histórico completo</div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <select id="divSelect1" onchange="renderDivDuelSection()" style="font-weight: 700; padding: 6px 14px;">
+            <option value="MG">Divisão MG</option>
+            <option value="NE">Divisão NE</option>
+            <option value="SMT">Divisão SMT</option>
+            <option value="SP">Divisão SP</option>
+          </select>
+          <span style="font-weight: 900; color: var(--accent-gold); font-size: 15px;">VS</span>
+          <select id="divSelect2" onchange="renderDivDuelSection()" style="font-weight: 700; padding: 6px 14px;">
+            <option value="NE">Divisão NE</option>
+            <option value="MG">Divisão MG</option>
+            <option value="SMT">Divisão SMT</option>
+            <option value="SP" selected>Divisão SP</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Banner do Duelo -->
+      <div id="divDuelBanner" style="padding: 24px; border-bottom: 1px solid var(--border-color);">
+        <!-- Injetado via JS -->
+      </div>
+
+      <!-- Destaques Individuais no Duelo (Quem mais pontuou e quem mais venceu) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; padding: 20px;" id="divDuelHighlights">
+        <!-- Injetado via JS -->
+      </div>
+    </div>
+
+    <!-- Histórico de Partidas do Duelo Selecionado -->
+    <div class="table-card">
+      <div class="table-header-bar">
+        <div>
+          <div class="table-title" id="divMatchupsTitle">Histórico de Confrontos do Duelo</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="divMatchupsSub">Todas as partidas disputadas entre as duas divisões</div>
+        </div>
+        <div id="divMatchCountBadge" style="font-size: 13px; color: var(--text-muted);"></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Temporada</th>
+              <th>Semana</th>
+              <th>Fase</th>
+              <th>Time / Jogador (Divisão 1)</th>
+              <th style="text-align: right;">Pontos</th>
+              <th style="text-align: center;">vs</th>
+              <th>Pontos</th>
+              <th>Time / Jogador (Divisão 2)</th>
+              <th>Vencedor</th>
+              <th>Margem</th>
+            </tr>
+          </thead>
+          <tbody id="divMatchesTableBody">
+            <!-- Injetado via JS -->
           </tbody>
         </table>
       </div>
@@ -1436,6 +1604,7 @@ function switchTab(tabId, btn) {
   if (tabId === 'tab-leaderboard') renderLeaderboard();
   if (tabId === 'tab-franchise') renderFranchiseView();
   if (tabId === 'tab-h2h') renderHeadToHead();
+  if (tabId === 'tab-div-h2h') renderDivisionH2H();
   if (tabId === 'tab-records') renderRecords();
   if (tabId === 'tab-games') renderGamesTable();
 }
@@ -3217,6 +3386,501 @@ function renderSeasonView() {
     `).join('');
   }
 }
+
+// ========================================================
+// MOTOR DO DUELO DE DIVISÕES (HISTÓRICO 2019 – 2026)
+// ========================================================
+
+const HISTORICAL_DIVISIONS_MAP = {
+  2019: {
+    "MG":  ["Esch", "Francisco", "Jaime", "Pedro", "Fernando"],
+    "NE":  ["Lubigo", "Niltomar", "Jordan", "Ronald", "Rafael"],
+    "SMT": ["Arion", "Daniel", "Julio", "Luis Fernando", "Pogliesi"],
+    "SP":  ["Wanster", "Parah", "Elivelton", "Moita", "Walliston"]
+  },
+  2020: {
+    "MG":  ["Pedro", "Eduardo", "Esch", "Jaime", "Francisco"],
+    "NE":  ["Rafael", "Niltomar", "Jordan", "Ronald", "Lubigo"],
+    "SMT": ["Daniel", "Luis Fernando", "Julio", "Arion", "Pogliesi"],
+    "SP":  ["Parah", "Elivelton", "Moita", "Wanster", "Vitor"]
+  },
+  2021: {
+    "MG":  ["Esch", "Jaime", "Eduardo", "Francisco", "Raul"],
+    "NE":  ["Lubigo", "Ronald", "Luprimo", "Jordan", "Niltomar"],
+    "SMT": ["Luis Fernando", "Arion", "Julio", "Daniel", "Pogliesi"],
+    "SP":  ["Vitor", "Wanster", "Parah", "Elivelton", "Moita"]
+  },
+  2022: {
+    "MG":  ["Jaime", "Eduardo", "Francisco", "Esch", "Pedro"],
+    "NE":  ["Lubigo", "Ronald", "Luprimo", "Jordan", "Niltomar"],
+    "SMT": ["Pogliesi", "Arion", "Julio", "Luis Fernando", "Daniel"],
+    "SP":  ["Vitor", "Parah", "Elivelton", "Wanster", "Raul"]
+  },
+  2023: {
+    "MG":  ["Esch", "Jaime", "Eduardo", "Pedro", "Francisco"],
+    "SMT": ["Arion", "Elivelton", "Wanster", "Alvin", "Pogliesi"],
+    "NE":  ["Niltomar", "Luprimo", "Ronald", "Parah", "Lubigo"],
+    "SP":  ["Julio", "Luis Fernando", "Vitor", "Daniel", "Raul"]
+  },
+  2024: {
+    "MG":  ["Francisco", "Eduardo", "Jaime", "Esch", "Pedro"],
+    "SMT": ["Arion", "Pogliesi", "Wanster", "Alvin", "Elivelton"],
+    "NE":  ["Lubigo", "Luprimo", "Ronald", "Niltomar", "Parah"],
+    "SP":  ["Luis Fernando", "Daniel", "Julio", "Vitor", "Raul"]
+  },
+  2025: {
+    "MG":  ["Francisco", "Eduardo", "Jaime", "Douglas", "Carlos"],
+    "NE":  ["Lubigo", "Luprimo", "Niltomar", "Luis Fernando", "Ricardo"],
+    "SMT": ["Arion", "Wanster", "Pogliesi", "Alvin", "Elivelton"],
+    "SP":  ["Daniel", "Julio", "Vitor", "Parah", "Arthur"]
+  },
+  2026: {
+    "SMT": ["Wanster", "Alvin", "Arion", "Pogliesi", "Elivelton"],
+    "NE":  ["Ricardo", "Lubigo", "Niltomar", "Luprimo", "Luis Fernando"],
+    "MG":  ["Jaime", "Eduardo", "Francisco", "Esch", "Pedro"],
+    "SP":  ["Douglas", "Parah", "Vitor", "Arthur", "Daniel"]
+  }
+};
+
+let divStageFilter = 'ALL';
+
+function setDivStageFilter(stage, btn) {
+  divStageFilter = stage;
+  document.querySelectorAll('#divH2hStagePills .pill-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDivisionH2H();
+}
+
+function getDivisionForPlayer(player, year) {
+  const mapYear = HISTORICAL_DIVISIONS_MAP[year];
+  if (!mapYear) return null;
+  for (let div in mapYear) {
+    if (mapYear[div].includes(player)) return div;
+  }
+  return null;
+}
+
+function renderDivisionH2H() {
+  const selYear = document.getElementById('divH2hYearSelect').value;
+  const targetYear = selYear === 'ALL' ? null : parseInt(selYear, 10);
+
+  const DIV_LIST = ["MG", "NE", "SMT", "SP"];
+
+  // Estruturas de agregação
+  const stats = {};
+  const matrix = {};
+  const playerStats = {};
+
+  DIV_LIST.forEach(d => {
+    stats[d] = { div: d, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, games: 0, titles: 0 };
+    matrix[d] = {};
+    DIV_LIST.forEach(d2 => {
+      matrix[d][d2] = { w: 0, l: 0, t: 0, pf: 0, pa: 0, games: 0 };
+    });
+  });
+
+  // Contagem de títulos de campeão na era das divisões (2019-2025)
+  STANDINGS_DATA.forEach(r => {
+    const [yr, pos, player] = r;
+    if (pos === 1 && yr >= 2019 && (!targetYear || yr === targetYear)) {
+      const d = getDivisionForPlayer(player, yr);
+      if (d && stats[d]) stats[d].titles++;
+    }
+  });
+
+  // Filtrar partidas
+  const relevantGames = RAW_DATA.filter(r => {
+    const yr = r[0];
+    if (yr < 2019) return false;
+    if (targetYear && yr !== targetYear) return false;
+    const cat = r[8] || 'Temporada Regular';
+    if (divStageFilter === 'Temporada Regular' && cat !== 'Temporada Regular') return false;
+    if (divStageFilter === 'Playoffs' && cat === 'Temporada Regular') return false;
+    return true;
+  });
+
+  relevantGames.forEach(r => {
+    const [year, week, p1, t1, pts1, p2, t2, pts2, cat] = r;
+    const d1 = getDivisionForPlayer(p1, year);
+    const d2 = getDivisionForPlayer(p2, year);
+
+    if (!d1 || !d2 || d1 === d2) return; // apenas confrontos interdivisionais
+
+    stats[d1].games++;
+    stats[d1].pf += pts1;
+    stats[d1].pa += pts2;
+
+    stats[d2].games++;
+    stats[d2].pf += pts2;
+    stats[d2].pa += pts1;
+
+    matrix[d1][d2].games++;
+    matrix[d1][d2].pf += pts1;
+    matrix[d1][d2].pa += pts2;
+
+    matrix[d2][d1].games++;
+    matrix[d2][d1].pf += pts2;
+    matrix[d2][d1].pa += pts1;
+
+    // Rastrear desempenho dos jogadores pela sua divisão
+    [ { p: p1, t: t1, div: d1, won: pts1 > pts2, lost: pts2 > pts1, tied: pts1 === pts2, pts: pts1, oppPts: pts2, oppDiv: d2 },
+      { p: p2, t: t2, div: d2, won: pts2 > pts1, lost: pts1 > pts2, tied: pts1 === pts2, pts: pts2, oppPts: pts1, oppDiv: d1 } ].forEach(item => {
+      const k = `${item.p}_${item.div}`;
+      if (!playerStats[k]) {
+        playerStats[k] = { name: item.p, div: item.div, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, games: 0 };
+      }
+      playerStats[k].games++;
+      playerStats[k].pf += item.pts;
+      playerStats[k].pa += item.oppPts;
+      if (item.won) playerStats[k].wins++;
+      else if (item.lost) playerStats[k].losses++;
+      else playerStats[k].ties++;
+    });
+
+    if (pts1 > pts2) {
+      stats[d1].wins++;
+      stats[d2].losses++;
+      matrix[d1][d2].w++;
+      matrix[d2][d1].l++;
+    } else if (pts2 > pts1) {
+      stats[d2].wins++;
+      stats[d1].losses++;
+      matrix[d2][d1].w++;
+      matrix[d1][d2].l++;
+    } else {
+      stats[d1].ties++;
+      stats[d2].ties++;
+      matrix[d1][d2].t++;
+      matrix[d2][d1].t++;
+    }
+  });
+
+  DIV_LIST.forEach(d => {
+    const s = stats[d];
+    s.winRate = s.games > 0 ? ((s.wins + 0.5 * s.ties) / s.games) * 100 : 0;
+    s.avgPf = s.games > 0 ? s.pf / s.games : 0;
+    s.avgPa = s.games > 0 ? s.pa / s.games : 0;
+    s.diff = s.pf - s.pa;
+  });
+
+  // 1. Render Top KPIs
+  const sortedStats = Object.values(stats).sort((a, b) => b.winRate - a.winRate || b.diff - a.diff);
+  const bestDiv = sortedStats[0];
+  const mostTitlesDiv = Object.values(stats).slice().sort((a, b) => b.titles - a.titles || b.winRate - a.winRate)[0];
+  const bestOffenseDiv = Object.values(stats).slice().sort((a, b) => b.avgPf - a.avgPf)[0];
+  const bestDefenseDiv = Object.values(stats).slice().sort((a, b) => a.avgPa - b.avgPa)[0];
+
+  const kpiGrid = document.getElementById('divH2hKpiGrid');
+  if (kpiGrid) {
+    kpiGrid.innerHTML = `
+      <div class="kpi-card win-rate">
+        <div class="kpi-title">👑 Divisão Mais Dominante</div>
+        <div class="kpi-val" style="color: #34d399;">${bestDiv ? 'Divisão ' + bestDiv.div : '--'}</div>
+        <div class="kpi-sub"><b>${bestDiv ? bestDiv.winRate.toFixed(1) + '%' : ''}</b> (${bestDiv ? bestDiv.wins + 'V - ' + bestDiv.losses + 'D' : ''}) interdivisional</div>
+      </div>
+      <div class="kpi-card wins">
+        <div class="kpi-title">🏆 Mais Títulos de Campeão</div>
+        <div class="kpi-val" style="color: #fbbf24;">${mostTitlesDiv ? mostTitlesDiv.titles + ' Título' + (mostTitlesDiv.titles === 1 ? '' : 's') : '--'}</div>
+        <div class="kpi-sub"><b>Divisão ${mostTitlesDiv ? mostTitlesDiv.div : ''}</b> (${targetYear ? targetYear : '2019 – 2025'})</div>
+      </div>
+      <div class="kpi-card points">
+        <div class="kpi-title">🚀 Melhor Ataque Coletivo</div>
+        <div class="kpi-val" style="color: #60a5fa;">${bestOffenseDiv ? bestOffenseDiv.avgPf.toFixed(1) : '--'} pts/j</div>
+        <div class="kpi-sub"><b>Divisão ${bestOffenseDiv ? bestOffenseDiv.div : ''}</b> (${bestOffenseDiv ? bestOffenseDiv.pf.toFixed(0) : ''} pts marcados)</div>
+      </div>
+      <div class="kpi-card avg">
+        <div class="kpi-title">🛡️ Menos Pontos Sofridos</div>
+        <div class="kpi-val" style="color: #06b6d4;">${bestDefenseDiv ? bestDefenseDiv.avgPa.toFixed(1) : '--'} pts/j</div>
+        <div class="kpi-sub"><b>Divisão ${bestDefenseDiv ? bestDefenseDiv.div : ''}</b> (${bestDefenseDiv ? bestDefenseDiv.pa.toFixed(0) : ''} pts cedidos)</div>
+      </div>
+    `;
+  }
+
+  // 2. Render Matriz Cruzada 4x4
+  const mBody = document.getElementById('divMatrixBody');
+  if (mBody) {
+    mBody.innerHTML = '';
+    DIV_LIST.forEach(d1 => {
+      const tr = document.createElement('tr');
+      let cellsHtml = `<td style="text-align: left; font-weight: 800; color: #fff;">Divisão ${d1}</td>`;
+      
+      let rowW = 0, rowL = 0;
+      DIV_LIST.forEach(d2 => {
+        if (d1 === d2) {
+          cellsHtml += `<td style="color: var(--text-muted); opacity: 0.4; font-weight: 700;">—</td>`;
+        } else {
+          const m = matrix[d1][d2];
+          rowW += m.w;
+          rowL += m.l;
+          const isWin = m.w > m.l;
+          const isTie = m.w === m.l;
+          const cellColor = isWin ? '#34d399' : (isTie ? '#fbbf24' : '#f87171');
+          const cellBg = isWin ? 'rgba(16, 185, 129, 0.08)' : (isTie ? 'rgba(245, 158, 11, 0.05)' : 'rgba(239, 68, 68, 0.08)');
+          cellsHtml += `
+            <td style="background: ${cellBg}; cursor: pointer; font-weight: 700;" onclick="selectDivisionsDuel('${d1}', '${d2}')" title="Clique para detalhar o duelo ${d1} vs ${d2}">
+              <span style="color: ${cellColor}; font-size: 14px;"><b>${m.w}</b> - <b>${m.l}</b></span>
+            </td>
+          `;
+        }
+      });
+
+      const netWins = rowW - rowL;
+      const netColor = netWins > 0 ? '#34d399' : (netWins === 0 ? '#fbbf24' : '#f87171');
+      cellsHtml += `<td style="font-weight: 800; color: ${netColor};">${netWins > 0 ? '+' : ''}${netWins} vitórias</td>`;
+      tr.innerHTML = cellsHtml;
+      mBody.appendChild(tr);
+    });
+  }
+
+  // 3. Render Ranking de Força das Divisões
+  const rBody = document.getElementById('divRankingBody');
+  if (rBody) {
+    rBody.innerHTML = '';
+    sortedStats.forEach((s, idx) => {
+      const tr = document.createElement('tr');
+      let rankClass = 'rank-badge';
+      if (idx === 0) rankClass += ' rank-1';
+      else if (idx === 1) rankClass += ' rank-2';
+      else if (idx === 2) rankClass += ' rank-3';
+
+      tr.innerHTML = `
+        <td><span class="${rankClass}">${idx + 1}</span></td>
+        <td>
+          <strong style="color: #fff; font-size: 15px; cursor: pointer;" onclick="selectDivisionsDuel('${s.div}', '${s.div === 'MG' ? 'SP' : 'MG'}')">Divisão ${s.div}</strong>
+        </td>
+        <td style="text-align: center; font-weight: 800; color: #fbbf24;">${s.titles > 0 ? '👑 ' + s.titles : '<span style="color: var(--text-muted); opacity: 0.4;">-</span>'}</td>
+        <td style="text-align: center;">${s.games}</td>
+        <td style="text-align: center; font-weight: 700;"><b>${s.wins}</b> - <b>${s.losses}</b>${s.ties > 0 ? ' - ' + s.ties : ''}</td>
+        <td style="text-align: center; font-weight: 800; color: ${s.winRate >= 50 ? '#34d399' : '#f87171'};">
+          <div class="win-rate-bar-bg" style="width: 60px;">
+            <div class="win-rate-bar-fill" style="width: ${s.winRate}%;"></div>
+          </div>
+          ${s.winRate.toFixed(1)}%
+        </td>
+        <td style="text-align: right; font-weight: 700;">${s.avgPf.toFixed(1)}</td>
+        <td style="text-align: right; font-weight: 800; color: ${s.diff >= 0 ? '#34d399' : '#f87171'};">
+          ${s.diff > 0 ? '+' : ''}${s.diff.toFixed(1)}
+        </td>
+      `;
+      rBody.appendChild(tr);
+    });
+  }
+
+  // 4. Renderizar a seção do Duelo Selecionado
+  renderDivDuelSection();
+}
+
+function selectDivisionsDuel(div1, div2) {
+  const s1 = document.getElementById('divSelect1');
+  const s2 = document.getElementById('divSelect2');
+  if (s1 && s2) {
+    s1.value = div1;
+    s2.value = div2;
+    renderDivDuelSection();
+    const bannerEl = document.getElementById('divDuelBanner');
+    if (bannerEl) bannerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function renderDivDuelSection() {
+  const d1 = document.getElementById('divSelect1').value;
+  const d2 = document.getElementById('divSelect2').value;
+  const selYear = document.getElementById('divH2hYearSelect').value;
+  const targetYear = selYear === 'ALL' ? null : parseInt(selYear, 10);
+
+  const banner = document.getElementById('divDuelBanner');
+  const highlights = document.getElementById('divDuelHighlights');
+  const tbody = document.getElementById('divMatchesTableBody');
+  const countBadge = document.getElementById('divMatchCountBadge');
+
+  if (d1 === d2) {
+    if (banner) banner.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--accent-tie);">⚠️ Selecione duas divisões diferentes para comparar o retrospecto.</div>`;
+    if (highlights) highlights.innerHTML = '';
+    if (tbody) tbody.innerHTML = '';
+    if (countBadge) countBadge.innerText = '';
+    return;
+  }
+
+  document.getElementById('divMatchupsTitle').innerText = `Histórico de Confrontos: Divisão ${d1} vs Divisão ${d2}`;
+
+  // Filtrar jogos entre d1 e d2
+  const duelGames = [];
+  let d1Wins = 0, d2Wins = 0, ties = 0;
+  let d1TotalPts = 0, d2TotalPts = 0;
+  let maxMargin = 0, maxMarginWinner = '';
+
+  const playerD1Wins = {};
+  const playerD2Wins = {};
+
+  RAW_DATA.forEach(r => {
+    const [year, week, p1, t1, pts1, p2, t2, pts2, cat] = r;
+    if (year < 2019) return;
+    if (targetYear && year !== targetYear) return;
+    const stage = cat || 'Temporada Regular';
+    if (divStageFilter === 'Temporada Regular' && stage !== 'Temporada Regular') return false;
+    if (divStageFilter === 'Playoffs' && stage === 'Temporada Regular') return false;
+
+    const div1 = getDivisionForPlayer(p1, year);
+    const div2 = getDivisionForPlayer(p2, year);
+
+    if ((div1 === d1 && div2 === d2) || (div1 === d2 && div2 === d1)) {
+      const isTeam1D1 = (div1 === d1);
+      const pD1 = isTeam1D1 ? p1 : p2;
+      const tD1 = isTeam1D1 ? t1 : t2;
+      const ptsD1 = isTeam1D1 ? pts1 : pts2;
+      const pD2 = isTeam1D1 ? p2 : p1;
+      const tD2 = isTeam1D1 ? t2 : t1;
+      const ptsD2 = isTeam1D1 ? pts2 : pts1;
+
+      d1TotalPts += ptsD1;
+      d2TotalPts += ptsD2;
+
+      const diff = Math.abs(ptsD1 - ptsD2);
+      if (diff > maxMargin) {
+        maxMargin = diff;
+        maxMarginWinner = ptsD1 > ptsD2 ? `Divisão ${d1} (${pD1})` : `Divisão ${d2} (${pD2})`;
+      }
+
+      if (ptsD1 > ptsD2) {
+        d1Wins++;
+        playerD1Wins[pD1] = (playerD1Wins[pD1] || 0) + 1;
+      } else if (ptsD2 > ptsD1) {
+        d2Wins++;
+        playerD2Wins[pD2] = (playerD2Wins[pD2] || 0) + 1;
+      } else {
+        ties++;
+      }
+
+      duelGames.push({
+        year, week, stage,
+        pD1, tD1, ptsD1,
+        pD2, tD2, ptsD2
+      });
+    }
+  });
+
+  const totalDuelos = d1Wins + d2Wins + ties;
+  const d1Pct = totalDuelos > 0 ? ((d1Wins + 0.5 * ties) / totalDuelos) * 100 : 0;
+  const d2Pct = totalDuelos > 0 ? ((d2Wins + 0.5 * ties) / totalDuelos) * 100 : 0;
+
+  // Banner do Duelo
+  if (banner) {
+    const diff = d1Wins - d2Wins;
+    const absDiff = Math.abs(diff);
+    let rivalryBadge = '';
+    if (totalDuelos === 0) {
+      rivalryBadge = '<span class="badge-tag">Sem confrontos no filtro selecionado</span>';
+    } else if (absDiff === 0) {
+      rivalryBadge = '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: #f59e0b; font-size: 15px; font-weight: 800; padding: 6px 18px;">⚖️ Empate Absoluto no Duelo</span>';
+    } else if (diff > 0) {
+      rivalryBadge = `<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981; font-size: 15px; font-weight: 800; padding: 6px 18px;">👑 Divisão ${d1} Lidera o Duelo (+${absDiff} vitórias)</span>`;
+    } else {
+      rivalryBadge = `<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: #ef4444; font-size: 15px; font-weight: 800; padding: 6px 18px;">👑 Divisão ${d2} Lidera o Duelo (+${absDiff} vitórias)</span>`;
+    }
+
+    banner.innerHTML = `
+      <div style="text-align: center; margin-bottom: 16px;">${rivalryBadge}</div>
+      <div class="duel-score-row">
+        <div class="duel-side" style="text-align: right;">
+          <div class="duel-name" style="color: #60a5fa; font-size: 24px;">Divisão ${d1}</div>
+          <div class="duel-wins" style="color: #3b82f6;">${d1Wins}</div>
+          <div class="duel-substat">Win Rate: <b>${d1Pct.toFixed(1)}%</b> • Média: <b>${totalDuelos > 0 ? (d1TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
+        </div>
+
+        <div class="duel-middle">
+          <div class="duel-ties-badge">${ties} Empate${ties === 1 ? '' : 's'}</div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">${totalDuelos} Jogos</div>
+        </div>
+
+        <div class="duel-side" style="text-align: left;">
+          <div class="duel-name" style="color: #ec4899; font-size: 24px;">Divisão ${d2}</div>
+          <div class="duel-wins" style="color: #ec4899;">${d2Wins}</div>
+          <div class="duel-substat">Win Rate: <b>${d2Pct.toFixed(1)}%</b> • Média: <b>${totalDuelos > 0 ? (d2TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
+        </div>
+      </div>
+
+      <div class="duel-bar-container">
+        <div class="duel-bar-p1" style="width: ${totalDuelos > 0 ? (d1Wins / totalDuelos) * 100 : 50}%;"></div>
+        <div class="duel-bar-tie" style="width: ${totalDuelos > 0 ? (ties / totalDuelos) * 100 : 0}%;"></div>
+        <div class="duel-bar-p2" style="width: ${totalDuelos > 0 ? (d2Wins / totalDuelos) * 100 : 50}%;"></div>
+      </div>
+    `;
+  }
+
+  // Destaques do Duelo (Top scorers e maiores vencedores)
+  if (highlights) {
+    const topD1Player = Object.entries(playerD1Wins).sort((a, b) => b[1] - a[1])[0];
+    const topD2Player = Object.entries(playerD2Wins).sort((a, b) => b[1] - a[1])[0];
+
+    highlights.innerHTML = `
+      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Maior Carrasco da Divisão ${d1}</div>
+        <div style="font-size: 18px; font-weight: 800; color: #60a5fa; margin-top: 4px;">${topD1Player ? topD1Player[0] : '--'}</div>
+        <div style="font-size: 12px; color: var(--text-muted);">${topD1Player ? topD1Player[1] + ' vitórias contra a Divisão ' + d2 : ''}</div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Maior Carrasco da Divisão ${d2}</div>
+        <div style="font-size: 18px; font-weight: 800; color: #ec4899; margin-top: 4px;">${topD2Player ? topD2Player[0] : '--'}</div>
+        <div style="font-size: 12px; color: var(--text-muted);">${topD2Player ? topD2Player[1] + ' vitórias contra a Divisão ' + d1 : ''}</div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
+        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">💥 Maior Goleada no Clássico</div>
+        <div style="font-size: 18px; font-weight: 800; color: var(--accent-gold); margin-top: 4px;">${maxMargin > 0 ? '+' + maxMargin.toFixed(1) + ' pts' : '--'}</div>
+        <div style="font-size: 12px; color: var(--text-muted);">${maxMarginWinner ? maxMarginWinner : ''}</div>
+      </div>
+    `;
+  }
+
+  // Tabela de Confrontos
+  duelGames.sort((a, b) => b.year - a.year || b.week - a.week);
+
+  if (countBadge) countBadge.innerText = `${duelGames.length} confrontos encontrados`;
+
+  if (tbody) {
+    tbody.innerHTML = '';
+    if (duelGames.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 30px;">Nenhum confronto entre estas duas divisões no filtro selecionado.</td></tr>`;
+    } else {
+      duelGames.forEach(m => {
+        const tr = document.createElement('tr');
+        const d1Won = m.ptsD1 > m.ptsD2;
+        const d2Won = m.ptsD2 > m.ptsD1;
+        const isTie = m.ptsD1 === m.ptsD2;
+        const diff = Math.abs(m.ptsD1 - m.ptsD2);
+
+        let winnerTag = '';
+        if (d1Won) winnerTag = `<span class="pill-stat pill-win">Divisão ${d1} (${m.pD1})</span>`;
+        else if (d2Won) winnerTag = `<span class="pill-stat pill-loss">Divisão ${d2} (${m.pD2})</span>`;
+        else winnerTag = `<span class="pill-stat pill-tie">Empate</span>`;
+
+        let catBadge = `<span class="badge-tag">Regular</span>`;
+        if (m.stage === 'Playoffs') catBadge = `<span class="badge-tag" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: #fbbf24;">Playoffs 🏆</span>`;
+        else if (m.stage === 'Consolation') catBadge = `<span class="badge-tag" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: #8b5cf6;">Consolation 🎖️</span>`;
+
+        tr.innerHTML = `
+          <td><span class="badge-tag">${m.year}</span></td>
+          <td>Semana ${m.week}</td>
+          <td>${catBadge}</td>
+          <td>
+            <strong style="color: #60a5fa; cursor: pointer;" onclick="inspectPlayer('${m.pD1}')">${m.pD1}</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">${m.tD1}</div>
+          </td>
+          <td style="text-align: right; font-weight: 800; font-size: 15px; color: ${d1Won ? '#34d399' : (isTie ? '#fbbf24' : '#cbd5e1')};">${m.ptsD1.toFixed(2)}</td>
+          <td style="text-align: center; color: var(--text-muted); font-weight: 700;">x</td>
+          <td style="font-weight: 800; font-size: 15px; color: ${d2Won ? '#ec4899' : (isTie ? '#fbbf24' : '#cbd5e1')};">${m.ptsD2.toFixed(2)}</td>
+          <td>
+            <strong style="color: #ec4899; cursor: pointer;" onclick="inspectPlayer('${m.pD2}')">${m.pD2}</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">${m.tD2}</div>
+          </td>
+          <td>${winnerTag}</td>
+          <td style="font-weight: 600;">+${diff.toFixed(2)} pts</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+}
+
 function refreshAllViews() {
   if (currentYear !== 'ALL') {
     const sel = document.getElementById('standingsYearSelect');
@@ -3227,6 +3891,7 @@ function refreshAllViews() {
   renderLeaderboard();
   renderFranchiseView();
   renderHeadToHead();
+  renderDivisionH2H();
   renderRecords();
   renderGamesTable();
 }
