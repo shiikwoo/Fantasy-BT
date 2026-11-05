@@ -152,12 +152,34 @@ def main():
     raw_historico.extend(novos_jogos_ano)
     raw_historico.sort(key=lambda x: (x[0], x[1]))
 
-    # Injetar ou atualizar DIVISIONS_DATA no index.html
-    div_json = json.dumps(divisions_dict, ensure_ascii=False)
-    if "const DIVISIONS_DATA =" in html:
-        html = re.sub(r"const DIVISIONS_DATA = \{.*?\};", f"const DIVISIONS_DATA = {div_json};", html, flags=re.DOTALL)
-    else:
-        html = html.replace("const RAW_DATA = [", f"const DIVISIONS_DATA = {div_json};\nconst RAW_DATA = [")
+    # Atualizar HISTORICAL_DIVISIONS_MAP no index.html dinamicamente
+    idx_divs_start = html.find("const HISTORICAL_DIVISIONS_MAP = {")
+    if idx_divs_start != -1:
+        # Procurar o final do objeto
+        idx_divs_end = html.find("};\n\nlet divStageFilter", idx_divs_start)
+        if idx_divs_end == -1:
+            idx_divs_end = html.find("};", idx_divs_start)
+            
+        if idx_divs_end != -1:
+            divs_str = html[idx_divs_start + len("const HISTORICAL_DIVISIONS_MAP = "):idx_divs_end + 1]
+            try:
+                # Corrigir o formato JS (anos como chaves numéricas sem aspas) para JSON-friendly
+                fixed_str = re.sub(r'(\d{4}):', r'"\1":', divs_str)
+                hist_divs = json.loads(fixed_str)
+                
+                # Injeta a divisão do ano corrente
+                hist_divs[str(ano_corrente)] = divisions_dict
+                
+                # Converte de volta para string JSON formatada
+                novo_divs_json = json.dumps(hist_divs, ensure_ascii=False, indent=2)
+                # Remove as aspas dos anos para ficar estilo Javascript estrito
+                novo_divs_json = re.sub(r'"(\d{4})":', r'\1:', novo_divs_json)
+                
+                # Recorta e cola de volta no HTML
+                html = html[:idx_divs_start + len("const HISTORICAL_DIVISIONS_MAP = ")] + novo_divs_json + html[idx_divs_end + 1:]
+                print(f"✅ Histórico de divisões (HISTORICAL_DIVISIONS_MAP) atualizado para o ano {ano_corrente}.")
+            except Exception as e:
+                print(f"⚠️ Erro ao tentar injetar HISTORICAL_DIVISIONS_MAP: {e}")
 
     # Atualizar total de confrontos e data no cabeçalho
     hoje = datetime.date.today().strftime("%d/%m/%Y")
