@@ -12,7 +12,7 @@ HTML_FILE = "index.html"
 
 # Mapeamento oficial dos 20 técnicos do Sleeper -> Nome Histórico
 SLEEPER_TO_PLAYER = {
-    "sHikwOo": "Francisco",
+    "sHiikwOo": "Francisco",
     "JaimeOliveira": "Jaime",
     "Ginmin": "Eduardo",
     "douglasguarda": "Douglas",
