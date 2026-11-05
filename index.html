@@ -2614,6 +2614,13 @@ function renderFranchiseView() {
     'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
   };
 
+  const vsDivisionStats = {
+    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
+  };
+
   // Adversários para Algozes e Fregueses
   const oppMap = {};
 
@@ -2650,6 +2657,16 @@ function renderFranchiseView() {
       if (won) phaseStats[phase].wins++;
       else if (lost) phaseStats[phase].losses++;
       else phaseStats[phase].ties++;
+    }
+
+    const oppDiv = getDivisionForPlayer(opp, year);
+    if (oppDiv && vsDivisionStats[oppDiv]) {
+      vsDivisionStats[oppDiv].games++;
+      vsDivisionStats[oppDiv].pf += myPts;
+      vsDivisionStats[oppDiv].pa += oppPts;
+      if (won) vsDivisionStats[oppDiv].wins++;
+      else if (lost) vsDivisionStats[oppDiv].losses++;
+      else vsDivisionStats[oppDiv].ties++;
     }
 
     // Adversários
@@ -2794,6 +2811,43 @@ function renderFranchiseView() {
                   </tr>
                 `;
               }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card: Retrospecto contra Divisões -->
+      <div class="table-card">
+        <div class="table-header-bar">
+          <div class="table-title">🥊 Retrospecto contra Divisões</div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Divisão Adv.</th>
+                <th style="text-align: center;">Jogos</th>
+                <th style="text-align: center;">V - D - E</th>
+                <th style="text-align: center;">Aprov. %</th>
+                <th style="text-align: right;">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${['MG', 'NE', 'SMT', 'SP'].map(divName => {
+                const ds = vsDivisionStats[divName];
+                if (!ds || ds.games === 0) return '';
+                const dWinRate = ds.games > 0 ? ((ds.wins + 0.5 * ds.ties) / ds.games) * 100 : 0;
+                const dDiff = ds.pf - ds.pa;
+                return `
+                  <tr>
+                    <td><strong style="color: #fff;">Divisão ${divName}</strong></td>
+                    <td style="text-align: center; font-weight: 700;">${ds.games}</td>
+                    <td style="text-align: center;"><b>${ds.wins}</b> - <b>${ds.losses}</b>${ds.ties > 0 ? ' - ' + ds.ties : ''}</td>
+                    <td style="text-align: center; font-weight: 800; color: ${dWinRate >= 50 ? '#34d399' : '#f87171'};">${dWinRate.toFixed(1)}%</td>
+                    <td style="text-align: right; font-weight: 700; color: ${dDiff >= 0 ? '#34d399' : '#f87171'};">${dDiff > 0 ? '+' : ''}${dDiff.toFixed(1)}</td>
+                  </tr>
+                `;
+              }).join('') || '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">Sem histórico divisional registrado.</td></tr>'}
             </tbody>
           </table>
         </div>
