@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brasil Team Fantasy Football — Central Histórica & Dashboard</title>
+<title>Brasil Team Fantasy Football — Central Histórica &amp; Dashboard</title>
 <style>
   :root {
     --bg-main: #0b0f19;
@@ -512,16 +511,430 @@
     }
   }
 </style>
+<style>
+
+/* NOVO CSS PARA MOBILE E SIDEBAR */
+:root {
+  --sidebar-width: 280px;
+}
+.app-layout { display: flex; max-width: 1500px; margin: 0 auto; gap: 24px; }
+.sidebar {
+  width: var(--sidebar-width); flex-shrink: 0; position: sticky; top: 24px;
+  height: calc(100vh - 48px); overflow-y: auto; background: var(--bg-card);
+  border: 1px solid var(--border-color); border-radius: 16px; padding: 16px 0;
+  display: flex; flex-direction: column;
+}
+.tabs-nav { display: flex; flex-direction: column; border-bottom: none; gap: 4px; padding: 0 12px; }
+.tab-btn { border-radius: 8px; text-align: left; padding: 14px 16px; font-size: 14px; background: transparent; width: 100%; }
+.tab-btn.active::after { display: none; }
+.tab-btn.active { background: var(--primary); color: #fff; }
+.tab-btn:not(.active):hover { background: rgba(255, 255, 255, 0.05); }
+.main-content { flex-grow: 1; min-width: 0; }
+.mobile-toggle { display: none; }
+.mobile-only { display: none; }
+
+.mobile-segmented-control {
+  display: flex; background: var(--bg-input); border: 1px solid var(--border-color);
+  border-radius: 8px; padding: 4px; gap: 4px; overflow-x: auto;
+}
+.seg-btn {
+  flex: 1; background: transparent; border: none; color: var(--text-muted);
+  font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; white-space: nowrap;
+}
+.seg-btn.active { background: var(--bg-card); color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+
+/* Forçar rolagem horizontal suave nas tabelas */
+.table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+.table-wrapper table { min-width: max-content; } /* Garante que a tabela não esmague as colunas */
+
+.champ-grid-container { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; align-items: start; }
+.div-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.rec-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+
+@media (max-width: 1024px) {
+  .app-layout { flex-direction: column; padding: 0; gap: 0; }
+  .mobile-toggle {
+    display: flex; position: sticky; top: 0; background: var(--bg-card); z-index: 1000;
+    padding: 16px; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color);
+    cursor: pointer; font-weight: 800; color: #fff; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .sidebar {
+    display: none; width: 100%; position: fixed; top: 55px; left: 0; height: calc(100vh - 55px);
+    border-radius: 0; border: none; z-index: 999; background: var(--bg-main);
+  }
+  .sidebar.show { display: flex; }
+  .main-content { padding: 16px 8px; }
+  .mobile-only { display: flex; }
+  .mobile-hidden-sub { display: none !important; }
+
+  header { padding: 16px; margin-bottom: 16px; }
+  header .badge-tag:not(:last-child) { display: none; }
+  .header-titles h1 { font-size: 18px; }
+  .header-titles p { font-size: 12px; }
+  
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 12px; padding: 12px; }
+  #yearPills { display: none; }
+  .filter-group { flex-direction: column; align-items: stretch; border-left: none !important; padding-left: 0 !important; border-top: 1px solid var(--border-color); padding-top: 12px; }
+  .filter-group > select, .filter-group > input { width: 100% !important; }
+  .filter-group:first-child { border-top: none; padding-top: 0; }
+
+  /* Aba 0 - KPIs e Champions em Badges */
+  .kpi-grid { display: flex; flex-direction: column; gap: 8px; }
+  .kpi-card { padding: 10px 14px; flex-direction: row; justify-content: space-between; align-items: center; }
+  .kpi-card::before { display: none; }
+  .kpi-title { font-size: 11px; }
+  .kpi-val { font-size: 14px; margin: 0; display: inline-block; }
+  .kpi-sub { font-size: 11px; margin-left: 8px; display: inline-block; }
+  
+  #championsGrid { display: flex !important; flex-wrap: wrap; gap: 8px; }
+  .champ-badge { background: var(--bg-card); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #fbbf24; display: inline-flex; align-items: center; gap: 6px; }
+  .champ-grid-container { display: flex; flex-direction: column; gap: 0; }
+  
+  /* Reduzir paddings nas tabelas mobile para caber mais */
+  th, td { font-size: 12px; padding: 8px 10px; }
+  .table-wrapper { padding-bottom: 12px; }
+  
+  /* Aba 1 Divisões (hide secondary cols) */
+  #divisionsGridContainer table th:nth-child(6), #divisionsGridContainer table td:nth-child(6),
+  #divisionsGridContainer table th:nth-child(7), #divisionsGridContainer table td:nth-child(7) { display: none; }
+
+    
+    .div-duel-select-container { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; width: 100%; max-width: 100%; }
+    .div-duel-select { font-weight: 700; padding: 6px 8px; flex: 1; min-width: 0; font-size: 14px; }
+    .div-duel-vs { font-weight: 900; color: var(--accent-gold); font-size: 13px; flex-shrink: 0; }
+    @media (max-width: 768px) {
+      .div-duel-select { font-size: 13px; padding: 6px 2px; text-align: center; }
+    }
+
+  
+  
+  /* Aba 2 Leaderboard Columns Toggling */
+  .col-titulos { display: none; }
+  #leaderboardTable td:nth-child(3) { display: none; }
+  
+
+  /* Ajustes para H2H e Divisões */
+  .h2h-selectors { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+  .vs-circle { margin: 0 auto; width: 36px; height: 36px; font-size: 12px; }
+  .h2h-stat-matrix, #divDuelHighlights { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 !important; }
+  .h2h-stat-box, #divDuelHighlights > div {
+      padding: 6px 12px !important; border-radius: 99px !important; flex: unset !important; width: auto !important;
+      display: inline-flex; align-items: center; gap: 6px; flex-direction: row; border: 1px solid var(--border-color); background: var(--bg-card);
+  }
+  .h2h-stat-label, #divDuelHighlights .h2h-stat-label { display: none; }
+  .h2h-stat-val { font-size: 13px !important; margin: 0 !important; display: inline-block; font-weight: 700; }
+  
+  .franchise-kpis-mobile { display: flex !important; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .franchise-kpis-mobile .badge-tag { font-size: 13px; padding: 6px 12px; }
+  .div-grid-container { grid-template-columns: 1fr; }
+  .rec-grid-container { grid-template-columns: 1fr; }
+}
+
+</style><style>
+
+/* --- UPDATES FOR TAB 0 --- */
+@media (max-width: 1024px) {
+    /* 1. Global KPIs into Badges */
+    #tab-champions > .kpi-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex-direction: row; /* Ensure it's horizontal */
+    }
+    #tab-champions > .kpi-grid > .kpi-card {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        display: inline-flex;
+        align-items: center;
+        width: auto;
+        gap: 6px;
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-title {
+        display: none; /* Hide long titles to save space, rely on emojis/context if needed, or keep short */
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-val {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0;
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-sub {
+        display: none; /* Hide subtext on mobile to make it a pure badge */
+    }
+    /* Add specific colors/emojis via JS or keep as is */
+
+    /* 3. Ensure Table stays within bounds and scrolls */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        max-width: 100vw; /* Prevent breaking out of container */
+        box-sizing: border-box;
+    }
+    .table-card {
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+        overflow: hidden; /* Keep rounded corners intact while scrolling inside */
+    }
+    .champ-grid-container {
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+}
+
+</style>
+<style>
+
+/* CSS FIX FOR TAB 0 KPIs and CHAMPIONS */
+@media (max-width: 1024px) {
+    /* KPIs */
+    #tab-champions > .kpi-grid {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex-direction: row !important;
+        margin-bottom: 16px;
+    }
+    #tab-champions > .kpi-grid > .kpi-card {
+        padding: 6px 12px !important;
+        border-radius: 20px !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--bg-card) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        width: auto !important;
+        flex: unset !important;
+        gap: 6px !important;
+        flex-direction: row !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card::before {
+        display: none !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-title {
+        display: none !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-sub {
+        display: none !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card .kpi-val {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px;
+    }
+
+    /* Add Emojis via CSS pseudo-elements to the values to replace the hidden titles */
+    
+    
+    
+    
+    
+
+    
+
+    /* Champions */
+    #championsGrid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        grid-template-columns: none !important;
+    }
+    #championsGrid > .kpi-card {
+        width: auto !important;
+        padding: 6px 12px !important;
+        border-radius: 20px !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-color) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+        gap: 6px !important;
+    }
+    #championsGrid > .kpi-card::before { display: none !important; }
+    #championsGrid > .kpi-card .kpi-sub { display: none !important; }
+    
+    #championsGrid > .kpi-card > div:first-child {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: auto !important;
+    }
+    #championsGrid > .kpi-card .kpi-val {
+        font-size: 13px !important;
+        margin: 0 !important;
+        display: inline !important;
+    }
+    #championsGrid > .kpi-card > div:first-child > span:last-child {
+        display: none !important; 
+    }
+    
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    .table-card {
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+        overflow: hidden; 
+    }
+    .champ-grid-container {
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+}
+
+
+/* CSS FIX FOR TAB 1 (TEMPORADA ATUAL) */
+@media (max-width: 1024px) {
+    /* KPIs em Badges */
+    #seasonHighlightsGrid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        flex-direction: row !important;
+    }
+    #seasonHighlightsGrid .kpi-card {
+        padding: 6px 12px !important;
+        border-radius: 20px !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--bg-card) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        width: auto !important;
+        flex: unset !important;
+        gap: 6px !important;
+        flex-direction: row !important;
+    }
+    #seasonHighlightsGrid .kpi-card::before { display: none !important; }
+    #seasonHighlightsGrid .kpi-card .kpi-title { display: none !important; }
+    #seasonHighlightsGrid .kpi-card .kpi-sub { display: none !important; }
+    #seasonHighlightsGrid .kpi-card .kpi-val {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px;
+    }
+    
+    /* Emojis para os Badges da Temporada Atual */
+    #seasonHighlightsGrid .kpi-card.wins .kpi-val::before { content: '👑'; }
+    #seasonHighlightsGrid .kpi-card.points .kpi-val::before { content: '🚀'; }
+    #seasonHighlightsGrid .kpi-card.avg .kpi-val::before { content: '🛡️'; }
+    #seasonHighlightsGrid .kpi-card.win-rate .kpi-val::before { content: '🔥'; }
+
+    /* Forçar Grids a virarem Colunas Flex no Mobile para não quebrar a tela */
+    #divisionsGridContainer {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+    
+    /* Impedir tabelas filhas de quebrarem a largura */
+    #postseason-playoffs, #postseason-consolation, #postseason-eliminated {
+        max-width: 100vw !important;
+    }
+    
+    /* Ocultar elementos para a logica de sub-abas funcionar perfeitamente via JS */
+    .mobile-hidden-sub {
+        display: none !important;
+    }
+}
+
+/* FIX TABELA DE LEADERBOARD - COLUNA JOGADOR FIXA NO MOBILE */
+@media (max-width: 1024px) {
+    #leaderboardTable {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    /* A segunda coluna (Jogador) ficará fixa à esquerda */
+    #leaderboardTable th:nth-child(2),
+    #leaderboardTable td:nth-child(2) {
+        position: sticky !important;
+        left: 0 !important;
+        background-color: var(--bg-card) !important;
+        z-index: 10 !important; /* Acima das outras células ao rolar */
+        border-right: 1px solid var(--border-color) !important;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.3); /* Sombra para destacar que as outras passam por baixo */
+    }
+
+    /* O cabeçalho fixo (th) precisa de um z-index maior que as linhas (td) para não sumir no scroll vertical */
+    #leaderboardTable th:nth-child(2) {
+        background-color: rgba(15, 23, 42, 0.95) !important;
+        z-index: 11 !important;
+    }
+    
+    /* Ajuste no background para manter o efeito de hover da linha sem apagar a coluna fixa */
+    #leaderboardTable tbody tr:hover td:nth-child(2) {
+        background-color: var(--bg-card-hover) !important;
+    }
+}
+</style>
+
+<style>
+/* --- GLOBAL DESKTOP & MOBILE TAB TOGGLES --- */
+
+/* Forçar ocultação absoluta dos seletores mobile-only no Desktop (ex: Aba Títulos e Aba Matriz) */
+@media (min-width: 1025px) {
+    .mobile-only { display: none !important; }
+}
+
+.col-geral, .col-pontos, .col-avancado { display: none; }
+  #leaderboardTable td:nth-child(4), #leaderboardTable td:nth-child(5), #leaderboardTable td:nth-child(6), #leaderboardTable td:nth-child(7), #leaderboardTable td:nth-child(8) { display: none; } 
+  #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13), #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16) { display: none; } 
+  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11) { display: none; } 
+  
+  #leaderboardTable.show-geral .col-geral { display: table-cell; }
+  #leaderboardTable.show-geral td:nth-child(4), #leaderboardTable.show-geral td:nth-child(5), #leaderboardTable.show-geral td:nth-child(6), #leaderboardTable.show-geral td:nth-child(7), #leaderboardTable.show-geral td:nth-child(8) { display: table-cell; }
+  #leaderboardTable.show-pontos .col-pontos { display: table-cell; }
+  #leaderboardTable.show-pontos td:nth-child(12), #leaderboardTable.show-pontos td:nth-child(13), #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16) { display: table-cell; }
+  #leaderboardTable.show-avancado .col-avancado { display: table-cell; }
+  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11) { display: table-cell; }
+
+/* Aba H2H Opponents Columns Toggling */
+  #h2hOpponentsTable th.col-h2h-geral, #h2hOpponentsTable td.col-h2h-geral,
+  #h2hOpponentsTable th.col-h2h-riv, #h2hOpponentsTable td.col-h2h-riv,
+  #h2hOpponentsTable th.col-h2h-pts, #h2hOpponentsTable td.col-h2h-pts { display: none; }
+  
+  #h2hOpponentsTable.show-geral th.col-h2h-geral, #h2hOpponentsTable.show-geral td.col-h2h-geral { display: table-cell; }
+  #h2hOpponentsTable.show-riv th.col-h2h-riv, #h2hOpponentsTable.show-riv td.col-h2h-riv { display: table-cell; }
+  #h2hOpponentsTable.show-pts th.col-h2h-pts, #h2hOpponentsTable.show-pts td.col-h2h-pts { display: table-cell; }
+</style>
 </head>
 <body>
 
-<div class="container">
+<div class="container app-layout">
 
-  <!-- Header -->
+  <div class="mobile-toggle" onclick="toggleSidebar()">
+  <span>☰ Menu de Abas (Selecionar Visualização)</span>
+</div><aside class="sidebar" id="sidebar"><div class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-champions', this); toggleSidebar();">👑 Títulos &amp; Classificação Final</button>
+    <button class="tab-btn" onclick="switchTab('tab-season', this); toggleSidebar();">⚡ Temporada Atual (2026)</button>
+    <button class="tab-btn" onclick="switchTab('tab-leaderboard', this); toggleSidebar();">🏆 Ranking &amp; Estatísticas Gerais</button>
+    <button class="tab-btn" onclick="switchTab('tab-franchise', this); toggleSidebar();">🔬 Raio-X da Franquia</button>
+    <button class="tab-btn" onclick="switchTab('tab-h2h', this); toggleSidebar();">⚔️ Confronto Direto (Head-to-Head)</button>
+    <button class="tab-btn" onclick="switchTab('tab-div-h2h', this); toggleSidebar();">🌐 Duelo de Divisões</button>
+    <button class="tab-btn" onclick="switchTab('tab-records', this); toggleSidebar();">🔥 Hall de Recordes</button>
+    <button class="tab-btn" onclick="switchTab('tab-games', this); toggleSidebar();">📋 Consulta de Partidas</button>
+  </div>
+
+  </aside><main class="main-content"><!-- Header -->
   <header>
     <div class="header-titles">
       <h1>🏈 Brasil Team Fantasy Football</h1>
-      <p>Histórico Completo & Central de Estatísticas • 11 Temporadas (2016 – 2026) • 1.676 Confrontos</p>
+      <p>Histórico Completo &amp; Central de Estatísticas • 11 Temporadas (2016 – 2026) • 1.676 Confrontos</p>
     </div>
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <span class="badge-tag">36 Jogadores Históricos</span>
@@ -531,7 +944,7 @@
   </header>
 
   <!-- Global Filter Bar -->
-  <div class="filter-bar">
+  <div class="filter-bar" id="globalFilterBar">
     <div class="filter-group">
       <span class="filter-label">Temporada:</span>
       <select id="seasonSelect" onchange="onSeasonChange()">
@@ -579,7 +992,13 @@
   </div>
 
   <!-- KPI Cards Grid -->
-  <div class="kpi-grid">
+  <!-- Navigation Tabs -->
+  <!-- Tab 1: Leaderboard -->
+  
+  <!-- Tab 0: Títulos & Classificação Final -->
+  <div id="tab-champions" class="tab-content active">
+    
+    <div class="kpi-grid">
     <div class="kpi-card win-rate">
       <div class="kpi-title">Melhor Win Rate %</div>
       <div class="kpi-val" id="kpiWinRateVal">--</div>
@@ -607,24 +1026,7 @@
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
-  <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('tab-champions', this)">👑 Títulos & Classificação Final</button>
-    <button class="tab-btn" onclick="switchTab('tab-season', this)">⚡ Temporada Atual (2026)</button>
-    <button class="tab-btn" onclick="switchTab('tab-leaderboard', this)">🏆 Ranking & Estatísticas Gerais</button>
-    <button class="tab-btn" onclick="switchTab('tab-franchise', this)">🔬 Raio-X da Franquia</button>
-    <button class="tab-btn" onclick="switchTab('tab-h2h', this)">⚔️ Confronto Direto (Head-to-Head)</button>
-    <button class="tab-btn" onclick="switchTab('tab-div-h2h', this)">🌐 Duelo de Divisões</button>
-    <button class="tab-btn" onclick="switchTab('tab-records', this)">🔥 Hall de Recordes</button>
-    <button class="tab-btn" onclick="switchTab('tab-games', this)">📋 Consulta de Partidas</button>
-  </div>
-
-  <!-- Tab 1: Leaderboard -->
-  
-  <!-- Tab 0: Títulos & Classificação Final -->
-  <div id="tab-champions" class="tab-content active">
-    
-    <!-- Champions Banner Cards -->
+  <!-- Champions Banner Cards -->
     <div style="margin-bottom: 24px;">
       <div style="font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
         <span>🏆 Galeria dos Campeões Históricos (2016 – 2025)</span>
@@ -635,13 +1037,17 @@
     </div>
 
     <!-- Quadros de Medalhas e Tabela de Classificação Final -->
-    <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; align-items: start;">
+    <div style="" class="champ-grid-container">
       
-      <!-- Quadro de Medalhas / Pódios Históricos -->
-      <div class="table-card">
+      <div class="mobile-segmented-control mobile-only" style="margin-bottom: 15px;">
+      <button class="seg-btn active" onclick="switchSubTab('aba0', 'medalhas', this)">🥇 Medalhas</button>
+      <button class="seg-btn" onclick="switchSubTab('aba0', 'classificacao', this)">📊 Classificação Final</button>
+    </div>
+    <!-- Quadro de Medalhas / Pódios Históricos -->
+      <div class="table-card" id="aba0-medalhas">
         <div class="table-header-bar">
           <div>
-            <div class="table-title">🥇 Quadro Histórico de Medalhas & Pódios</div>
+            <div class="table-title">🥇 Quadro Histórico de Medalhas &amp; Pódios</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Títulos, Vices e 3º Lugares acumulados</div>
           </div>
         </div>
@@ -665,7 +1071,7 @@
       </div>
 
       <!-- Tabela da Classificação Final da Temporada Selecionada -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="aba0-classificacao">
         <div class="table-header-bar">
           <div>
             <div class="table-title" id="finalStandingsTitle">Classificação Final Oficial</div>
@@ -710,46 +1116,23 @@
   <!-- Tab: Temporada Atual (2026) & Divisões -->
   <div id="tab-season" class="tab-content">
     
-    <!-- Top Highlights Cards da Temporada -->
     <div class="kpi-grid" id="seasonHighlightsGrid">
       <!-- Injetado via JS -->
     </div>
 
-    <!-- Banner de Regras e Critérios de Desempate -->
-    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 22px; margin-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-      <div>
-        <div style="font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px;">
-          <span>⚖️ Regras Oficiais de Classificação & Desempate da Liga</span>
-        </div>
-        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
-          • <b>Top 2 de cada Divisão (8 times)</b> ➔ <span style="color: #fbbf24; font-weight: 700;">Playoffs 🏆</span><br>
-          • <b>3º e 4º de cada Divisão (8 times)</b> ➔ <span style="color: #a78bfa; font-weight: 700;">Consolation 🎖️</span><br>
-          • <b>5º colocado (lanterna) de cada Divisão (4 times)</b> ➔ <span style="color: #f87171; font-weight: 700;">Eliminados ❌</span>
-        </div>
-      </div>
-      <div style="background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--text-muted); max-width: 520px;">
-        <b style="color: #60a5fa;">Critérios de Desempate (Mesmo Record W/L):</b><br>
-        <b style="color: #fff;">Entre 2 times:</b> 1º Confronto Direto (H2H no ano) ➔ 2º Record Divisional (W/L na Divisão) ➔ 3º Pontos Feitos (PF) ➔ 4º Menos Pontos Sofridos (PA)<br>
-        <b style="color: #fff;">Entre 3+ times:</b> 1º Record Divisional (W/L na Divisão) ➔ 2º Pontos Feitos (PF) ➔ 3º Menos Pontos Sofridos (PA)<br>
-        <span style="color: #fbbf24;">🛡️ <b>Proteção Divisional na 1ª Rodada:</b> Times da mesma divisão não podem se enfrentar na estreia dos Playoffs/Consolation (ajuste com seed vizinho mais próximo).</span>
-      </div>
-    </div>
-
-    <!-- 4 Grupos Divisionais em Grid 2x2 -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 20px; margin-bottom: 30px;" id="divisionsGridContainer">
-      <!-- Injetado via JS -->
-    </div>
-
-    <!-- Seção de Chaveamento da Pós-Temporada (Playoffs, Consolation e Eliminados) -->
     <div style="margin-bottom: 24px;">
       <div style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
         <span>🎯 Projeção Oficial da Pós-Temporada (Chaveamento com Proteção Divisional)</span>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; align-items: start;">
+      <div class="mobile-segmented-control" style="margin-bottom: 15px;">
+          <button class="seg-btn active" onclick="switchSubTab('postseason', 'playoffs', this)">🏆 Playoffs</button>
+          <button class="seg-btn" onclick="switchSubTab('postseason', 'consolation', this)">🎖️ Consolation</button>
+          <button class="seg-btn" onclick="switchSubTab('postseason', 'eliminated', this)">❌ Eliminados</button>
+        </div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; align-items: start;">
         
         <!-- Chaveamento Playoffs -->
-        <div class="table-card">
+        <div class="table-card" id="postseason-playoffs">
           <div class="table-header-bar" style="border-left: 4px solid var(--accent-gold); background: rgba(251, 191, 36, 0.05);">
             <div>
               <div class="table-title" style="color: #fbbf24;">🏆 Chaveamento Playoffs (Seeds 1 a 8)</div>
@@ -773,7 +1156,7 @@
         </div>
 
         <!-- Chaveamento Consolation -->
-        <div class="table-card">
+        <div class="table-card mobile-hidden-sub" id="postseason-consolation">
           <div class="table-header-bar" style="border-left: 4px solid var(--accent-purple); background: rgba(139, 92, 246, 0.05);">
             <div>
               <div class="table-title" style="color: #a78bfa;">🎖️ Chaveamento Consolation (Seeds 9 a 16)</div>
@@ -797,7 +1180,7 @@
         </div>
 
         <!-- Tabela dos Eliminados -->
-        <div class="table-card">
+        <div class="table-card mobile-hidden-sub" id="postseason-eliminated">
           <div class="table-header-bar" style="border-left: 4px solid var(--accent-loss); background: rgba(239, 68, 68, 0.05);">
             <div>
               <div class="table-title" style="color: #f87171;">❌ Zona de Eliminação (17º ao 20º)</div>
@@ -823,7 +1206,35 @@
       </div>
     </div>
 
-  </div>
+  <div class="mobile-segmented-control" style="margin-bottom: 15px;">
+          <button class="seg-btn active" onclick="switchDivTab('SMT', this)">SMT</button>
+          <button class="seg-btn" onclick="switchDivTab('NE', this)">NE</button>
+          <button class="seg-btn" onclick="switchDivTab('MG', this)">MG</button>
+          <button class="seg-btn" onclick="switchDivTab('SP', this)">SP</button>
+        </div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 20px; margin-bottom: 30px;" id="divisionsGridContainer">
+      <!-- Injetado via JS -->
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 22px; margin-bottom: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      <div>
+        <div style="font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <span>⚖️ Regras Oficiais de Classificação &amp; Desempate da Liga</span>
+        </div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+          • <b>Top 2 de cada Divisão (8 times)</b> ➔ <span style="color: #fbbf24; font-weight: 700;">Playoffs 🏆</span><br>
+          • <b>3º e 4º de cada Divisão (8 times)</b> ➔ <span style="color: #a78bfa; font-weight: 700;">Consolation 🎖️</span><br>
+          • <b>5º colocado (lanterna) de cada Divisão (4 times)</b> ➔ <span style="color: #f87171; font-weight: 700;">Eliminados ❌</span>
+        </div>
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--text-muted); max-width: 520px;">
+        <b style="color: #60a5fa;">Critérios de Desempate (Mesmo Record W/L):</b><br>
+        <b style="color: #fff;">Entre 2 times:</b> 1º Confronto Direto (H2H no ano) ➔ 2º Record Divisional (W/L na Divisão) ➔ 3º Pontos Feitos (PF) ➔ 4º Menos Pontos Sofridos (PA)<br>
+        <b style="color: #fff;">Entre 3+ times:</b> 1º Record Divisional (W/L na Divisão) ➔ 2º Pontos Feitos (PF) ➔ 3º Menos Pontos Sofridos (PA)<br>
+        <span style="color: #fbbf24;">🛡️ <b>Proteção Divisional na 1ª Rodada:</b> Times da mesma divisão não podem se enfrentar na estreia dos Playoffs/Consolation (ajuste com seed vizinho mais próximo).</span>
+      </div>
+    </div>
+
+    </div>
 
   <!-- Tab 1: Leaderboard -->
   <div id="tab-leaderboard" class="tab-content">
@@ -837,26 +1248,30 @@
           <input type="text" id="playerSearchInput" placeholder="🔍 Buscar jogador..." oninput="renderLeaderboard()" style="width: 220px;">
         </div>
       </div>
-      <div class="table-wrapper">
+      <div class="mobile-segmented-control" style="margin-bottom: 15px; margin-top: 10px;">
+          <button class="seg-btn active" onclick="switchLbTab('geral', this)">📊 Geral</button>
+          <button class="seg-btn" onclick="switchLbTab('pontos', this)">🚀 Pontos</button>
+          <button class="seg-btn" onclick="switchLbTab('avancado', this)">🤓 Avançado</button>
+        </div><div class="table-wrapper">
         <table id="leaderboardTable">
           <thead>
             <tr>
               <th onclick="sortBy('rank')">#</th>
               <th onclick="sortBy('name')">Jogador</th>
-              <th onclick="sortBy('titles')" style="text-align: center;">🏆 Títulos</th>
-              <th onclick="sortBy('games')">Jogos</th>
-              <th onclick="sortBy('wins')">Vitórias</th>
-              <th onclick="sortBy('losses')">Derrotas</th>
-              <th onclick="sortBy('ties')">Empates</th>
-              <th onclick="sortBy('winRate')">Win Rate %</th>
-              <th onclick="sortBy('apWinRate')" title="Aproveitamento se jogasse contra toda a liga na mesma semana">All-Play % 🎯</th>
-              <th onclick="sortBy('expWins')" title="Vitórias esperadas pelo volume de pontos">Vitórias Esp. (xW)</th>
-              <th onclick="sortBy('luckDelta')" title="Vitórias Reais menos Vitórias Esperadas (Sorte vs Azar)">Índice de Sorte 🍀</th>
-              <th onclick="sortBy('pf')">Pontos Pró (PF)</th>
-              <th onclick="sortBy('avgPf')">Média PF</th>
-              <th onclick="sortBy('pa')">Pontos Contra (PA)</th>
-              <th onclick="sortBy('avgPa')">Média PA</th>
-              <th onclick="sortBy('diff')">Saldo</th>
+              <th onclick="sortBy('titles')" style="text-align: center;" class="col-titulos">🏆 Títulos</th>
+              <th onclick="sortBy('games')" class=" col-geral">Jogos</th>
+              <th onclick="sortBy('wins')" class=" col-geral">Vitórias</th>
+              <th onclick="sortBy('losses')" class=" col-geral">Derrotas</th>
+              <th onclick="sortBy('ties')" class=" col-geral">Empates</th>
+              <th onclick="sortBy('winRate')" class=" col-geral">Win Rate %</th>
+              <th onclick="sortBy('apWinRate')" title="Aproveitamento se jogasse contra toda a liga na mesma semana" class=" col-avancado">All-Play % 🎯</th>
+              <th onclick="sortBy('expWins')" title="Vitórias esperadas pelo volume de pontos" class=" col-avancado">Vitórias Esp. (xW)</th>
+              <th onclick="sortBy('luckDelta')" title="Vitórias Reais menos Vitórias Esperadas (Sorte vs Azar)" class=" col-avancado">Índice de Sorte 🍀</th>
+              <th onclick="sortBy('pf')" class=" col-pontos">Pontos Pró (PF)</th>
+              <th onclick="sortBy('avgPf')" class=" col-pontos">Média PF</th>
+              <th onclick="sortBy('pa')" class=" col-pontos">Pontos Contra (PA)</th>
+              <th onclick="sortBy('avgPa')" class=" col-pontos">Média PA</th>
+              <th onclick="sortBy('diff')" class=" col-pontos">Saldo</th>
             </tr>
           </thead>
           <tbody id="leaderboardBody">
@@ -946,21 +1361,26 @@
           <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Veja quem são os maiores "fregueses" e os maiores "carrascos"</div>
         </div>
       </div>
+      <div class="mobile-segmented-control" style="margin: 10px 15px 5px 15px;">
+        <button class="seg-btn active" onclick="switchH2HTab('geral', this)">📊 Geral</button>
+        <button class="seg-btn" onclick="switchH2HTab('riv', this)">🥊 Rivalidade</button>
+        <button class="seg-btn" onclick="switchH2HTab('pts', this)">🚀 Pontos</button>
+      </div>
       <div class="table-wrapper">
-        <table id="h2hOpponentsTable">
+        <table id="h2hOpponentsTable" class="show-geral">
           <thead>
             <tr>
               <th onclick="sortOppTable('name')">Adversário</th>
-              <th onclick="sortOppTable('games')">Jogos</th>
-              <th onclick="sortOppTable('wins')">Vitórias</th>
-              <th onclick="sortOppTable('losses')">Derrotas</th>
-              <th onclick="sortOppTable('ties')">Empates</th>
-              <th onclick="sortOppTable('winRate')">Win Rate %</th>
-              <th onclick="sortOppTable('rivalry')">Quem Manda?</th>
-              <th onclick="sortOppTable('pf')">Pontos Pró</th>
-              <th onclick="sortOppTable('pa')">Pontos Contra</th>
-              <th onclick="sortOppTable('diff')">Saldo</th>
-              <th>Ação</th>
+              <th onclick="sortOppTable('games')" class="col-h2h-geral">Jogos</th>
+              <th onclick="sortOppTable('wins')" class="col-h2h-geral">Vitórias</th>
+              <th onclick="sortOppTable('losses')" class="col-h2h-geral">Derrotas</th>
+              <th onclick="sortOppTable('ties')" class="col-h2h-geral">Empates</th>
+              <th onclick="sortOppTable('winRate')" class="col-h2h-geral">Win Rate %</th>
+              <th onclick="sortOppTable('rivalry')" class="col-h2h-riv">Quem Manda?</th>
+              <th onclick="sortOppTable('pf')" class="col-h2h-pts">Pontos Pró</th>
+              <th onclick="sortOppTable('pa')" class="col-h2h-pts">Pontos Contra</th>
+              <th onclick="sortOppTable('diff')" class="col-h2h-pts">Saldo</th>
+              <th class="col-h2h-riv">Ação</th>
             </tr>
           </thead>
           <tbody id="h2hOpponentsBody">
@@ -1010,10 +1430,14 @@
     </div>
 
     <!-- Grid: Matriz Cruzada H2H e Classificação Histórica -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div style="" class="div-grid-container">
       
-      <!-- Matriz Cruzada 4x4 -->
-      <div class="table-card">
+      <div class="mobile-segmented-control mobile-only" style="margin-bottom: 15px;">
+          <button class="seg-btn active" onclick="switchSubTab('aba5', 'matriz', this)">⚔️ Matriz</button>
+          <button class="seg-btn" onclick="switchSubTab('aba5', 'ranking', this)">🏆 Ranking</button>
+        </div>
+        <!-- Matriz Cruzada 4x4 -->
+      <div class="table-card" id="aba5-matriz">
         <div class="table-header-bar" style="border-left: 4px solid var(--primary);">
           <div>
             <div class="table-title">⚔️ Matriz Head-to-Head Cruzada (Divisão vs Divisão)</div>
@@ -1040,7 +1464,7 @@
       </div>
 
       <!-- Ranking de Força das Divisões -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="aba5-ranking">
         <div class="table-header-bar" style="border-left: 4px solid var(--accent-gold);">
           <div>
             <div class="table-title">🏆 Ranking de Força das Divisões</div>
@@ -1074,18 +1498,18 @@
     <div class="table-card" style="margin-bottom: 24px;">
       <div class="table-header-bar" style="background: rgba(30, 41, 59, 0.7);">
         <div>
-          <div class="table-title" style="font-size: 18px; color: #fff;">🥊 Raio-X do Duelo Direto (Divisão vs Divisão)</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Selecione duas conferências para comparar o retrospecto histórico completo</div>
+          <div class="table-title" style="font-size: 15px; color: #fff;">🥊 Raio-X do Duelo Direto</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: normal; line-height: 1.3;">Selecione as divisões para comparar o retrospecto.</div>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-          <select id="divSelect1" onchange="renderDivDuelSection()" style="font-weight: 700; padding: 6px 14px;">
+        <div class="div-duel-select-container">
+          <select id="divSelect1" class="div-duel-select" onchange="renderDivDuelSection()">
             <option value="MG">Divisão MG</option>
             <option value="NE">Divisão NE</option>
             <option value="SMT">Divisão SMT</option>
             <option value="SP">Divisão SP</option>
           </select>
-          <span style="font-weight: 900; color: var(--accent-gold); font-size: 15px;">VS</span>
-          <select id="divSelect2" onchange="renderDivDuelSection()" style="font-weight: 700; padding: 6px 14px;">
+          <span class="div-duel-vs">VS</span>
+          <select id="divSelect2" class="div-duel-select" onchange="renderDivDuelSection()">
             <option value="NE">Divisão NE</option>
             <option value="MG">Divisão MG</option>
             <option value="SMT">Divisão SMT</option>
@@ -1100,7 +1524,7 @@
       </div>
 
       <!-- Destaques Individuais no Duelo (Quem mais pontuou e quem mais venceu) -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; padding: 20px;" id="divDuelHighlights">
+      <div style="padding: 20px 10px;" id="divDuelHighlights">
         <!-- Injetado via JS -->
       </div>
     </div>
@@ -1141,10 +1565,22 @@
 
       <!-- Tab 3: Hall de Recordes -->
   <div id="tab-records" class="tab-content">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+    <div style="" class="rec-grid-container">
       
-      <!-- Top 10 Maiores Pontuações Individuais -->
-      <div class="table-card">
+      <div class="mobile-only" style="margin-bottom: 20px;">
+          <select id="recordsMobileSelect" onchange="switchRecordsTab()" style="width: 100%; font-size: 16px; font-weight: 700; padding: 12px; background: var(--bg-card); color: #fff;">
+            <option value="rec-0">🚀 Maiores Pontuações</option>
+            <option value="rec-1">🔥 Jogos Mais Pontuados</option>
+            <option value="rec-2">💥 Maiores Goleadas</option>
+            <option value="rec-3">🩸 Maiores Carrascos</option>
+            <option value="rec-4">🔥 Vitórias Seguidas</option>
+            <option value="rec-5">🥶 Derrotas Seguidas</option>
+            <option value="rec-6">😬 Vitórias Feias</option>
+            <option value="rec-7">💔 Bad Beats</option>
+            <option value="rec-8">⚡ Jogos Mais Apertados</option>
+          </select>
+        </div><!-- Top 10 Maiores Pontuações Individuais -->
+      <div class="table-card" id="rec-0">
         <div class="table-header-bar">
           <div class="table-title">🚀 Top 10 Maiores Pontuações em Jogo Único</div>
         </div>
@@ -1166,7 +1602,7 @@
       </div>
 
       <!-- Top 10 Jogos Mais Pontuados Combinados -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-1">
         <div class="table-header-bar">
           <div class="table-title">🔥 Top 10 Jogos Mais Pontuados (Pontos Combinados)</div>
         </div>
@@ -1176,7 +1612,7 @@
               <tr>
                 <th>#</th>
                 <th>Total Combinado</th>
-                <th>Confronto & Placar</th>
+                <th>Confronto &amp; Placar</th>
                 <th>Ano / Semana</th>
               </tr>
             </thead>
@@ -1186,7 +1622,7 @@
       </div>
 
       <!-- Top 10 Maiores Blowouts / Goleadas -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-2">
         <div class="table-header-bar">
           <div class="table-title">💥 Top 10 Maiores Goleadas (Diferença de Pontos)</div>
         </div>
@@ -1208,7 +1644,7 @@
       </div>
 
       <!-- Top 10 Maiores Carrascos / Freguesias Históricas -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-3">
         <div class="table-header-bar">
           <div class="table-title">🩸 Top 10 Maiores Carrascos (Saldo de Vitórias H2H)</div>
         </div>
@@ -1231,7 +1667,7 @@
       </div>
 
       <!-- Top 10 Maiores Sequências de Vitórias Consecutivas -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-4">
         <div class="table-header-bar">
           <div class="table-title">🔥 Top 10 Maiores Sequências de Vitórias</div>
         </div>
@@ -1252,7 +1688,7 @@
       </div>
 
       <!-- Top 10 Maiores Sequências de Derrotas Consecutivas -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-5">
         <div class="table-header-bar">
           <div class="table-title">🥶 Top 10 Maiores Sequências de Derrotas</div>
         </div>
@@ -1273,7 +1709,7 @@
       </div>
 
             <!-- Top 10 Ugly Wins / Vitórias Feias -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-6">
         <div class="table-header-bar">
           <div class="table-title">😬 Top 10 Vitórias Feias (Menor Pontuação Vencedora)</div>
         </div>
@@ -1295,7 +1731,7 @@
       </div>
 
       <!-- Top 10 Bad Beats (Maior Pontuação Perdendo) -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-7">
         <div class="table-header-bar">
           <div class="table-title">💔 Top 10 Bad Beats (Maior Pontuação em Derrota)</div>
         </div>
@@ -1317,7 +1753,7 @@
       </div>
 
       <!-- Top 10 Jogos Mais Disputados (Menor Margem) -->
-      <div class="table-card">
+      <div class="table-card mobile-hidden-sub" id="rec-8">
         <div class="table-header-bar">
           <div class="table-title">⚡ Jogos Mais Emocionantes / Apertados da História</div>
         </div>
@@ -1378,9 +1814,10 @@
     </div>
   </div>
 
-</div>
+</main></div>
 
 <script>
+
 
 // STANDINGS DATA INJECTED
 const STANDINGS_DATA = [[2016, 1, "Arion", "Loanda Arioles", "8-6", "57%"], [2016, 2, "Gabriel", "NY Giants Augusto", "8-6", "57%"], [2016, 3, "Jaime", "JaimeOliveira", "10-4", "71%"], [2016, 4, "Luiz Guilherme", "Humanas Brasil Team", "9-5", "64%"], [2016, 5, "Elivelton", "Bonde do Liveltinhu", "12-2", "85%"], [2016, 6, "Lubigo", "Reis United", "11-3", "78%"], [2016, 7, "Gessimar", "BS", "8-6", "57%"], [2016, 8, "Parah", "Dream team", "9-5", "64%"], [2016, 9, "Guilherme", "trivellindos", "5-9", "35%"], [2016, 10, "Jordan", "Jordan", "6-8", "42%"], [2016, 11, "Luis BC", "SoberanoBC", "4-10", "28%"], [2016, 12, "Esch", "Esch", "4-10", "28%"], [2016, 13, "Pogliesi", "RDC Cowboys", "7-7", "50%"], [2016, 14, "Moita", "Moita Team", "7-7", "50%"], [2016, 15, "Ronald", "Cangaceiros", "6-8", "42%"], [2016, 16, "Wanster", "Wansteam", "6-8", "42%"], [2016, 17, "Renato", "Falcoada Nordica", "3-11", "21%"], [2016, 18, "Eduardo", "Maior de Minas BT", "3-11", "21%"], [2017, 1, "Pogliesi", "RDC Superstars", "9-5", "64%"], [2017, 2, "Raul", "Itaquera Butchers", "9-5", "64%"], [2017, 3, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2017, 4, "Parah", "Purple N' Black", "10-4", "71%"], [2017, 5, "Pedro", "SJN team", "8-6", "57%"], [2017, 6, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2017, 7, "Lubigo", "Conquista Indians", "9-5", "64%"], [2017, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2017, 9, "Gessimar", "BS Eagles", "6-8", "42%"], [2017, 10, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2017, 11, "Jordan", "CG Cuscuzers", "6-8", "42%"], [2017, 12, "Renato", "RP Falcoada", "6-8", "42%"], [2017, 13, "Eduardo", "BH OneBall", "7-7", "50%"], [2017, 14, "Arion", "Loanda Arioles", "6-8", "42%"], [2017, 15, "Esch", "JF Eschonators", "7-7", "50%"], [2017, 16, "Luiz Guilherme", "Humanas Brasil Team", "7-7", "50%"], [2017, 17, "Ronald", "Cangaceiros", "5-9", "35%"], [2017, 18, "Moita", "Brasilia Lobinhos", "5-9", "35%"], [2017, 19, "Fernando", "Vix TamiresJunto", "4-10", "28%"], [2017, 20, "Wanster", "Cuiaba Hell's", "3-11", "21%"], [2018, 1, "Pedro", "SJN team", "11-2", "84%"], [2018, 2, "Eduardo", "BH OneBall", "10-3", "76%"], [2018, 3, "Rafael", "Leoes Doutrinadores", "9-4", "69%"], [2018, 4, "Jaime", "Itajuba Farmers", "9-4", "69%"], [2018, 5, "Esch", "JF Eschonators", "8-5", "61%"], [2018, 6, "Francisco", "Barbas do Profeta", "8-5", "61%"], [2018, 7, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2018, 8, "Raul", "Itaquera Butchers", "7-6", "53%"], [2018, 9, "Pogliesi", "RDC Rehab", "5-8", "38%"], [2018, 10, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2018, 11, "Lubigo", "Conquista Indians", "5-8", "38%"], [2018, 12, "Walliston", "Tom10M1TO", "5-8", "38%"], [2018, 13, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2018, 14, "Jordan", "CG Cuscuzers", "7-6", "53%"], [2018, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2018, 16, "Wanster", "Cuiaba Hell's", "7-6", "53%"], [2018, 17, "Moita", "Brasilia Lobinhos", "4-9", "30%"], [2018, 18, "Yuri", "Giants United", "4-9", "30%"], [2018, 19, "Ronald", "Cangaceiros Deboa", "3-10", "23%"], [2018, 20, "Elivelton", "Bonde do Liveltinhu", "3-10", "23%"], [2019, 1, "Esch", "JF Eschonators", "8-5", "61%"], [2019, 2, "Rafael", "Leoes Doutrinadores", "6-7", "46%"], [2019, 3, "Wanster", "Brady Gaga", "9-4", "69%"], [2019, 4, "Moita", "Brasilia Lobinhos", "9-4", "69%"], [2019, 5, "Daniel", "Bebumgrinos do Japy", "7-6", "53%"], [2019, 6, "Niltomar", "Russell Will Son", "10-3", "76%"], [2019, 7, "Julio", "Amparo Warriors", "8-5", "61%"], [2019, 8, "Francisco", "Barbas do Profeta", "7-6", "53%"], [2019, 9, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2019, 10, "Jordan", "CG Cuscuzers", "6-7", "46%"], [2019, 11, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2019, 12, "Lubigo", "Conquista Indians", "5-8", "38%"], [2019, 13, "Pogliesi", "Thank you MINSHEW", "7-6", "53%"], [2019, 14, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2019, 15, "Pedro", "SJN team", "5-8", "38%"], [2019, 16, "Arion", "Loanda Arioles", "6-7", "46%"], [2019, 17, "Luis Fernando", "Luhlf Team", "5-8", "38%"], [2019, 18, "Jaime", "Itajuba Farmers", "5-8", "38%"], [2019, 19, "Ronald", "Cangaceiros Deboa", "5-8", "38%"], [2019, 20, "Walliston", "Tom10M1TO", "3-10", "23%"], [2020, 1, "Rafael", "Leoes Doutrinadores", "8-5", "61%"], [2020, 2, "Parah", "Yippee Ki Yay Mother Tucker", "8-5", "61%"], [2020, 3, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2020, 4, "Pedro", "SJN team", "9-4", "69%"], [2020, 5, "Eduardo", "BH One Ball", "8-5", "61%"], [2020, 6, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2020, 7, "Luis Fernando", "Mitotrubisco", "8-5", "61%"], [2020, 8, "Niltomar", "Russell Will Son", "7-6", "53%"], [2020, 9, "Moita", "Brasilia Lobinhos", "7-6", "53%"], [2020, 10, "Jaime", "Itajuba Farmers", "6-7", "46%"], [2020, 11, "Jordan", "Three Rivers", "6-7", "46%"], [2020, 12, "Esch", "JF Eschonators", "7-6", "53%"], [2020, 13, "Wanster", "Brady Gaga", "7-6", "53%"], [2020, 14, "Julio", "Amparo Warriors", "6-7", "46%"], [2020, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2020, 16, "Ronald", "Cangaceiros Deboa", "6-7", "46%"], [2020, 17, "Vitor", "Tiradentes Eagles", "6-7", "46%"], [2020, 18, "Lubigo", "Conquista Indians", "5-8", "38%"], [2020, 19, "Francisco", "Barbas do Profeta", "3-10", "23%"], [2020, 20, "Pogliesi", "SUS Football Team", "3-10", "23%"], [2021, 1, "Niltomar", "Russell Will Son", "11-3", "78%"], [2021, 2, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2021, 3, "Francisco", "Barbas do Profeta", "10-4", "71%"], [2021, 4, "Wanster", "Brady Gaga", "8-6", "57%"], [2021, 5, "Luis Fernando", "Questionable Team", "6-8", "42%"], [2021, 6, "Julio", "Amparo Warriors", "9-5", "64%"], [2021, 7, "Vitor", "Manchester Sitio", "7-7", "50%"], [2021, 8, "Jordan", "CG Cuscuzers", "9-5", "64%"], [2021, 9, "Eduardo", "BH One Ball", "7-7", "50%"], [2021, 10, "Arion", "Loanda Arioles", "5-9", "35%"], [2021, 11, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2021, 12, "Elivelton", "Bonde do Liveltinhu", "6-8", "42%"], [2021, 13, "Lubigo", "Conquista Indians", "7-7", "50%"], [2021, 14, "Moita", "Brasilia Lobinhos", "6-8", "42%"], [2021, 15, "Ronald", "Cangaceiros Deboa", "8-6", "57%"], [2021, 16, "Raul", "Itaquera Butchers", "6-8", "42%"], [2021, 17, "Parah", "Yippee Ki Yay Mother Tucker", "6-8", "42%"], [2021, 18, "Esch", "JF Eschonators", "6-8", "42%"], [2021, 19, "Pogliesi", "VASCO", "5-9", "35%"], [2021, 20, "Luprimo", "Petrolina Brewers", "4-10", "28%"], [2022, 1, "Eduardo", "BH One Ball", "8-6", "57%"], [2022, 2, "Pogliesi", "RDC Superstars", "10-4", "71%"], [2022, 3, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2022, 4, "Julio", "Amparo Warriors", "9-5", "64%"], [2022, 5, "Lubigo", "Conquista Indians", "9-5", "64%"], [2022, 6, "Luprimo", "Petrolina Brewers", "10-4", "71%"], [2022, 7, "Parah", "Yippee Ki Yay Mother Tucker", "7-7", "50%"], [2022, 8, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2022, 9, "Arion", "Loanda Arioles", "7-7", "50%"], [2022, 10, "Francisco", "Barbas do Profeta", "7-7", "50%"], [2022, 11, "Vitor", "Manchester Sitio", "8-6", "57%"], [2022, 12, "Niltomar", "Russell Will Son", "7-7", "50%"], [2022, 13, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2022, 14, "Wanster", "Brady Gaga", "6-8", "42%"], [2022, 15, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2022, 16, "Pedro", "sjn team", "6-7-1", "42%"], [2022, 17, "Esch", "JF Eschonators", "5-8-1", "35%"], [2022, 18, "Daniel", "Bebumgrinos do Japy", "5-9", "35%"], [2022, 19, "Raul", "Itaquera Butchers", "3-11", "21%"], [2022, 20, "Jordan", "CG Cuscuzers", "1-13", "7%"], [2023, 1, "Francisco", "Barbas do Profeta", "8-6", "57%"], [2023, 2, "Alvin", "Alceu_Dispor", "7-7", "50%"], [2023, 3, "Pedro", "sjn team", "8-6", "57%"], [2023, 4, "Parah", "Yippee Ki Yay Mother Tucker", "10-4", "71%"], [2023, 5, "Pogliesi", "MC Popokinha", "8-6", "57%"], [2023, 6, "Ronald", "Cangaceiros Deboa", "9-5", "64%"], [2023, 7, "Raul", "Itaquera Butchers", "9-5", "64%"], [2023, 8, "Vitor", "Manchester Sitio", "7-7", "50%"], [2023, 9, "Daniel", "Bebumgrinos do Japy", "7-7", "50%"], [2023, 10, "Eduardo", "BH One Ball", "7-7", "50%"], [2023, 11, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2023, 12, "Lubigo", "Conquista Indians", "9-5", "64%"], [2023, 13, "Luprimo", "Petrolina Brewers", "8-6", "57%"], [2023, 14, "Arion", "Loanda Arioles", "5-9", "35%"], [2023, 15, "Esch", "Eschonator", "6-8", "42%"], [2023, 16, "Wanster", "Brady Gaga", "7-7", "50%"], [2023, 17, "Jaime", "Itajuba Farmers", "5-9", "35%"], [2023, 18, "Niltomar", "Russell Will Son", "5-9", "35%"], [2023, 19, "Julio", "Amparo Warriors", "5-9", "35%"], [2023, 20, "Elivelton", "Bonde do Liveltinhu", "4-10", "28%"], [2024, 1, "Wanster", "Brady Gaga", "7-7", "50%"], [2024, 2, "Eduardo", "BH One Ball", "9-5", "64%"], [2024, 3, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2024, 4, "Luprimo", "Petrolina Brewers", "9-5", "64%"], [2024, 5, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2024, 6, "Luis Fernando", "Devante Orfans", "10-4", "71%"], [2024, 7, "Arion", "Taylor Swift", "8-6", "57%"], [2024, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2024, 9, "Pogliesi", "Bijan for men", "7-7", "50%"], [2024, 10, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2024, 11, "Niltomar", "Russell Will Son", "6-8", "42%"], [2024, 12, "Julio", "Amparo Warriors", "8-6", "57%"], [2024, 13, "Vitor", "Manchester Sitio", "7-7", "50%"], [2024, 14, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2024, 15, "Elivelton", "Bonde do Liveltinhu", "5-9", "35%"], [2024, 16, "Esch", "Eschonator", "6-8", "42%"], [2024, 17, "Parah", "RiPParah", "5-9", "35%"], [2024, 18, "Alvin", "Kidnapper", "5-9", "35%"], [2024, 19, "Pedro", "sjn team", "4-10", "28%"], [2024, 20, "Raul", "Itaquera Butchers", "1-13", "7%"], [2025, 1, "Niltomar", "Russell Will Son", "7-7", "50%"], [2025, 2, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2025, 3, "Eduardo", "BH One Ball", "8-6", "57%"], [2025, 4, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2025, 5, "Pogliesi", "Hail to the King", "8-6", "57%"], [2025, 6, "Elivelton", "Drake Maye Vascaino", "9-5", "64%"], [2025, 7, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2025, 8, "Parah", "Coca 3L", "9-5", "64%"], [2025, 9, "Douglas", "Bootfire Reptiles", "6-8", "42%"], [2025, 10, "Luis Fernando", "Devante Orfans", "5-9", "35%"], [2025, 11, "Wanster", "Brady Gaga", "7-7", "50%"], [2025, 12, "Vitor", "Manchester Sitio", "7-7", "50%"], [2025, 13, "Ricardo", "Purdy good", "7-7", "50%"], [2025, 14, "Arion", "Kamara com COVID", "6-8", "42%"], [2025, 15, "Julio", "Amparo Warriors", "7-7", "50%"], [2025, 16, "Carlos", "TIME 1", "7-7", "50%"], [2025, 17, "Arthur", "Minducas", "6-8", "42%"], [2025, 18, "Francisco", "Barbas do Profeta", "6-8", "42%"], [2025, 19, "Alvin", "Kidnapper", "4-10", "28%"], [2025, 20, "Luprimo", "Petrolina Brewers", "3-11", "21%"]];
@@ -1584,6 +2021,7 @@ let selectedFranchisePlayer = ''; // Começa no estado neutro
 
 // Tab Switching
 function switchTab(tabId, btn) {
+  window.scrollTo(0, 0);
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
@@ -1599,6 +2037,15 @@ function switchTab(tabId, btn) {
     });
   }
   
+  const globalFilter = document.getElementById('globalFilterBar');
+  if (globalFilter) {
+    if (tabId === 'tab-div-h2h') {
+      globalFilter.style.display = 'none';
+    } else {
+      globalFilter.style.display = '';
+    }
+  }
+
   if (tabId === 'tab-champions') renderChampionsView();
   if (tabId === 'tab-season') renderSeasonView();
   if (tabId === 'tab-leaderboard') renderLeaderboard();
@@ -1978,17 +2425,18 @@ function renderHeadToHead() {
       ${(() => {
         const diff = p1Wins - p2Wins;
         const absDiff = Math.abs(diff);
-        if (totalGames === 0) return '<span class="badge-tag" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1;">Sem confrontos no filtro</span>';
+        const baseStyle = "display: inline-block; max-width: 100%; white-space: normal; line-height: 1.4; font-size: 15px; font-weight: 800; padding: 8px 20px; border-radius: 20px; text-align: center;";
+        if (totalGames === 0) return `<span class="badge-tag" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; ${baseStyle}">Sem confrontos no filtro</span>`;
         if (absDiff <= 1) {
-          return '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #fbbf24; font-size: 15px; padding: 7px 20px; font-weight: 800;">⚖️ Equilíbrio (Saldo de ' + absDiff + ' vitória' + (absDiff === 1 ? '' : 's') + ')</span>';
+          return `<span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #fbbf24; ${baseStyle}">⚖️ Equilíbrio (Saldo de ${absDiff} vitória${absDiff === 1 ? '' : 's'})</span>`;
         } else if (diff >= 4) {
-          return '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399; font-size: 15px; padding: 7px 20px; font-weight: 800;">💀 ' + p1 + ' é Carrasco! ' + p2 + ' é Freguês (+' + absDiff + ' vitórias)</span>';
+          return `<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399; ${baseStyle}">💀 ${p1} é Carrasco! ${p2} é Freguês (+${absDiff} vitórias)</span>`;
         } else if (diff <= -4) {
-          return '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; font-size: 15px; padding: 7px 20px; font-weight: 800;">💀 ' + p2 + ' é Carrasco! ' + p1 + ' é Freguês (+' + absDiff + ' vitórias)</span>';
+          return `<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; ${baseStyle}">💀 ${p2} é Carrasco! ${p1} é Freguês (+${absDiff} vitórias)</span>`;
         } else if (diff > 0) {
-          return '<span class="badge-tag" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa; font-size: 15px; padding: 7px 20px; font-weight: 800;">🟢 ' + p1 + ' é Algoz! ' + p2 + ' é Vítima (+' + absDiff + ' vitórias)</span>';
+          return `<span class="badge-tag" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa; ${baseStyle}">🟢 ${p1} é Algoz! ${p2} é Vítima (+${absDiff} vitórias)</span>`;
         } else {
-          return '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; font-size: 15px; padding: 7px 20px; font-weight: 800;">🔴 ' + p2 + ' é Algoz! ' + p1 + ' é Vítima (+' + absDiff + ' vitórias)</span>';
+          return `<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; ${baseStyle}">🔴 ${p2} é Algoz! ${p1} é Vítima (+${absDiff} vitórias)</span>`;
         }
       })()}
     </div>
@@ -2019,28 +2467,33 @@ function renderHeadToHead() {
       <div class="duel-bar-p2" style="width: ${totalGames > 0 ? (p2Wins / totalGames) * 100 : 50}%;"></div>
     </div>
 
-    <!-- Matchup Insights Matrix -->
-    <div class="h2h-stat-matrix">
-      <div class="h2h-stat-box">
-        <div class="h2h-stat-label">Pontos Totais de ${p1}</div>
-        <div class="h2h-stat-val" style="color: #60a5fa;">${p1TotPts.toFixed(1)}</div>
-      </div>
-      <div class="h2h-stat-box">
-        <div class="h2h-stat-label">Pontos Totais de ${p2}</div>
-        <div class="h2h-stat-val" style="color: #f472b6;">${p2TotPts.toFixed(1)}</div>
-      </div>
-      <div class="h2h-stat-box">
-        <div class="h2h-stat-label">Maior Pontuação de ${p1}</div>
-        <div class="h2h-stat-val">${maxP1Pts > 0 ? maxP1Pts.toFixed(1) : '--'}</div>
-      </div>
-      <div class="h2h-stat-box">
-        <div class="h2h-stat-label">Maior Pontuação de ${p2}</div>
-        <div class="h2h-stat-val">${maxP2Pts > 0 ? maxP2Pts.toFixed(1) : '--'}</div>
-      </div>
-      <div class="h2h-stat-box">
-        <div class="h2h-stat-label">Maior Diferença no Duelo</div>
-        <div class="h2h-stat-val">${maxMargin > 0 ? `+${maxMargin.toFixed(1)} (${maxMarginWinner})` : '--'}</div>
-      </div>
+    <!-- Matchup Insights Matrix (Badges) -->
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; justify-content: center;">
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🔥</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Pts Totais ${p1}:</span>
+        <span style="font-weight: 800; color: #60a5fa;">${p1TotPts.toFixed(1)}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🔥</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Pts Totais ${p2}:</span>
+        <span style="font-weight: 800; color: #f472b6;">${p2TotPts.toFixed(1)}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🚀</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Max Pts ${p1}:</span>
+        <span style="font-weight: 800; color: #34d399;">${maxP1Pts > 0 ? maxP1Pts.toFixed(1) : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🚀</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Max Pts ${p2}:</span>
+        <span style="font-weight: 800; color: #34d399;">${maxP2Pts > 0 ? maxP2Pts.toFixed(1) : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">💥</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Maior Margem:</span>
+        <span style="font-weight: 800; color: var(--accent-gold);">${maxMargin > 0 ? `+${maxMargin.toFixed(1)} (${maxMarginWinner})` : '--'}</span>
+      </span>
     </div>
   `;
 
@@ -2166,24 +2619,24 @@ function renderOpponentsTable(player) {
 
     tr.innerHTML = `
       <td><strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${o.name}', 'tab-franchise')">${o.name}</strong></td>
-      <td>${o.games}</td>
-      <td><span class="pill-stat pill-win">${o.wins}</span></td>
-      <td><span class="pill-stat pill-loss">${o.losses}</span></td>
-      <td><span class="pill-stat pill-tie">${o.ties}</span></td>
-      <td>
+      <td class="col-h2h-geral">${o.games}</td>
+      <td class="col-h2h-geral"><span class="pill-stat pill-win">${o.wins}</span></td>
+      <td class="col-h2h-geral"><span class="pill-stat pill-loss">${o.losses}</span></td>
+      <td class="col-h2h-geral"><span class="pill-stat pill-tie">${o.ties}</span></td>
+      <td class="col-h2h-geral">
         <div class="win-rate-bar-bg">
           <div class="win-rate-bar-fill" style="width: ${o.winRate}%;"></div>
         </div>
         <strong>${o.winRate.toFixed(1)}%</strong>
       </td>
-      <td>${rivalryBadge}</td>
-      <td>${o.pf.toFixed(2)}</td>
-      <td>${o.pa.toFixed(2)}</td>
-      <td style="color: ${o.diff >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">
+      <td class="col-h2h-riv">${rivalryBadge}</td>
+      <td class="col-h2h-pts">${o.pf.toFixed(2)}</td>
+      <td class="col-h2h-pts">${o.pa.toFixed(2)}</td>
+      <td class="col-h2h-pts" style="color: ${o.diff >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">
         ${o.diff > 0 ? '+' : ''}${o.diff.toFixed(2)}
       </td>
-      <td>
-        <button class="pill-btn" onclick="selectH2HOpponent('${player}', '${o.name}')" style="padding: 3px 10px; font-size: 12px;">Ver Duelo ⚔️</button>
+      <td class="col-h2h-riv">
+        <button class="pill-btn" onclick="selectH2HOpponent('${player}', '${o.name}')" style="padding: 3px 10px; font-size: 12px;">⚔️ Duelo</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -2721,64 +3174,67 @@ function renderFranchiseView() {
   const luckText = myPlayerStats.luckDelta > 0.5 ? 'Sortudo 🍀' : (myPlayerStats.luckDelta < -0.5 ? 'Azarado 🌧️' : 'Neutro ⚖️');
 
   container.innerHTML = `
-    <!-- Top KPIs da Franquia -->
-    <div class="kpi-grid">
-      <div class="kpi-card wins">
-        <div class="kpi-title">🏆 Títulos & Pódios</div>
-        <div class="kpi-val">${titles} Título${titles === 1 ? '' : 's'}</div>
-        <div class="kpi-sub">🥈 ${seconds} Vices • 🥉 ${thirds} Bronzes (${titles + seconds + thirds} Pódios)</div>
-      </div>
-      <div class="kpi-card win-rate">
-        <div class="kpi-title">Aproveitamento Geral</div>
-        <div class="kpi-val">${winRate.toFixed(1)}%</div>
-        <div class="kpi-sub"><b>${wins}V - ${losses}D${ties > 0 ? ' - ' + ties + 'E' : ''}</b> em ${totalGames} jogos</div>
-      </div>
-      <div class="kpi-card avg">
-        <div class="kpi-title">Média de Pontos (PPG)</div>
-        <div class="kpi-val">${avgPf.toFixed(1)} pts</div>
-        <div class="kpi-sub">Média sofrida: <b>${avgPa.toFixed(1)} pts/j</b></div>
-      </div>
-      <div class="kpi-card points">
-        <div class="kpi-title">All-Play & Sorte</div>
-        <div class="kpi-val" style="color: ${luckColor};">${myPlayerStats.apWinRate.toFixed(1)}%</div>
-        <div class="kpi-sub">Saldo: <b style="color: ${luckColor};">${myPlayerStats.luckDelta > 0 ? '+' : ''}${myPlayerStats.luckDelta.toFixed(1)} vitórias (${luckText})</b></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Melhor / Pior Posição</div>
-        <div class="kpi-val">${bestPos !== 99 ? bestPos + 'º' : '--'} / ${worstPos !== 0 ? worstPos + 'º' : '--'}</div>
-        <div class="kpi-sub">${seasonStandings.length} temporadas disputadas</div>
-      </div>
+    <!-- Top 9 Badges da Franquia -->
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🏆</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Títulos:</span>
+        <span style="font-weight: 800; color: #fbbf24;">${titles}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">📈</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Win Rate:</span>
+        <span style="font-weight: 800; color: #34d399;">${winRate.toFixed(1)}%</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🔥</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Média:</span>
+        <span style="font-weight: 800; color: #60a5fa;">${avgPf.toFixed(1)} pts</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">${myPlayerStats.luckDelta > 0.5 ? '🍀' : (myPlayerStats.luckDelta < -0.5 ? '🌧️' : '⚖️')}</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Sorte:</span>
+        <span style="font-weight: 800; color: ${luckColor};">${myPlayerStats.luckDelta > 0 ? '+' : ''}${myPlayerStats.luckDelta.toFixed(1)}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">📊</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Top Pos:</span>
+        <span style="font-weight: 800; color: #f472b6;">${bestPos !== 99 ? bestPos + 'º' : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🚀</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Max Pts:</span>
+        <span style="font-weight: 800; color: #34d399;">${maxScore.pts > 0 ? maxScore.pts.toFixed(1) : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🥶</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Min Pts:</span>
+        <span style="font-weight: 800; color: #f87171;">${minScore.pts < 9999 ? minScore.pts.toFixed(1) : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">💥</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Maior Gol.:</span>
+        <span style="font-weight: 800; color: #60a5fa;">${biggestWin.margin > 0 ? '+' + biggestWin.margin.toFixed(1) : '--'}</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🩸</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Pior Derrota:</span>
+        <span style="font-weight: 800; color: #ec4899;">${worstLoss.margin > 0 ? '-' + worstLoss.margin.toFixed(1) : '--'}</span>
+      </span>
     </div>
 
-    <!-- Recordes Pessoais Rápidos -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px;">
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🚀 Recorde de Pontos em Jogo Único</div>
-        <div style="font-size: 20px; font-weight: 800; color: #34d399; margin-top: 4px;">${maxScore.pts > 0 ? maxScore.pts.toFixed(2) + ' pts' : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${maxScore.pts > 0 ? `${maxScore.year} S${maxScore.week} vs ${maxScore.opp}` : '--'}</div>
-      </div>
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🥶 Pior Pontuação da História</div>
-        <div style="font-size: 20px; font-weight: 800; color: #f87171; margin-top: 4px;">${minScore.pts < 9999 ? minScore.pts.toFixed(2) + ' pts' : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${minScore.pts < 9999 ? `${minScore.year} S${minScore.week} vs ${minScore.opp}` : '--'}</div>
-      </div>
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">💥 Maior Goleada Aplicada</div>
-        <div style="font-size: 20px; font-weight: 800; color: #60a5fa; margin-top: 4px;">${biggestWin.margin > 0 ? '+' + biggestWin.margin.toFixed(2) + ' pts' : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${biggestWin.margin > 0 ? `${biggestWin.myPts.toFixed(1)} x ${biggestWin.oppPts.toFixed(1)} vs ${biggestWin.opp} (${biggestWin.year})` : '--'}</div>
-      </div>
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🩸 Pior Derrota Sofrida</div>
-        <div style="font-size: 20px; font-weight: 800; color: #ec4899; margin-top: 4px;">${worstLoss.margin > 0 ? '-' + worstLoss.margin.toFixed(2) + ' pts' : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${worstLoss.margin > 0 ? `${worstLoss.myPts.toFixed(1)} x ${worstLoss.oppPts.toFixed(1)} vs ${worstLoss.opp} (${worstLoss.year})` : '--'}</div>
-      </div>
+    <!-- Segmented Control das 3 Tabelas -->
+    <div class="mobile-segmented-control" style="margin-bottom: 20px; background: var(--bg-input); border-radius: 10px; padding: 6px;">
+      <button class="seg-btn active" onclick="switchSubTab('fra', 'fase', this)">📊 Por Fase</button>
+      <button class="seg-btn" onclick="switchSubTab('fra', 'divisao', this)">🥊 vs Divisões</button>
+      <button class="seg-btn" onclick="switchSubTab('fra', 'rivais', this)">⚔️ Rivais</button>
     </div>
 
-    <!-- Grid: Aproveitamento por Fase e Algozes/Fregueses -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <!-- Wrapper das Tabelas Multi-aba -->
+    <div style="margin-bottom: 24px;">
       
       <!-- Card: Desempenho por Fase -->
-      <div class="table-card">
+      <div id="fra-fase" class="table-card" style="display: block; margin-bottom: 0;">
         <div class="table-header-bar">
           <div class="table-title">📊 Aproveitamento por Fase</div>
         </div>
@@ -2817,7 +3273,7 @@ function renderFranchiseView() {
       </div>
 
       <!-- Card: Retrospecto contra Divisões -->
-      <div class="table-card">
+      <div id="fra-divisao" class="table-card mobile-hidden-sub" style="display: none; margin-bottom: 0;">
         <div class="table-header-bar">
           <div class="table-title">🥊 Retrospecto contra Divisões</div>
         </div>
@@ -2854,7 +3310,7 @@ function renderFranchiseView() {
       </div>
 
       <!-- Card: Maiores Vítimas & Algozes -->
-      <div class="table-card">
+      <div id="fra-rivais" class="table-card mobile-hidden-sub" style="display: none; margin-bottom: 0;">
         <div class="table-header-bar">
           <div class="table-title">⚔️ Maiores Vítimas (Fregueses) e Algozes (Carrascos)</div>
         </div>
@@ -2877,7 +3333,6 @@ function renderFranchiseView() {
                   o.wr = ((o.wins + 0.5 * o.ties) / o.games) * 100;
                 });
                 
-                // Top 2 Fregueses e Top 2 Algozes
                 const fregueses = oppList.filter(o => o.diff > 0).sort((a, b) => b.diff - a.diff || b.wins - a.wins).slice(0, 2);
                 const algozes = oppList.filter(o => o.diff < 0).sort((a, b) => a.diff - b.diff || b.losses - a.losses).slice(0, 2);
                 
@@ -2914,7 +3369,6 @@ function renderFranchiseView() {
           </table>
         </div>
       </div>
-
     </div>
 
     <!-- Tabela: Trajetória Ano a Ano -->
@@ -3953,7 +4407,7 @@ function renderDivDuelSection() {
   const duelGames = [];
   let d1Wins = 0, d2Wins = 0, ties = 0;
   let d1TotalPts = 0, d2TotalPts = 0;
-  let maxMargin = 0, maxMarginWinner = '';
+  let maxMargin = 0, maxMarginPlayer = '', maxMarginIsD1 = true;
 
   const playerD1Wins = {};
   const playerD2Wins = {};
@@ -3984,7 +4438,8 @@ function renderDivDuelSection() {
       const diff = Math.abs(ptsD1 - ptsD2);
       if (diff > maxMargin) {
         maxMargin = diff;
-        maxMarginWinner = ptsD1 > ptsD2 ? `Divisão ${d1} (${pD1})` : `Divisão ${d2} (${pD2})`;
+        maxMarginPlayer = ptsD1 > ptsD2 ? pD1 : pD2;
+        maxMarginIsD1 = ptsD1 > ptsD2;
       }
 
       if (ptsD1 > ptsD2) {
@@ -4014,34 +4469,35 @@ function renderDivDuelSection() {
     const diff = d1Wins - d2Wins;
     const absDiff = Math.abs(diff);
     let rivalryBadge = '';
+    const badgeStyle = "display: inline-block; max-width: 100%; white-space: normal; line-height: 1.3; font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-align: center;";
     if (totalDuelos === 0) {
-      rivalryBadge = '<span class="badge-tag">Sem confrontos no filtro selecionado</span>';
+      rivalryBadge = `<span class="badge-tag" style="${badgeStyle}">Sem confrontos no filtro selecionado</span>`;
     } else if (absDiff === 0) {
-      rivalryBadge = '<span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: #f59e0b; font-size: 15px; font-weight: 800; padding: 6px 18px;">⚖️ Empate Absoluto no Duelo</span>';
+      rivalryBadge = `<span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: #f59e0b; ${badgeStyle}">⚖️ Empate Absoluto no Duelo</span>`;
     } else if (diff > 0) {
-      rivalryBadge = `<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981; font-size: 15px; font-weight: 800; padding: 6px 18px;">👑 Divisão ${d1} Lidera o Duelo (+${absDiff} vitórias)</span>`;
+      rivalryBadge = `<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981; ${badgeStyle}">👑 Divisão ${d1} Lidera (+${absDiff} vitórias)</span>`;
     } else {
-      rivalryBadge = `<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: #ef4444; font-size: 15px; font-weight: 800; padding: 6px 18px;">👑 Divisão ${d2} Lidera o Duelo (+${absDiff} vitórias)</span>`;
+      rivalryBadge = `<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: #ef4444; ${badgeStyle}">👑 Divisão ${d2} Lidera (+${absDiff} vitórias)</span>`;
     }
 
     banner.innerHTML = `
       <div style="text-align: center; margin-bottom: 16px;">${rivalryBadge}</div>
       <div class="duel-score-row">
         <div class="duel-side" style="text-align: right;">
-          <div class="duel-name" style="color: #60a5fa; font-size: 24px;">Divisão ${d1}</div>
+          <div class="duel-name" style="color: #60a5fa; font-size: 18px;">Divisão ${d1}</div>
           <div class="duel-wins" style="color: #3b82f6;">${d1Wins}</div>
-          <div class="duel-substat">Win Rate: <b>${d1Pct.toFixed(1)}%</b> • Média: <b>${totalDuelos > 0 ? (d1TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
+          <div class="duel-substat" style="font-size: 11px;">Win Rate: <b>${d1Pct.toFixed(1)}%</b><br>Média: <b>${totalDuelos > 0 ? (d1TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
         </div>
 
         <div class="duel-middle">
-          <div class="duel-ties-badge">${ties} Empate${ties === 1 ? '' : 's'}</div>
-          <div style="font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">${totalDuelos} Jogos</div>
+          <div class="duel-ties-badge" style="font-size: 11px; padding: 4px 10px;">${ties} Empate${ties === 1 ? '' : 's'}</div>
+          <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">${totalDuelos} Jogos</div>
         </div>
 
         <div class="duel-side" style="text-align: left;">
-          <div class="duel-name" style="color: #ec4899; font-size: 24px;">Divisão ${d2}</div>
+          <div class="duel-name" style="color: #ec4899; font-size: 18px;">Divisão ${d2}</div>
           <div class="duel-wins" style="color: #ec4899;">${d2Wins}</div>
-          <div class="duel-substat">Win Rate: <b>${d2Pct.toFixed(1)}%</b> • Média: <b>${totalDuelos > 0 ? (d2TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
+          <div class="duel-substat" style="font-size: 11px;">Win Rate: <b>${d2Pct.toFixed(1)}%</b><br>Média: <b>${totalDuelos > 0 ? (d2TotalPts / totalDuelos).toFixed(1) : '0.0'} pts</b></div>
         </div>
       </div>
 
@@ -4054,29 +4510,33 @@ function renderDivDuelSection() {
   }
 
   // Destaques do Duelo (Top scorers e maiores vencedores)
-  if (highlights) {
+    if (highlights) {
     const topD1Player = Object.entries(playerD1Wins).sort((a, b) => b[1] - a[1])[0];
     const topD2Player = Object.entries(playerD2Wins).sort((a, b) => b[1] - a[1])[0];
 
     highlights.innerHTML = `
-      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Maior Carrasco da Divisão ${d1}</div>
-        <div style="font-size: 18px; font-weight: 800; color: #60a5fa; margin-top: 4px;">${topD1Player ? topD1Player[0] : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted);">${topD1Player ? topD1Player[1] + ' vitórias contra a Divisão ' + d2 : ''}</div>
-      </div>
-      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Maior Carrasco da Divisão ${d2}</div>
-        <div style="font-size: 18px; font-weight: 800; color: #ec4899; margin-top: 4px;">${topD2Player ? topD2Player[0] : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted);">${topD2Player ? topD2Player[1] + ' vitórias contra a Divisão ' + d1 : ''}</div>
-      </div>
-      <div style="background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border-color);">
-        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">💥 Maior Goleada no Clássico</div>
-        <div style="font-size: 18px; font-weight: 800; color: var(--accent-gold); margin-top: 4px;">${maxMargin > 0 ? '+' + maxMargin.toFixed(1) + ' pts' : '--'}</div>
-        <div style="font-size: 12px; color: var(--text-muted);">${maxMarginWinner ? maxMarginWinner : ''}</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%;">
+        <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+          <span style="font-size: 16px;">🎯</span>
+          <span style="color: var(--text-muted); font-weight: 600;">Carrasco de ${d2}:</span>
+          <span style="font-weight: 800; color: #60a5fa;">${topD1Player ? topD1Player[0] : '--'}</span>
+          <span style="font-weight: 700; color: #34d399; font-size: 11px; margin-left: 4px;">${topD1Player ? '(' + topD1Player[1] + 'V)' : ''}</span>
+        </span>
+        <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+          <span style="font-size: 16px;">🎯</span>
+          <span style="color: var(--text-muted); font-weight: 600;">Carrasco de ${d1}:</span>
+          <span style="font-weight: 800; color: #ec4899;">${topD2Player ? topD2Player[0] : '--'}</span>
+          <span style="font-weight: 700; color: #34d399; font-size: 11px; margin-left: 4px;">${topD2Player ? '(' + topD2Player[1] + 'V)' : ''}</span>
+        </span>
+        <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+          <span style="font-size: 16px;">💥</span>
+          <span style="color: var(--text-muted); font-weight: 600;">Maior Goleada:</span>
+          <span style="font-weight: 800; color: ${maxMarginIsD1 ? '#60a5fa' : '#ec4899'};">${maxMarginPlayer ? maxMarginPlayer : '--'}</span>
+          <span style="font-weight: 700; color: #34d399; font-size: 11px; margin-left: 4px;">${maxMargin > 0 ? '(+' + maxMargin.toFixed(1) + ')' : ''}</span>
+        </span>
       </div>
     `;
   }
-
   // Tabela de Confrontos
   duelGames.sort((a, b) => b.year - a.year || b.week - a.week);
 
@@ -4144,6 +4604,309 @@ function refreshAllViews() {
 
 // Initial Load
 refreshAllViews();
+
+</script>
+<style>
+/* --- GLOBAL DESKTOP & MOBILE TAB TOGGLES --- */
+
+/* Forçar ocultação absoluta dos seletores mobile-only no Desktop (ex: Aba Títulos e Aba Matriz) */
+@media (min-width: 1025px) {
+    .mobile-only { display: none !important; }
+}
+
+.col-geral, .col-pontos, .col-avancado { display: none; }
+  #leaderboardTable td:nth-child(4), #leaderboardTable td:nth-child(5), #leaderboardTable td:nth-child(6), #leaderboardTable td:nth-child(7), #leaderboardTable td:nth-child(8) { display: none; } 
+  #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13), #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16) { display: none; } 
+  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11) { display: none; } 
+  
+  #leaderboardTable.show-geral .col-geral { display: table-cell; }
+  #leaderboardTable.show-geral td:nth-child(4), #leaderboardTable.show-geral td:nth-child(5), #leaderboardTable.show-geral td:nth-child(6), #leaderboardTable.show-geral td:nth-child(7), #leaderboardTable.show-geral td:nth-child(8) { display: table-cell; }
+  #leaderboardTable.show-pontos .col-pontos { display: table-cell; }
+  #leaderboardTable.show-pontos td:nth-child(12), #leaderboardTable.show-pontos td:nth-child(13), #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16) { display: table-cell; }
+  #leaderboardTable.show-avancado .col-avancado { display: table-cell; }
+  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11) { display: table-cell; }
+
+/* Aba H2H Opponents Columns Toggling */
+  #h2hOpponentsTable th.col-h2h-geral, #h2hOpponentsTable td.col-h2h-geral,
+  #h2hOpponentsTable th.col-h2h-riv, #h2hOpponentsTable td.col-h2h-riv,
+  #h2hOpponentsTable th.col-h2h-pts, #h2hOpponentsTable td.col-h2h-pts { display: none; }
+  
+  #h2hOpponentsTable.show-geral th.col-h2h-geral, #h2hOpponentsTable.show-geral td.col-h2h-geral { display: table-cell; }
+  #h2hOpponentsTable.show-riv th.col-h2h-riv, #h2hOpponentsTable.show-riv td.col-h2h-riv { display: table-cell; }
+  #h2hOpponentsTable.show-pts th.col-h2h-pts, #h2hOpponentsTable.show-pts td.col-h2h-pts { display: table-cell; }
+</style>
+</head></html><html><head><script>
+
+// UI Interactions for Mobile
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 1024) sidebar.classList.toggle('show');
+}
+
+function switchSubTab(groupId, tabId, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const wrapper = parent.nextElementSibling ? parent.parentElement : document;
+  
+  const tables = wrapper.querySelectorAll(':scope > .table-card');
+  tables.forEach(t => {
+    if (t.id === groupId + '-' + tabId) {
+      t.classList.remove('mobile-hidden-sub'); t.style.display = 'block';
+    } else {
+      t.classList.add('mobile-hidden-sub'); t.style.display = 'none';
+    }
+  });
+}
+
+function switchDivTab(divId, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById('divisionsGridContainer');
+  const cards = grid.querySelectorAll('.table-card');
+  cards.forEach(c => {
+    if(c.innerHTML.includes('Divisão ' + divId)) { c.classList.remove('mobile-hidden-sub'); c.style.display = 'block'; } 
+    else { c.classList.add('mobile-hidden-sub'); c.style.display = 'none'; }
+  });
+}
+
+let currentLbTab = 'geral';
+function switchLbTab(tab, btn) {
+  currentLbTab = tab;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const table = document.getElementById('leaderboardTable');
+  table.classList.remove('show-geral', 'show-pontos', 'show-avancado');
+  table.classList.add('show-' + tab);
+}
+
+function switchRecordsTab() {
+  const val = document.getElementById('recordsMobileSelect').value;
+  const container = document.getElementById('rec-wrapper');
+  const cards = container.querySelectorAll('.table-card');
+  cards.forEach(c => {
+    if(c.id === val) { c.classList.remove('mobile-hidden-sub'); c.style.display = 'block'; } 
+    else { c.classList.add('mobile-hidden-sub'); c.style.display = 'none'; }
+  });
+}
+
+// Intercept updateKPIs to append the player name into the value span so CSS can show it
+
+// Intercept updateKPIs to build the rich badge for mobile (Icon + Title + Name + Value)
+const originalUpdateKPIs = updateKPIs;
+updateKPIs = function(statsList) {
+    originalUpdateKPIs(statsList);
+    
+    if (window.innerWidth <= 1024) {
+        const mapping = [
+            { cardClass: 'win-rate', valId: 'kpiWinRateVal', playerId: 'kpiWinRatePlayer', icon: '📈', shortTitle: 'Win Rate' },
+            { cardClass: 'avg', valId: 'kpiAvgVal', playerId: 'kpiAvgPlayer', icon: '🔥', shortTitle: 'Média' },
+            { cardClass: 'wins', valId: 'kpiWinsVal', playerId: 'kpiWinsPlayer', icon: '🏆', shortTitle: 'Vitórias' },
+            { cardClass: 'losses', valId: 'kpiLossesVal', playerId: 'kpiLossesPlayer', icon: '🥶', shortTitle: 'Derrotas' },
+            { cardClass: 'points', valId: 'kpiPtsVal', playerId: 'kpiPtsPlayer', icon: '🚀', shortTitle: 'Pontos' }
+        ];
+
+        mapping.forEach(m => {
+            const card = document.querySelector(`#tab-champions .kpi-card.${m.cardClass}`);
+            const valEl = document.getElementById(m.valId);
+            const playerEl = document.getElementById(m.playerId);
+            
+            if (card && valEl && playerEl && playerEl.querySelector('b')) {
+                // Ensure we get the plain text value (without any previous injected spans)
+                // Since originalUpdateKPIs runs first, it resets innerText to the pure string (e.g. "94%").
+                const val = valEl.innerText.trim();
+                const player = playerEl.querySelector('b').innerText.trim();
+                
+                // Inject the full mobile structure
+                valEl.innerHTML = `<span style="margin-right: 4px; font-size: 14px;">${m.icon}</span><span style="font-weight: 600; margin-right: 4px; color: var(--text-muted); font-size: 12px;">${m.shortTitle}:</span><span style="font-weight: 800; margin-right: 4px; color: #fff;">${player}</span><span style="font-weight: 800; color: #fff;">${val}</span>`;
+            }
+        });
+    }
+};
+
+const originalRenderLeaderboard = renderLeaderboard;
+renderLeaderboard = function() {
+    originalRenderLeaderboard();
+    document.getElementById('leaderboardTable').classList.add('show-' + currentLbTab);
+    
+    if (window.innerWidth <= 1024) {
+        const trs = document.getElementById('leaderboardBody').querySelectorAll('tr');
+        trs.forEach(tr => {
+            const nameTd = tr.querySelector('td:nth-child(2)');
+            const titlesTd = tr.querySelector('td:nth-child(3)');
+            if (titlesTd && titlesTd.innerText.includes('🏆')) {
+                const badge = document.createElement('span');
+                badge.className = 'badge-tag mobile-only';
+                badge.style.cssText = 'background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: #fbbf24; font-weight: 800; padding: 2px 6px; font-size: 10px; margin-left: 6px; display: inline-block;';
+                badge.innerText = titlesTd.innerText;
+                nameTd.querySelector('strong').appendChild(badge);
+            }
+        });
+    }
+}
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth <= 1024) {
+        document.getElementById('leaderboardTable').classList.add('show-geral');
+        setTimeout(() => {
+            const smtBtn = document.querySelector('#tab-season .mobile-segmented-control:nth-of-type(2) button');
+            if (smtBtn) switchDivTab('SMT', smtBtn);
+        }, 500);
+    }
+});
+
+</script>
+<script>
+
+// SOBRESCREVER A FUNCAO DE TROCA DE ABAS PARA GARANTIR FUNCIONAMENTO NO MOBILE
+
+function switchH2HTab(tab, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const table = document.getElementById('h2hOpponentsTable');
+  table.classList.remove('show-geral', 'show-riv', 'show-pts');
+  table.classList.add('show-' + tab);
+}
+
+window.switchSubTab = function(groupId, tabId, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // Buscar todas as table-cards associadas a este grupo
+  const allTables = document.querySelectorAll('.table-card');
+  allTables.forEach(t => {
+    if (t.id && t.id.startsWith(groupId + '-')) {
+      if (t.id === groupId + '-' + tabId) {
+        t.classList.remove('mobile-hidden-sub');
+        t.style.display = 'block';
+      } else {
+        t.classList.add('mobile-hidden-sub');
+        t.style.display = 'none';
+      }
+    }
+  });
+};
+
+// INTERCEPTAR RENDER SEASON VIEW PARA APLICAR REGRAS MOBILE
+const originalRenderSeasonView = renderSeasonView;
+renderSeasonView = function() {
+    originalRenderSeasonView();
+    
+    // Forçar colapso das tabelas na Aba Temporada Atual (Desktop e Mobile) logo após renderizar
+    setTimeout(() => {
+        document.querySelectorAll('#tab-season .seg-btn.active').forEach(btn => btn.click());
+    }, 50);
+    
+    if (window.innerWidth <= 1024) {
+        // 1. Convert KPI Cards to Badges
+        const grid = document.getElementById('seasonHighlightsGrid');
+        if (grid) {
+            const cards = grid.querySelectorAll('.kpi-card');
+            cards.forEach(c => {
+                const valEl = c.querySelector('.kpi-val');
+                const subEl = c.querySelector('.kpi-sub');
+                if(!valEl || !subEl) return;
+                
+                const val = valEl.innerText;
+                const sub = subEl.innerText;
+                let badgeText = '';
+                
+                if (c.classList.contains('wins')) { // Líder Geral
+                    const name = val;
+                    const winsMatch = sub.match(/([0-9]+V - [0-9]+D)/);
+                    const wins = winsMatch ? winsMatch[1] : '';
+                    badgeText = `${name} ${wins}`;
+                } else if (c.classList.contains('points')) { // Melhor Ataque
+                    const pts = val;
+                    const name = subEl.querySelector('b') ? subEl.querySelector('b').innerText : sub;
+                    badgeText = `${name} ${pts}`;
+                } else if (c.classList.contains('avg')) { // Melhor Defesa
+                    const pts = val;
+                    const name = subEl.querySelector('b') ? subEl.querySelector('b').innerText : sub;
+                    badgeText = `${name} ${pts}`;
+                } else if (c.classList.contains('win-rate')) { // Sequência
+                    const streak = val;
+                    const name = subEl.querySelector('b') ? subEl.querySelector('b').innerText : sub;
+                    badgeText = `${name} ${streak}`;
+                }
+                valEl.innerHTML = badgeText;
+            });
+        }
+
+        // 2. Fix Container width for Projeção Oficial
+        const playoffsEl = document.getElementById('postseason-playoffs');
+        if (playoffsEl && playoffsEl.parentElement) {
+            playoffsEl.parentElement.style.display = 'flex';
+            playoffsEl.parentElement.style.flexDirection = 'column';
+            playoffsEl.parentElement.style.width = '100%';
+            playoffsEl.parentElement.style.maxWidth = '100vw';
+            playoffsEl.parentElement.style.overflowX = 'hidden';
+        }
+
+        // 3. Ocultar Divisões inativas no carregamento inicial
+        const divControls = document.querySelectorAll('#tab-season .mobile-segmented-control.mobile-only .seg-btn');
+        let activeDiv = 'SMT';
+        divControls.forEach(btn => {
+            if (btn.classList.contains('active') && ['SMT','NE','MG','SP'].includes(btn.innerText)) {
+                activeDiv = btn.innerText;
+            }
+        });
+        
+        const divGrid = document.getElementById('divisionsGridContainer');
+        if (divGrid) {
+            const divCards = divGrid.querySelectorAll('.table-card');
+            divCards.forEach(c => {
+                if (c.innerHTML.includes('Divisão ' + activeDiv)) {
+                    c.classList.remove('mobile-hidden-sub');
+                    c.style.display = 'block';
+                } else {
+                    c.classList.add('mobile-hidden-sub');
+                    c.style.display = 'none';
+                }
+            });
+        }
+
+        // 4. Ocultar Projeções inativas no carregamento inicial
+        let activePost = 'playoffs';
+        document.querySelectorAll('#tab-season .mobile-segmented-control.mobile-only .seg-btn').forEach(btn => {
+             if(btn.classList.contains('active') && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('postseason')) {
+                 if(btn.getAttribute('onclick').includes('playoffs')) activePost = 'playoffs';
+                 if(btn.getAttribute('onclick').includes('consolation')) activePost = 'consolation';
+                 if(btn.getAttribute('onclick').includes('eliminated')) activePost = 'eliminated';
+             }
+        });
+        
+        const postTables = ['postseason-playoffs', 'postseason-consolation', 'postseason-eliminated'];
+        postTables.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (id === 'postseason-' + activePost) {
+                    el.classList.remove('mobile-hidden-sub');
+                    el.style.display = 'block';
+                } else {
+                    el.classList.add('mobile-hidden-sub');
+                    el.style.display = 'none';
+                }
+            }
+        });
+
+    }
+};
+
+// --- INITIAL LOAD FIX ---
+// Forçar recarregamento e inicializar seletores (mobile e desktop)
+setTimeout(() => {
+    refreshAllViews();
+    
+    // Garantir que as tabelas de projeção e divisões fiquem colapsadas no desktop
+        document.querySelectorAll('#tab-season .seg-btn.active').forEach(btn => btn.click());
+}, 50);
+
 </script>
 </body>
 </html>
