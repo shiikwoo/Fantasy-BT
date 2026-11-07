@@ -4684,7 +4684,7 @@ function switchLbTab(tab, btn) {
 
 function switchRecordsTab() {
   const val = document.getElementById('recordsMobileSelect').value;
-  const container = document.getElementById('rec-wrapper');
+  const container = document.querySelector('.rec-grid-container');
   const cards = container.querySelectorAll('.table-card');
   cards.forEach(c => {
     if(c.id === val) { c.classList.remove('mobile-hidden-sub'); c.style.display = 'block'; } 
