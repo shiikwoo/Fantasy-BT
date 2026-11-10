@@ -3839,11 +3839,11 @@ function renderSeasonView() {
   }
 
   // Ordenação dos Campeões e Vices
-  const sortedChamps = championsGroup.sort((a, b) => b.wins - a.wins || b.pf - a.pf || a.pa - b.pa);
-  const sortedRunners = runnersUpGroup.sort((a, b) => b.wins - a.wins || b.pf - a.pf || a.pa - b.pa);
-  const sortedThirds = thirdPlaceGroup.sort((a, b) => b.wins - a.wins || b.pf - a.pf || a.pa - b.pa);
-  const sortedFourths = fourthPlaceGroup.sort((a, b) => b.wins - a.wins || b.pf - a.pf || a.pa - b.pa);
-  const sortedEliminated = eliminatedGroup.sort((a, b) => b.wins - a.wins || b.pf - a.pf || a.pa - b.pa);
+  const sortedChamps = sortTeamsCustom(championsGroup);
+  const sortedRunners = sortTeamsCustom(runnersUpGroup);
+  const sortedThirds = sortTeamsCustom(thirdPlaceGroup);
+  const sortedFourths = sortTeamsCustom(fourthPlaceGroup);
+  const sortedEliminated = sortTeamsCustom(eliminatedGroup);
 
   // Geração dos Duelos Protegidos da 1ª Rodada (Árvore da NFL / Fantasy)
   const playoffMatchups = getProtectedBracket(sortedChamps, sortedRunners, 1);
