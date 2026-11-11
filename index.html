@@ -915,17 +915,18 @@
     .mobile-only { display: none !important; }
 }
 
+
 .col-geral, .col-pontos, .col-avancado { display: none; }
   #leaderboardTable td:nth-child(4), #leaderboardTable td:nth-child(5), #leaderboardTable td:nth-child(6), #leaderboardTable td:nth-child(7), #leaderboardTable td:nth-child(8) { display: none; } 
-  #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13), #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16) { display: none; } 
-  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11) { display: none; } 
+  #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16), #leaderboardTable td:nth-child(17), #leaderboardTable td:nth-child(18) { display: none; } 
+  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11), #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13) { display: none; } 
   
   #leaderboardTable.show-geral .col-geral { display: table-cell; }
   #leaderboardTable.show-geral td:nth-child(4), #leaderboardTable.show-geral td:nth-child(5), #leaderboardTable.show-geral td:nth-child(6), #leaderboardTable.show-geral td:nth-child(7), #leaderboardTable.show-geral td:nth-child(8) { display: table-cell; }
   #leaderboardTable.show-pontos .col-pontos { display: table-cell; }
-  #leaderboardTable.show-pontos td:nth-child(12), #leaderboardTable.show-pontos td:nth-child(13), #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16) { display: table-cell; }
+  #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16), #leaderboardTable.show-pontos td:nth-child(17), #leaderboardTable.show-pontos td:nth-child(18) { display: table-cell; }
   #leaderboardTable.show-avancado .col-avancado { display: table-cell; }
-  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11) { display: table-cell; }
+  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11), #leaderboardTable.show-avancado td:nth-child(12), #leaderboardTable.show-avancado td:nth-child(13) { display: table-cell; }
 
 /* Aba H2H Opponents Columns Toggling */
   #h2hOpponentsTable th.col-h2h-geral, #h2hOpponentsTable td.col-h2h-geral,
@@ -935,8 +936,57 @@
   #h2hOpponentsTable.show-geral th.col-h2h-geral, #h2hOpponentsTable.show-geral td.col-h2h-geral { display: table-cell; }
   #h2hOpponentsTable.show-riv th.col-h2h-riv, #h2hOpponentsTable.show-riv td.col-h2h-riv { display: table-cell; }
   #h2hOpponentsTable.show-pts th.col-h2h-pts, #h2hOpponentsTable.show-pts td.col-h2h-pts { display: table-cell; }
+
+/* Aba H2H Opponents Tabela Responsiva - Coluna Fixa */
+#h2hOpponentsTable th:nth-child(1),
+#h2hOpponentsTable td:nth-child(1) {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--bg-card) !important;
+    z-index: 10 !important;
+    border-right: 1px solid var(--border-color) !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+}
+#h2hOpponentsTable th:nth-child(1) {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    z-index: 11 !important;
+}
+#h2hOpponentsTable tbody tr:hover td:nth-child(1) {
+    background-color: var(--bg-card-hover) !important;
+}
+
+</style>
+
+<style>
+/* Ajuste de Desktop: Scroll Horizontal para KPIs e Galeria de Campeões na Aba 0 */
+@media (min-width: 1025px) {
+    #tab-champions > .kpi-grid, #championsGrid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 16px !important;
+        padding-bottom: 12px !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card, #championsGrid > .kpi-card {
+        flex: 0 0 auto !important;
+        width: 250px !important;
+        min-width: 250px !important;
+    }
+    /* Estilização suave da barra de rolagem */
+    #tab-champions > .kpi-grid::-webkit-scrollbar, #championsGrid::-webkit-scrollbar {
+        height: 8px;
+    }
+    #tab-champions > .kpi-grid::-webkit-scrollbar-thumb, #championsGrid::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+    }
+    #tab-champions > .kpi-grid::-webkit-scrollbar-thumb:hover, #championsGrid::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
 </style>
 </head>
+
 <body>
 
 <div class="container app-layout">
@@ -1208,7 +1258,7 @@
           <div class="table-header-bar" style="border-left: 4px solid var(--accent-loss); background: rgba(239, 68, 68, 0.05);">
             <div>
               <div class="table-title" style="color: #f87171;">❌ Zona de Eliminação (17º ao 20º)</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Lanternas (5º colocado) de cada divisão</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Classificação final (17º ao 20º) definida pelos critérios de desempate (Não jogam a pós-temporada)</div>
             </div>
           </div>
           <div class="table-wrapper">
@@ -1291,6 +1341,8 @@
               <th onclick="sortBy('apWinRate')" title="Aproveitamento se jogasse contra toda a liga na mesma semana" class=" col-avancado">All-Play % 🎯</th>
               <th onclick="sortBy('expWins')" title="Vitórias esperadas pelo volume de pontos" class=" col-avancado">Vitórias Esp. (xW)</th>
               <th onclick="sortBy('luckDelta')" title="Vitórias Reais menos Vitórias Esperadas (Sorte vs Azar)" class=" col-avancado">Índice de Sorte 🍀</th>
+              <th onclick="sortBy('stdDev')" title="Fator Consistência (Desvio Padrão): Quanto menor, mais consistente e previsível é o time" class=" col-avancado">Fator Consistência 📉</th>
+              <th onclick="sortBy('median')" title="Mediana: Ignora extremos e mostra a pontuação real esperada" class=" col-avancado">Mediana (True Score) 🎯</th>
               <th onclick="sortBy('pf')" class=" col-pontos">Pontos Pró (PF)</th>
               <th onclick="sortBy('avgPf')" class=" col-pontos">Média PF</th>
               <th onclick="sortBy('pa')" class=" col-pontos">Pontos Contra (PA)</th>
@@ -1304,6 +1356,26 @@
         </table>
       </div>
     </div>
+    
+    <!-- Glossário de Estatísticas Avançadas -->
+    <div class="table-card" id="advanced-glossary" style="display: none; margin-top: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      <div class="table-header-bar" style="border-left: 4px solid var(--accent-purple); background: rgba(139, 92, 246, 0.05);">
+        <div>
+          <div class="table-title" style="color: #a78bfa;">🤓 Glossário de Estatísticas Avançadas</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Entenda as métricas que separam a sorte da habilidade</div>
+        </div>
+      </div>
+      <div style="padding: 20px 24px; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+        <ul style="list-style-type: none; padding-left: 0; display: flex; flex-direction: column; gap: 14px;">
+          <li><b style="color: #fff; display: block; font-size: 14px; margin-bottom: 2px;">All-Play % 🎯</b> Se o time enfrentasse todos os outros times da liga em todas as semanas, qual seria seu aproveitamento? Mede o verdadeiro poder da equipe, eliminando o fator calendário (dar sorte ou azar no sorteio).</li>
+          <li><b style="color: #fff; display: block; font-size: 14px; margin-bottom: 2px;">Vitórias Esperadas (xW)</b> Baseado no All-Play %, quantas vitórias o time <i>deveria</i> ter acumulado até agora. Reflete o mérito puro de pontuação.</li>
+          <li><b style="color: #fff; display: block; font-size: 14px; margin-bottom: 2px;">Índice de Sorte 🍀</b> A diferença entre as Vitórias Reais e as Vitórias Esperadas (xW).<br><span style="color:#34d399;">Valores positivos:</span> O time tem mais vitórias do que merecia (Sortudo - enfrentou adversários que pontuaram mal).<br><span style="color:#f87171;">Valores negativos:</span> O time tem menos vitórias do que o merecido (Azarado - pontuou bem, mas perdeu para quem fez a partida da vida).</li>
+          <li><b style="color: #fff; display: block; font-size: 14px; margin-bottom: 2px;">Fator Consistência 📉 (Desvio Padrão)</b> Indica a variação das pontuações do time semana a semana. Quanto <span style="color:#34d399;">menor</span> o valor, mais regular e confiável é o time. Valores <span style="color:#f87171;">altos</span> revelam um time "montanha-russa" (capaz de fazer 160 pontos numa semana e 70 na outra).</li>
+          <li><b style="color: #fff; display: block; font-size: 14px; margin-bottom: 2px;">Mediana (True Score) 🎯</b> O ponto exato de equilíbrio das pontuações. Diferente da Média (que pode ser inflada por um único jogo milagroso de 180 pontos), a Mediana ignora esses extremos e mostra com exatidão o que é esperado daquele time numa rodada normal.</li>
+        </ul>
+      </div>
+    </div>
+
   </div>
 
   <!-- Tab 2: Head-to-Head -->
@@ -1331,7 +1403,13 @@
 
   <div id="tab-h2h" class="tab-content">
     
-    <!-- Selectors -->
+    
+    <div class="mobile-segmented-control" style="margin-bottom: 20px;">
+      <button class="seg-btn active" onclick="switchH2HView('h2h-detalhado', this)">⚔️ H2H Detalhado</button>
+      <button class="seg-btn" onclick="switchH2HView('h2h-todos', this)">📊 Desempenho Geral vs Todos</button>
+    </div>
+    <div id="h2h-detalhado" class="h2h-view-section active">
+<!-- Selectors -->
     <div class="h2h-selectors">
       <div class="h2h-player-box">
         <label>Jogador 1:</label>
@@ -1377,6 +1455,8 @@
       </div>
     </div>
 
+    </div>
+    <div id="h2h-todos" class="h2h-view-section" style="display: none;">
     <!-- Opponent Breakdown Table for Player 1 -->
     <div class="table-card" style="margin-top: 24px;">
       <div class="table-header-bar">
@@ -1401,10 +1481,12 @@
               <th onclick="sortOppTable('ties')" class="col-h2h-geral">Empates</th>
               <th onclick="sortOppTable('winRate')" class="col-h2h-geral">Win Rate %</th>
               <th onclick="sortOppTable('rivalry')" class="col-h2h-riv">Quem Manda?</th>
+              <th onclick="sortOppTable('streakCount')" class="col-h2h-riv">Seq. Atual</th>
+              <th onclick="sortOppTable('elevation')" class="col-h2h-riv" title="Desempenho contra este adversário vs Média geral da carreira">Elevação de Nível</th>
               <th onclick="sortOppTable('pf')" class="col-h2h-pts">Pontos Pró</th>
               <th onclick="sortOppTable('pa')" class="col-h2h-pts">Pontos Contra</th>
               <th onclick="sortOppTable('diff')" class="col-h2h-pts">Saldo</th>
-              <th class="col-h2h-riv">Ação</th>
+              <th>Ação</th>
             </tr>
           </thead>
           <tbody id="h2hOpponentsBody">
@@ -1414,6 +1496,7 @@
       </div>
     </div>
 
+    </div>
   </div>
 
   <!-- Tab: Duelo de Divisões (H2H) -->
@@ -1843,6 +1926,18 @@
 <script>
 
 
+
+function switchH2HView(viewId, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  document.getElementById('h2h-detalhado').style.display = 'none';
+  document.getElementById('h2h-todos').style.display = 'none';
+  
+  document.getElementById(viewId).style.display = 'block';
+}
+
 // STANDINGS DATA INJECTED
 const STANDINGS_DATA = [[2016, 1, "Arion", "Loanda Arioles", "8-6", "57%"], [2016, 2, "Gabriel", "NY Giants Augusto", "8-6", "57%"], [2016, 3, "Jaime", "JaimeOliveira", "10-4", "71%"], [2016, 4, "Luiz Guilherme", "Humanas Brasil Team", "9-5", "64%"], [2016, 5, "Elivelton", "Bonde do Liveltinhu", "12-2", "85%"], [2016, 6, "Lubigo", "Reis United", "11-3", "78%"], [2016, 7, "Gessimar", "BS", "8-6", "57%"], [2016, 8, "Parah", "Dream team", "9-5", "64%"], [2016, 9, "Guilherme", "trivellindos", "5-9", "35%"], [2016, 10, "Jordan", "Jordan", "6-8", "42%"], [2016, 11, "Luis BC", "SoberanoBC", "4-10", "28%"], [2016, 12, "Esch", "Esch", "4-10", "28%"], [2016, 13, "Pogliesi", "RDC Cowboys", "7-7", "50%"], [2016, 14, "Moita", "Moita Team", "7-7", "50%"], [2016, 15, "Ronald", "Cangaceiros", "6-8", "42%"], [2016, 16, "Wanster", "Wansteam", "6-8", "42%"], [2016, 17, "Renato", "Falcoada Nordica", "3-11", "21%"], [2016, 18, "Eduardo", "Maior de Minas BT", "3-11", "21%"], [2017, 1, "Pogliesi", "RDC Superstars", "9-5", "64%"], [2017, 2, "Raul", "Itaquera Butchers", "9-5", "64%"], [2017, 3, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2017, 4, "Parah", "Purple N' Black", "10-4", "71%"], [2017, 5, "Pedro", "SJN team", "8-6", "57%"], [2017, 6, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2017, 7, "Lubigo", "Conquista Indians", "9-5", "64%"], [2017, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2017, 9, "Gessimar", "BS Eagles", "6-8", "42%"], [2017, 10, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2017, 11, "Jordan", "CG Cuscuzers", "6-8", "42%"], [2017, 12, "Renato", "RP Falcoada", "6-8", "42%"], [2017, 13, "Eduardo", "BH OneBall", "7-7", "50%"], [2017, 14, "Arion", "Loanda Arioles", "6-8", "42%"], [2017, 15, "Esch", "JF Eschonators", "7-7", "50%"], [2017, 16, "Luiz Guilherme", "Humanas Brasil Team", "7-7", "50%"], [2017, 17, "Ronald", "Cangaceiros", "5-9", "35%"], [2017, 18, "Moita", "Brasilia Lobinhos", "5-9", "35%"], [2017, 19, "Fernando", "Vix TamiresJunto", "4-10", "28%"], [2017, 20, "Wanster", "Cuiaba Hell's", "3-11", "21%"], [2018, 1, "Pedro", "SJN team", "11-2", "84%"], [2018, 2, "Eduardo", "BH OneBall", "10-3", "76%"], [2018, 3, "Rafael", "Leoes Doutrinadores", "9-4", "69%"], [2018, 4, "Jaime", "Itajuba Farmers", "9-4", "69%"], [2018, 5, "Esch", "JF Eschonators", "8-5", "61%"], [2018, 6, "Francisco", "Barbas do Profeta", "8-5", "61%"], [2018, 7, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2018, 8, "Raul", "Itaquera Butchers", "7-6", "53%"], [2018, 9, "Pogliesi", "RDC Rehab", "5-8", "38%"], [2018, 10, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2018, 11, "Lubigo", "Conquista Indians", "5-8", "38%"], [2018, 12, "Walliston", "Tom10M1TO", "5-8", "38%"], [2018, 13, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2018, 14, "Jordan", "CG Cuscuzers", "7-6", "53%"], [2018, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2018, 16, "Wanster", "Cuiaba Hell's", "7-6", "53%"], [2018, 17, "Moita", "Brasilia Lobinhos", "4-9", "30%"], [2018, 18, "Yuri", "Giants United", "4-9", "30%"], [2018, 19, "Ronald", "Cangaceiros Deboa", "3-10", "23%"], [2018, 20, "Elivelton", "Bonde do Liveltinhu", "3-10", "23%"], [2019, 1, "Esch", "JF Eschonators", "8-5", "61%"], [2019, 2, "Rafael", "Leoes Doutrinadores", "6-7", "46%"], [2019, 3, "Wanster", "Brady Gaga", "9-4", "69%"], [2019, 4, "Moita", "Brasilia Lobinhos", "9-4", "69%"], [2019, 5, "Daniel", "Bebumgrinos do Japy", "7-6", "53%"], [2019, 6, "Niltomar", "Russell Will Son", "10-3", "76%"], [2019, 7, "Julio", "Amparo Warriors", "8-5", "61%"], [2019, 8, "Francisco", "Barbas do Profeta", "7-6", "53%"], [2019, 9, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2019, 10, "Jordan", "CG Cuscuzers", "6-7", "46%"], [2019, 11, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2019, 12, "Lubigo", "Conquista Indians", "5-8", "38%"], [2019, 13, "Pogliesi", "Thank you MINSHEW", "7-6", "53%"], [2019, 14, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2019, 15, "Pedro", "SJN team", "5-8", "38%"], [2019, 16, "Arion", "Loanda Arioles", "6-7", "46%"], [2019, 17, "Luis Fernando", "Luhlf Team", "5-8", "38%"], [2019, 18, "Jaime", "Itajuba Farmers", "5-8", "38%"], [2019, 19, "Ronald", "Cangaceiros Deboa", "5-8", "38%"], [2019, 20, "Walliston", "Tom10M1TO", "3-10", "23%"], [2020, 1, "Rafael", "Leoes Doutrinadores", "8-5", "61%"], [2020, 2, "Parah", "Yippee Ki Yay Mother Tucker", "8-5", "61%"], [2020, 3, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2020, 4, "Pedro", "SJN team", "9-4", "69%"], [2020, 5, "Eduardo", "BH One Ball", "8-5", "61%"], [2020, 6, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2020, 7, "Luis Fernando", "Mitotrubisco", "8-5", "61%"], [2020, 8, "Niltomar", "Russell Will Son", "7-6", "53%"], [2020, 9, "Moita", "Brasilia Lobinhos", "7-6", "53%"], [2020, 10, "Jaime", "Itajuba Farmers", "6-7", "46%"], [2020, 11, "Jordan", "Three Rivers", "6-7", "46%"], [2020, 12, "Esch", "JF Eschonators", "7-6", "53%"], [2020, 13, "Wanster", "Brady Gaga", "7-6", "53%"], [2020, 14, "Julio", "Amparo Warriors", "6-7", "46%"], [2020, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2020, 16, "Ronald", "Cangaceiros Deboa", "6-7", "46%"], [2020, 17, "Vitor", "Tiradentes Eagles", "6-7", "46%"], [2020, 18, "Lubigo", "Conquista Indians", "5-8", "38%"], [2020, 19, "Francisco", "Barbas do Profeta", "3-10", "23%"], [2020, 20, "Pogliesi", "SUS Football Team", "3-10", "23%"], [2021, 1, "Niltomar", "Russell Will Son", "11-3", "78%"], [2021, 2, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2021, 3, "Francisco", "Barbas do Profeta", "10-4", "71%"], [2021, 4, "Wanster", "Brady Gaga", "8-6", "57%"], [2021, 5, "Luis Fernando", "Questionable Team", "6-8", "42%"], [2021, 6, "Julio", "Amparo Warriors", "9-5", "64%"], [2021, 7, "Vitor", "Manchester Sitio", "7-7", "50%"], [2021, 8, "Jordan", "CG Cuscuzers", "9-5", "64%"], [2021, 9, "Eduardo", "BH One Ball", "7-7", "50%"], [2021, 10, "Arion", "Loanda Arioles", "5-9", "35%"], [2021, 11, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2021, 12, "Elivelton", "Bonde do Liveltinhu", "6-8", "42%"], [2021, 13, "Lubigo", "Conquista Indians", "7-7", "50%"], [2021, 14, "Moita", "Brasilia Lobinhos", "6-8", "42%"], [2021, 15, "Ronald", "Cangaceiros Deboa", "8-6", "57%"], [2021, 16, "Raul", "Itaquera Butchers", "6-8", "42%"], [2021, 17, "Parah", "Yippee Ki Yay Mother Tucker", "6-8", "42%"], [2021, 18, "Esch", "JF Eschonators", "6-8", "42%"], [2021, 19, "Pogliesi", "VASCO", "5-9", "35%"], [2021, 20, "Luprimo", "Petrolina Brewers", "4-10", "28%"], [2022, 1, "Eduardo", "BH One Ball", "8-6", "57%"], [2022, 2, "Pogliesi", "RDC Superstars", "10-4", "71%"], [2022, 3, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2022, 4, "Julio", "Amparo Warriors", "9-5", "64%"], [2022, 5, "Lubigo", "Conquista Indians", "9-5", "64%"], [2022, 6, "Luprimo", "Petrolina Brewers", "10-4", "71%"], [2022, 7, "Parah", "Yippee Ki Yay Mother Tucker", "7-7", "50%"], [2022, 8, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2022, 9, "Arion", "Loanda Arioles", "7-7", "50%"], [2022, 10, "Francisco", "Barbas do Profeta", "7-7", "50%"], [2022, 11, "Vitor", "Manchester Sitio", "8-6", "57%"], [2022, 12, "Niltomar", "Russell Will Son", "7-7", "50%"], [2022, 13, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2022, 14, "Wanster", "Brady Gaga", "6-8", "42%"], [2022, 15, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2022, 16, "Pedro", "sjn team", "6-7-1", "42%"], [2022, 17, "Esch", "JF Eschonators", "5-8-1", "35%"], [2022, 18, "Daniel", "Bebumgrinos do Japy", "5-9", "35%"], [2022, 19, "Raul", "Itaquera Butchers", "3-11", "21%"], [2022, 20, "Jordan", "CG Cuscuzers", "1-13", "7%"], [2023, 1, "Francisco", "Barbas do Profeta", "8-6", "57%"], [2023, 2, "Alvin", "Alceu_Dispor", "7-7", "50%"], [2023, 3, "Pedro", "sjn team", "8-6", "57%"], [2023, 4, "Parah", "Yippee Ki Yay Mother Tucker", "10-4", "71%"], [2023, 5, "Pogliesi", "MC Popokinha", "8-6", "57%"], [2023, 6, "Ronald", "Cangaceiros Deboa", "9-5", "64%"], [2023, 7, "Raul", "Itaquera Butchers", "9-5", "64%"], [2023, 8, "Vitor", "Manchester Sitio", "7-7", "50%"], [2023, 9, "Daniel", "Bebumgrinos do Japy", "7-7", "50%"], [2023, 10, "Eduardo", "BH One Ball", "7-7", "50%"], [2023, 11, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2023, 12, "Lubigo", "Conquista Indians", "9-5", "64%"], [2023, 13, "Luprimo", "Petrolina Brewers", "8-6", "57%"], [2023, 14, "Arion", "Loanda Arioles", "5-9", "35%"], [2023, 15, "Esch", "Eschonator", "6-8", "42%"], [2023, 16, "Wanster", "Brady Gaga", "7-7", "50%"], [2023, 17, "Jaime", "Itajuba Farmers", "5-9", "35%"], [2023, 18, "Niltomar", "Russell Will Son", "5-9", "35%"], [2023, 19, "Julio", "Amparo Warriors", "5-9", "35%"], [2023, 20, "Elivelton", "Bonde do Liveltinhu", "4-10", "28%"], [2024, 1, "Wanster", "Brady Gaga", "7-7", "50%"], [2024, 2, "Eduardo", "BH One Ball", "9-5", "64%"], [2024, 3, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2024, 4, "Luprimo", "Petrolina Brewers", "9-5", "64%"], [2024, 5, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2024, 6, "Luis Fernando", "Devante Orfans", "10-4", "71%"], [2024, 7, "Arion", "Taylor Swift", "8-6", "57%"], [2024, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2024, 9, "Pogliesi", "Bijan for men", "7-7", "50%"], [2024, 10, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2024, 11, "Niltomar", "Russell Will Son", "6-8", "42%"], [2024, 12, "Julio", "Amparo Warriors", "8-6", "57%"], [2024, 13, "Vitor", "Manchester Sitio", "7-7", "50%"], [2024, 14, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2024, 15, "Elivelton", "Bonde do Liveltinhu", "5-9", "35%"], [2024, 16, "Esch", "Eschonator", "6-8", "42%"], [2024, 17, "Parah", "RiPParah", "5-9", "35%"], [2024, 18, "Alvin", "Kidnapper", "5-9", "35%"], [2024, 19, "Pedro", "sjn team", "4-10", "28%"], [2024, 20, "Raul", "Itaquera Butchers", "1-13", "7%"], [2025, 1, "Niltomar", "Russell Will Son", "7-7", "50%"], [2025, 2, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2025, 3, "Eduardo", "BH One Ball", "8-6", "57%"], [2025, 4, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2025, 5, "Pogliesi", "Hail to the King", "8-6", "57%"], [2025, 6, "Elivelton", "Drake Maye Vascaino", "9-5", "64%"], [2025, 7, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2025, 8, "Parah", "Coca 3L", "9-5", "64%"], [2025, 9, "Douglas", "Bootfire Reptiles", "6-8", "42%"], [2025, 10, "Luis Fernando", "Devante Orfans", "5-9", "35%"], [2025, 11, "Wanster", "Brady Gaga", "7-7", "50%"], [2025, 12, "Vitor", "Manchester Sitio", "7-7", "50%"], [2025, 13, "Ricardo", "Purdy good", "7-7", "50%"], [2025, 14, "Arion", "Kamara com COVID", "6-8", "42%"], [2025, 15, "Julio", "Amparo Warriors", "7-7", "50%"], [2025, 16, "Carlos", "TIME 1", "7-7", "50%"], [2025, 17, "Arthur", "Minducas", "6-8", "42%"], [2025, 18, "Francisco", "Barbas do Profeta", "6-8", "42%"], [2025, 19, "Alvin", "Kidnapper", "4-10", "28%"], [2025, 20, "Luprimo", "Petrolina Brewers", "3-11", "21%"]];
 
@@ -2063,7 +2158,7 @@ function switchTab(tabId, btn) {
   
   const globalFilter = document.getElementById('globalFilterBar');
   if (globalFilter) {
-    if (tabId === 'tab-div-h2h') {
+    if (tabId === 'tab-div-h2h' || tabId === 'tab-season') {
       globalFilter.style.display = 'none';
     } else {
       globalFilter.style.display = '';
@@ -2128,10 +2223,12 @@ function calculatePlayerStats(filteredData) {
       ties: 0,
       pf: 0,
       pa: 0,
+        history: [],
       apWins: 0,
       apLosses: 0,
       apTies: 0,
-      expWins: 0
+      expWins: 0,
+          scores: []
     };
   });
 
@@ -2144,8 +2241,12 @@ function calculatePlayerStats(filteredData) {
     weekScores[wKey].push({ player: p1, pts: pts1 });
     weekScores[wKey].push({ player: p2, pts: pts2 });
 
-    if (!stats[p1]) stats[p1] = { name: p1, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, apWins: 0, apLosses: 0, apTies: 0, expWins: 0 };
-    if (!stats[p2]) stats[p2] = { name: p2, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, apWins: 0, apLosses: 0, apTies: 0, expWins: 0 };
+    if (!stats[p1]) stats[p1] = { name: p1, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [], apWins: 0, apLosses: 0, apTies: 0, expWins: 0,
+          scores: [] };
+    if (!stats[p2]) stats[p2] = { name: p2, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [], apWins: 0, apLosses: 0, apTies: 0, expWins: 0,
+          scores: [] };
 
     stats[p1].games += 1;
     stats[p1].pf += pts1;
@@ -2154,6 +2255,9 @@ function calculatePlayerStats(filteredData) {
     stats[p2].games += 1;
     stats[p2].pf += pts2;
     stats[p2].pa += pts1;
+
+    stats[p1].scores.push(pts1);
+    stats[p2].scores.push(pts2);
 
     if (pts1 > pts2) {
       stats[p1].wins += 1;
@@ -2196,6 +2300,11 @@ function calculatePlayerStats(filteredData) {
     s.luckDelta = s.wins - s.expWins;
     s.avgPf = s.games > 0 ? s.pf / s.games : 0;
     s.avgPa = s.games > 0 ? s.pa / s.games : 0;
+    s.scores.sort((a,b) => a - b);
+    let mid = Math.floor(s.games / 2);
+    s.median = s.games === 0 ? 0 : (s.games % 2 !== 0 ? s.scores[mid] : (s.scores[mid - 1] + s.scores[mid]) / 2);
+    let variance = s.games > 0 ? s.scores.reduce((acc, val) => acc + Math.pow(val - s.avgPf, 2), 0) / s.games : 0;
+    s.stdDev = Math.sqrt(variance);
     s.diff = s.pf - s.pa;
     
     // Contagem de títulos no filtro ativo
@@ -2303,6 +2412,9 @@ function renderLeaderboard() {
   const tbody = document.getElementById('leaderboardBody');
   tbody.innerHTML = '';
 
+  const validStdDevs = list.map(s => s.stdDev).filter(v => v > 0);
+  const avgStdDev = validStdDevs.length > 0 ? validStdDevs.reduce((a, b) => a + b, 0) / validStdDevs.length : 0;
+
   list.forEach((s, idx) => {
     const tr = document.createElement('tr');
     
@@ -2313,6 +2425,13 @@ function renderLeaderboard() {
 
     const luckColor = s.luckDelta > 0.5 ? '#34d399' : (s.luckDelta < -0.5 ? '#f87171' : '#fbbf24');
     const luckIcon = s.luckDelta > 0.5 ? '🍀' : (s.luckDelta < -0.5 ? '🌧️' : '⚖️');
+    
+    let stdDevColor = '#94a3b8'; // Padrão
+    if (avgStdDev > 0) {
+        if (s.stdDev <= avgStdDev * 0.90) stdDevColor = '#34d399'; // Verde (Muito Consistente / Baixo Desvio)
+        else if (s.stdDev >= avgStdDev * 1.10) stdDevColor = '#f87171'; // Vermelho (Inconsistente / Alto Desvio)
+        else stdDevColor = '#fbbf24'; // Amarelo (Na média da liga)
+    }
     
     tr.innerHTML = `
       <td><span class="${rankBadgeClass}">${idx + 1}</span></td>
@@ -2333,6 +2452,8 @@ function renderLeaderboard() {
       <td style="font-weight: 800; color: ${luckColor};">
         ${s.luckDelta > 0 ? '+' : ''}${s.luckDelta.toFixed(1)} ${luckIcon}
       </td>
+      <td style="font-weight: 800; color: ${stdDevColor};">${s.stdDev.toFixed(1)}</td>
+      <td style="font-weight: 800; color: #a78bfa;">${s.median.toFixed(1)}</td>
       <td><strong>${s.pf.toFixed(2)}</strong></td>
       <td>${s.avgPf.toFixed(2)}</td>
       <td>${s.pa.toFixed(2)}</td>
@@ -2577,6 +2698,8 @@ function sortOppTable(col) {
 function renderOpponentsTable(player) {
   document.getElementById('h2hAllOpponentsTitle').innerText = `Desempenho Geral de ${player} contra TODOS os Adversários`;
   const filteredData = getFilteredData();
+  const playerOverallStats = calculatePlayerStats(filteredData).find(s => s.name === player) || { avgPf: 0 };
+  const pAvg = playerOverallStats.avgPf;
   const oppMap = {};
 
   filteredData.forEach(r => {
@@ -2597,13 +2720,15 @@ function renderOpponentsTable(player) {
         losses: 0,
         ties: 0,
         pf: 0,
-        pa: 0
+        pa: 0,
+        history: []
       };
     }
 
     oppMap[opp].games++;
     oppMap[opp].pf += myPts;
     oppMap[opp].pa += oppPts;
+    oppMap[opp].history.push({ year, week, won: myPts > oppPts, lost: oppPts > myPts, tied: myPts === oppPts });
     if (myPts > oppPts) oppMap[opp].wins++;
     else if (oppPts > myPts) oppMap[opp].losses++;
     else oppMap[opp].ties++;
@@ -2613,6 +2738,19 @@ function renderOpponentsTable(player) {
   list.forEach(o => {
     o.winRate = ((o.wins + 0.5 * o.ties) / o.games) * 100;
     o.diff = o.pf - o.pa;
+    o.history.sort((a,b) => a.year - b.year || a.week - b.week);
+    let streak = 0, type = null;
+    for (let i = o.history.length - 1; i >= 0; i--) {
+      let h = o.history[i];
+      let res = h.won ? 'W' : (h.lost ? 'L' : 'T');
+      if (type === null) type = res;
+      if (type === res) streak++;
+      else break;
+    }
+    o.streakType = type;
+    o.streakCount = streak;
+    o.avgVsOpp = o.games > 0 ? o.pf / o.games : 0;
+    o.elevation = o.avgVsOpp - pAvg;
   });
 
   list.sort((a, b) => {
@@ -2654,12 +2792,14 @@ function renderOpponentsTable(player) {
         <strong>${o.winRate.toFixed(1)}%</strong>
       </td>
       <td class="col-h2h-riv">${rivalryBadge}</td>
+      <td class="col-h2h-riv">${o.streakType === 'W' ? '<span class="pill-stat pill-win">🔥 ' + o.streakCount + 'V</span>' : (o.streakType === 'L' ? '<span class="pill-stat pill-loss">🥶 ' + o.streakCount + 'D</span>' : '<span class="pill-stat pill-tie">⚖️ ' + o.streakCount + 'E</span>')}</td>
+      <td class="col-h2h-riv" style="font-weight: 800; color: ${o.elevation >= 0 ? '#34d399' : '#f87171'};">${o.elevation >= 0 ? '+' : ''}${o.elevation.toFixed(1)} pts</td>
       <td class="col-h2h-pts">${o.pf.toFixed(2)}</td>
       <td class="col-h2h-pts">${o.pa.toFixed(2)}</td>
       <td class="col-h2h-pts" style="color: ${o.diff >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">
         ${o.diff > 0 ? '+' : ''}${o.diff.toFixed(2)}
       </td>
-      <td class="col-h2h-riv">
+      <td>
         <button class="pill-btn" onclick="selectH2HOpponent('${player}', '${o.name}')" style="padding: 3px 10px; font-size: 12px;">⚔️ Duelo</button>
       </td>
     `;
@@ -2671,6 +2811,8 @@ function selectH2HOpponent(p1, opp) {
   document.getElementById('h2hPlayer1').value = p1;
   document.getElementById('h2hPlayer2').value = opp;
   renderHeadToHead();
+  const detailBtn = document.querySelector('#tab-h2h .mobile-segmented-control .seg-btn:first-child');
+  if (detailBtn) switchH2HView('h2h-detalhado', detailBtn);
   window.scrollTo({ top: 400, behavior: 'smooth' });
 }
 
@@ -3086,19 +3228,28 @@ function renderFranchiseView() {
 
   // Fases
   const phaseStats = {
-    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
-    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
-    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
+    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] },
+    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] },
+    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] }
   };
 
   const vsDivisionStats = {
-    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
-    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
-    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
-    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
+    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] },
+    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] },
+    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] },
+    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] }
   };
 
   // Adversários para Algozes e Fregueses
+  const playerOverallStats = calculatePlayerStats(filteredData).find(s => s.name === player) || { avgPf: 0 };
+  const pAvg = playerOverallStats.avgPf;
   const oppMap = {};
 
   filteredData.forEach(r => {
@@ -3147,10 +3298,12 @@ function renderFranchiseView() {
     }
 
     // Adversários
-    if (!oppMap[opp]) oppMap[opp] = { name: opp, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 };
+    if (!oppMap[opp]) oppMap[opp] = { name: opp, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [] };
     oppMap[opp].games++;
     oppMap[opp].pf += myPts;
     oppMap[opp].pa += oppPts;
+    oppMap[opp].history.push({ year, week, won: myPts > oppPts, lost: oppPts > myPts, tied: myPts === oppPts });
     if (won) oppMap[opp].wins++;
     else if (lost) oppMap[opp].losses++;
     else oppMap[opp].ties++;
@@ -3185,7 +3338,8 @@ function renderFranchiseView() {
 
   // Cálculo de All-Play e Sorte para o Raio-X
   const allStatsList = calculatePlayerStats(filteredData);
-  const myPlayerStats = allStatsList.find(s => s.name === player) || { apWinRate: 0, expWins: 0, luckDelta: 0 };
+  const myPlayerStats = allStatsList.find(s => s.name === player) || { apWinRate: 0, expWins: 0,
+          scores: [], luckDelta: 0 };
 
   // Nomes Históricos Badge
   const teamNamesArr = Array.from(teamNamesSet);
@@ -3632,6 +3786,7 @@ function renderSeasonView() {
           divTies: 0,
           pf: 0,
           pa: 0,
+        history: [],
           history: []
         };
       }
@@ -3837,6 +3992,37 @@ function renderSeasonView() {
       divGrid.appendChild(card);
     });
   }
+  // 1. Descobrir a semana atual da temporada para aplicar os nomes da Pós-Temporada dinamicamente
+  const maxWeek = seasonGames.length > 0 ? Math.max(...seasonGames.map(g => g[1])) : 0;
+  
+  function getPostseasonMatchLabel(bracketType, currentWeek, matchIndex) {
+      let projectedWeek = currentWeek + 1; // A tabela projeta a próxima semana
+      
+      if (projectedWeek <= 15) {
+          // Semana 15 = Quartas de final
+          return bracketType === 'playoffs' ? 'Quartas' : 'Quartas (9º-16º)';
+      } else if (projectedWeek === 16) {
+          // Semana 16 = Semifinais e disputas intermediárias
+          if (bracketType === 'playoffs') return matchIndex < 2 ? 'Semifinal' : '5º ao 8º lugar';
+          else return matchIndex < 2 ? 'Semi (9º-12º)' : '13º ao 16º lugar';
+      } else {
+          // Semana 17 = Finais e disputas de posição finais
+          if (bracketType === 'playoffs') {
+              if (matchIndex === 0) return 'Final 🏆';
+              if (matchIndex === 1) return '3º e 4º 🥉';
+              if (matchIndex === 2) return '5º e 6º lugar';
+              if (matchIndex === 3) return '7º e 8º lugar';
+          } else {
+              if (matchIndex === 0) return '9º e 10º lugar';
+              if (matchIndex === 1) return '11º e 12º lugar';
+              if (matchIndex === 2) return '13º e 14º lugar';
+              if (matchIndex === 3) return '15º e 16º lugar';
+          }
+      }
+      return `Jogo ${matchIndex + 1}`;
+  }
+
+
 
   // Ordenação dos Campeões e Vices
   const sortedChamps = sortTeamsCustom(championsGroup);
@@ -3852,9 +4038,9 @@ function renderSeasonView() {
   // Renderizar Chaveamento de Playoffs
   const pBody = document.getElementById('playoffsBracketBody');
   if (pBody) {
-    pBody.innerHTML = playoffMatchups.map(m => `
+    pBody.innerHTML = playoffMatchups.map((m, idx) => `
       <tr style="border-bottom: 1px solid var(--border-color); ${m.wasSwapped ? 'background: rgba(245, 158, 11, 0.04);' : ''}">
-        <td style="font-weight: 800; color: var(--accent-gold);">Jogo ${m.matchNum}</td>
+        <td style=\"font-weight: 800; color: var(--accent-gold); font-size: 13px;\">${getPostseasonMatchLabel('playoffs', maxWeek, idx)}</td>
         <td>
           <span class="rank-badge rank-1" style="width: auto; padding: 0 6px; height: 20px; font-size: 11px; margin-right: 6px;">#${m.highSeed}</span>
           <strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${m.highTeam.name}')">${m.highTeam.name}</strong>
@@ -3878,9 +4064,9 @@ function renderSeasonView() {
   // Renderizar Chaveamento de Consolation
   const cBody = document.getElementById('consolationBracketBody');
   if (cBody) {
-    cBody.innerHTML = consolationMatchups.map(m => `
+    cBody.innerHTML = consolationMatchups.map((m, idx) => `
       <tr style="border-bottom: 1px solid var(--border-color); ${m.wasSwapped ? 'background: rgba(245, 158, 11, 0.04);' : ''}">
-        <td style="font-weight: 800; color: #a78bfa;">Jogo ${m.matchNum}</td>
+        <td style=\"font-weight: 800; color: #a78bfa; font-size: 13px;\">${getPostseasonMatchLabel('consolation', maxWeek, idx)}</td>
         <td>
           <span class="rank-badge" style="width: auto; padding: 0 6px; height: 20px; font-size: 11px; margin-right: 6px; background: rgba(139, 92, 246, 0.2); color: #a78bfa;">#${m.highSeed}</span>
           <strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${m.highTeam.name}')">${m.highTeam.name}</strong>
@@ -4196,10 +4382,12 @@ function renderDivisionH2H() {
   const playerStats = {};
 
   DIV_LIST.forEach(d => {
-    stats[d] = { div: d, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, games: 0, titles: 0 };
+    stats[d] = { div: d, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [], games: 0, titles: 0 };
     matrix[d] = {};
     DIV_LIST.forEach(d2 => {
-      matrix[d][d2] = { w: 0, l: 0, t: 0, pf: 0, pa: 0, games: 0 };
+      matrix[d][d2] = { w: 0, l: 0, t: 0, pf: 0, pa: 0,
+        history: [], games: 0 };
     });
   });
 
@@ -4251,7 +4439,8 @@ function renderDivisionH2H() {
       { p: p2, t: t2, div: d2, won: pts2 > pts1, lost: pts1 > pts2, tied: pts1 === pts2, pts: pts2, oppPts: pts1, oppDiv: d1 } ].forEach(item => {
       const k = `${item.p}_${item.div}`;
       if (!playerStats[k]) {
-        playerStats[k] = { name: item.p, div: item.div, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, games: 0 };
+        playerStats[k] = { name: item.p, div: item.div, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
+        history: [], games: 0 };
       }
       playerStats[k].games++;
       playerStats[k].pf += item.pts;
@@ -4284,6 +4473,11 @@ function renderDivisionH2H() {
     s.winRate = s.games > 0 ? ((s.wins + 0.5 * s.ties) / s.games) * 100 : 0;
     s.avgPf = s.games > 0 ? s.pf / s.games : 0;
     s.avgPa = s.games > 0 ? s.pa / s.games : 0;
+    s.scores.sort((a,b) => a - b);
+    let mid = Math.floor(s.games / 2);
+    s.median = s.games === 0 ? 0 : (s.games % 2 !== 0 ? s.scores[mid] : (s.scores[mid - 1] + s.scores[mid]) / 2);
+    let variance = s.games > 0 ? s.scores.reduce((acc, val) => acc + Math.pow(val - s.avgPf, 2), 0) / s.games : 0;
+    s.stdDev = Math.sqrt(variance);
     s.diff = s.pf - s.pa;
   });
 
@@ -4638,17 +4832,18 @@ refreshAllViews();
     .mobile-only { display: none !important; }
 }
 
+
 .col-geral, .col-pontos, .col-avancado { display: none; }
   #leaderboardTable td:nth-child(4), #leaderboardTable td:nth-child(5), #leaderboardTable td:nth-child(6), #leaderboardTable td:nth-child(7), #leaderboardTable td:nth-child(8) { display: none; } 
-  #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13), #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16) { display: none; } 
-  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11) { display: none; } 
+  #leaderboardTable td:nth-child(14), #leaderboardTable td:nth-child(15), #leaderboardTable td:nth-child(16), #leaderboardTable td:nth-child(17), #leaderboardTable td:nth-child(18) { display: none; } 
+  #leaderboardTable td:nth-child(9), #leaderboardTable td:nth-child(10), #leaderboardTable td:nth-child(11), #leaderboardTable td:nth-child(12), #leaderboardTable td:nth-child(13) { display: none; } 
   
   #leaderboardTable.show-geral .col-geral { display: table-cell; }
   #leaderboardTable.show-geral td:nth-child(4), #leaderboardTable.show-geral td:nth-child(5), #leaderboardTable.show-geral td:nth-child(6), #leaderboardTable.show-geral td:nth-child(7), #leaderboardTable.show-geral td:nth-child(8) { display: table-cell; }
   #leaderboardTable.show-pontos .col-pontos { display: table-cell; }
-  #leaderboardTable.show-pontos td:nth-child(12), #leaderboardTable.show-pontos td:nth-child(13), #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16) { display: table-cell; }
+  #leaderboardTable.show-pontos td:nth-child(14), #leaderboardTable.show-pontos td:nth-child(15), #leaderboardTable.show-pontos td:nth-child(16), #leaderboardTable.show-pontos td:nth-child(17), #leaderboardTable.show-pontos td:nth-child(18) { display: table-cell; }
   #leaderboardTable.show-avancado .col-avancado { display: table-cell; }
-  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11) { display: table-cell; }
+  #leaderboardTable.show-avancado td:nth-child(9), #leaderboardTable.show-avancado td:nth-child(10), #leaderboardTable.show-avancado td:nth-child(11), #leaderboardTable.show-avancado td:nth-child(12), #leaderboardTable.show-avancado td:nth-child(13) { display: table-cell; }
 
 /* Aba H2H Opponents Columns Toggling */
   #h2hOpponentsTable th.col-h2h-geral, #h2hOpponentsTable td.col-h2h-geral,
@@ -4658,8 +4853,57 @@ refreshAllViews();
   #h2hOpponentsTable.show-geral th.col-h2h-geral, #h2hOpponentsTable.show-geral td.col-h2h-geral { display: table-cell; }
   #h2hOpponentsTable.show-riv th.col-h2h-riv, #h2hOpponentsTable.show-riv td.col-h2h-riv { display: table-cell; }
   #h2hOpponentsTable.show-pts th.col-h2h-pts, #h2hOpponentsTable.show-pts td.col-h2h-pts { display: table-cell; }
+
+/* Aba H2H Opponents Tabela Responsiva - Coluna Fixa */
+#h2hOpponentsTable th:nth-child(1),
+#h2hOpponentsTable td:nth-child(1) {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--bg-card) !important;
+    z-index: 10 !important;
+    border-right: 1px solid var(--border-color) !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+}
+#h2hOpponentsTable th:nth-child(1) {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    z-index: 11 !important;
+}
+#h2hOpponentsTable tbody tr:hover td:nth-child(1) {
+    background-color: var(--bg-card-hover) !important;
+}
+
 </style>
-</head></html><html><head><script>
+
+<style>
+/* Ajuste de Desktop: Scroll Horizontal para KPIs e Galeria de Campeões na Aba 0 */
+@media (min-width: 1025px) {
+    #tab-champions > .kpi-grid, #championsGrid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 16px !important;
+        padding-bottom: 12px !important;
+    }
+    #tab-champions > .kpi-grid > .kpi-card, #championsGrid > .kpi-card {
+        flex: 0 0 auto !important;
+        width: 250px !important;
+        min-width: 250px !important;
+    }
+    /* Estilização suave da barra de rolagem */
+    #tab-champions > .kpi-grid::-webkit-scrollbar, #championsGrid::-webkit-scrollbar {
+        height: 8px;
+    }
+    #tab-champions > .kpi-grid::-webkit-scrollbar-thumb, #championsGrid::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+    }
+    #tab-champions > .kpi-grid::-webkit-scrollbar-thumb:hover, #championsGrid::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+</style>
+</head>
+</html><html><head><script>
 
 // UI Interactions for Mobile
 function toggleSidebar() {
@@ -4704,6 +4948,10 @@ function switchLbTab(tab, btn) {
   const table = document.getElementById('leaderboardTable');
   table.classList.remove('show-geral', 'show-pontos', 'show-avancado');
   table.classList.add('show-' + tab);
+  const glossary = document.getElementById('advanced-glossary');
+  if (glossary) {
+    glossary.style.display = tab === 'avancado' ? 'block' : 'none';
+  }
 }
 
 function switchRecordsTab() {
