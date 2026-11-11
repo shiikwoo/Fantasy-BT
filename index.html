@@ -1413,7 +1413,7 @@
     <div class="h2h-selectors">
       <div class="h2h-player-box">
         <label>Jogador 1:</label>
-        <select id="h2hPlayer1" onchange="renderHeadToHead()"></select>
+        <select id="h2hPlayer1" onchange="syncH2HSelectors(this.value, 'p1')"></select>
       </div>
       <div class="vs-circle">VS</div>
       <div class="h2h-player-box">
@@ -1463,6 +1463,9 @@
         <div>
           <div class="table-title" id="h2hAllOpponentsTitle">Desempenho Geral do Jogador 1 contra TODOS os Adversários</div>
           <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Veja quem são os maiores "fregueses" e os maiores "carrascos"</div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <select id="h2hPlayerAll" onchange="syncH2HSelectors(this.value, 'todos')" style="background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; padding: 6px 12px; font-size: 14px; border-radius: 8px; min-width: 180px;"></select>
         </div>
       </div>
       <div class="mobile-segmented-control" style="margin: 10px 15px 5px 15px;">
@@ -1927,6 +1930,27 @@
 
 
 
+function syncH2HSelectors(val, source) {
+  const p1 = document.getElementById('h2hPlayer1');
+  const pAll = document.getElementById('h2hPlayerAll');
+  const fSelect = document.getElementById('franchisePlayerSelect');
+  
+  selectedFranchisePlayer = val;
+  
+  if (p1) p1.value = val;
+  if (pAll) pAll.value = val;
+  if (fSelect) fSelect.value = val;
+  
+  const p2 = document.getElementById('h2hPlayer2');
+  if (p2 && p2.value === val) {
+    const other = ALL_PLAYERS.find(p => p !== val);
+    if (other) p2.value = other;
+  }
+  
+  renderHeadToHead();
+  renderFranchiseView();
+}
+
 function switchH2HView(viewId, btn) {
   const parent = btn.parentElement;
   parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
@@ -2111,6 +2135,7 @@ for (let w = 1; w <= 17; w++) {
 const p1Select = document.getElementById('h2hPlayer1');
 const p2Select = document.getElementById('h2hPlayer2');
 const franchiseSelect = document.getElementById('franchisePlayerSelect');
+const pAllSelect = document.getElementById('h2hPlayerAll');
 
 ALL_PLAYERS.forEach(p => {
   const opt1 = document.createElement('option');
@@ -2129,10 +2154,17 @@ ALL_PLAYERS.forEach(p => {
     optF.textContent = p;
     franchiseSelect.appendChild(optF);
   }
+  
+  if (pAllSelect) {
+    const optA = document.createElement('option');
+    optA.value = p;
+    optA.textContent = p;
+    pAllSelect.appendChild(optA);
+  }
 });
 
 // Default H2H selections (e.g. Eduardo vs Parah or first two)
-if (ALL_PLAYERS.includes('Eduardo')) p1Select.value = 'Eduardo';
+if (ALL_PLAYERS.includes('Eduardo')) { p1Select.value = 'Eduardo'; if (pAllSelect) pAllSelect.value = 'Eduardo'; }
 if (ALL_PLAYERS.includes('Parah')) p2Select.value = 'Parah';
 else if (ALL_PLAYERS.length > 1) p2Select.selectedIndex = 1;
 
@@ -2467,32 +2499,18 @@ function renderLeaderboard() {
 }
 
 function inspectPlayer(name, targetTab = 'tab-franchise') {
-  selectedFranchisePlayer = name;
-  const fSelect = document.getElementById('franchisePlayerSelect');
-  if (fSelect) fSelect.value = name;
-
-  const h1 = document.getElementById('h2hPlayer1');
-  if (h1) {
-    h1.value = name;
-    const other = ALL_PLAYERS.find(p => p !== name);
-    if (other) document.getElementById('h2hPlayer2').value = other;
-  }
-
-  // Sincroniza e abre a aba desejada (default: Raio-X da Franquia)
+  syncH2HSelectors(name, 'inspect');
   switchTab(targetTab);
 }
 
 function onFranchiseSelectChange() {
-  selectedFranchisePlayer = document.getElementById('franchisePlayerSelect').value;
-  if (selectedFranchisePlayer) {
-    const h1 = document.getElementById('h2hPlayer1');
-    if (h1) {
-      h1.value = selectedFranchisePlayer;
-      const other = ALL_PLAYERS.find(p => p !== selectedFranchisePlayer);
-      if (other) document.getElementById('h2hPlayer2').value = other;
-    }
+  const val = document.getElementById('franchisePlayerSelect').value;
+  if (val) {
+    syncH2HSelectors(val, 'franchise');
+  } else {
+    selectedFranchisePlayer = '';
+    renderFranchiseView();
   }
-  renderFranchiseView();
 }
 
 // HEAD-TO-HEAD RENDERING
@@ -2808,9 +2826,13 @@ function renderOpponentsTable(player) {
 }
 
 function selectH2HOpponent(p1, opp) {
-  document.getElementById('h2hPlayer1').value = p1;
-  document.getElementById('h2hPlayer2').value = opp;
-  renderHeadToHead();
+  syncH2HSelectors(p1, 'h2h-opp');
+  
+  const p2 = document.getElementById('h2hPlayer2');
+  if (p2) p2.value = opp;
+  
+  renderHeadToHead(); 
+  
   const detailBtn = document.querySelector('#tab-h2h .mobile-segmented-control .seg-btn:first-child');
   if (detailBtn) switchH2HView('h2h-detalhado', detailBtn);
   window.scrollTo({ top: 400, behavior: 'smooth' });
