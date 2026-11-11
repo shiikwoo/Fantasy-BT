@@ -4473,11 +4473,6 @@ function renderDivisionH2H() {
     s.winRate = s.games > 0 ? ((s.wins + 0.5 * s.ties) / s.games) * 100 : 0;
     s.avgPf = s.games > 0 ? s.pf / s.games : 0;
     s.avgPa = s.games > 0 ? s.pa / s.games : 0;
-    s.scores.sort((a,b) => a - b);
-    let mid = Math.floor(s.games / 2);
-    s.median = s.games === 0 ? 0 : (s.games % 2 !== 0 ? s.scores[mid] : (s.scores[mid - 1] + s.scores[mid]) / 2);
-    let variance = s.games > 0 ? s.scores.reduce((acc, val) => acc + Math.pow(val - s.avgPf, 2), 0) / s.games : 0;
-    s.stdDev = Math.sqrt(variance);
     s.diff = s.pf - s.pa;
   });
 
