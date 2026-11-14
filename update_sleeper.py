@@ -236,10 +236,13 @@ def main():
     
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    with open("update_sleeper_novo.py", "w", encoding="utf-8") as f:
+    # ===============================================================
+    # CORREÇÃO: SALVAR NO index.html E NÃO NUM ARQUIVO .py ALEATÓRIO
+    # ===============================================================
+    with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"🚀 Script salvo e atualizado no HTML com sucesso!")
+    print(f"🚀 HTML ({HTML_FILE}) atualizado e sincronizado com sucesso!")
 
 if __name__ == "__main__":
     main()
