@@ -1183,6 +1183,29 @@
   .kpi-card.avg::before { background: #06b6d4 !important; }
 </style>
 
+
+<style id="franchise-xray-css">
+/* CSS EXCLUSIVO PARA O RAIO-X DA FRANQUIA */
+.franchise-hero { background: linear-gradient(135deg, var(--bg-card) 0%, #162032 100%); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border-color); position: relative; overflow: hidden; margin-bottom: 24px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); }
+.franchise-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.4); flex-shrink: 0; }
+.franchise-trophies { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.trophy-badge { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.franchise-kpis-wrapper { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+
+@media (min-width: 1025px) {
+    .franchise-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+    .franchise-stats-grid .table-card { display: block !important; margin-bottom: 0 !important; }
+    #tab-franchise .mobile-segmented-control { display: none !important; }
+}
+@media (max-width: 1024px) {
+    .col-traj-desktop { display: none !important; }
+    .franchise-hero { flex-direction: column; text-align: center; padding: 20px 16px; }
+    .franchise-trophies { justify-content: center; }
+    .franchise-kpis-wrapper { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+    .franchise-kpis-wrapper > span { scroll-snap-align: start; flex-shrink: 0; }
+}
+</style>
+
 </head>
 
 <body>
@@ -2171,6 +2194,8 @@ function switchH2HView(viewId, btn) {
 }
 
 // STANDINGS DATA INJECTED
+const AVATARES_SLEEPER = {};
+
 const STANDINGS_DATA = [[2016, 1, "Arion", "Loanda Arioles", "8-6", "57%"], [2016, 2, "Gabriel", "NY Giants Augusto", "8-6", "57%"], [2016, 3, "Jaime", "JaimeOliveira", "10-4", "71%"], [2016, 4, "Luiz Guilherme", "Humanas Brasil Team", "9-5", "64%"], [2016, 5, "Elivelton", "Bonde do Liveltinhu", "12-2", "85%"], [2016, 6, "Lubigo", "Reis United", "11-3", "78%"], [2016, 7, "Gessimar", "BS", "8-6", "57%"], [2016, 8, "Parah", "Dream team", "9-5", "64%"], [2016, 9, "Guilherme", "trivellindos", "5-9", "35%"], [2016, 10, "Jordan", "Jordan", "6-8", "42%"], [2016, 11, "Luis BC", "SoberanoBC", "4-10", "28%"], [2016, 12, "Esch", "Esch", "4-10", "28%"], [2016, 13, "Pogliesi", "RDC Cowboys", "7-7", "50%"], [2016, 14, "Moita", "Moita Team", "7-7", "50%"], [2016, 15, "Ronald", "Cangaceiros", "6-8", "42%"], [2016, 16, "Wanster", "Wansteam", "6-8", "42%"], [2016, 17, "Renato", "Falcoada Nordica", "3-11", "21%"], [2016, 18, "Eduardo", "Maior de Minas BT", "3-11", "21%"], [2017, 1, "Pogliesi", "RDC Superstars", "9-5", "64%"], [2017, 2, "Raul", "Itaquera Butchers", "9-5", "64%"], [2017, 3, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2017, 4, "Parah", "Purple N' Black", "10-4", "71%"], [2017, 5, "Pedro", "SJN team", "8-6", "57%"], [2017, 6, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2017, 7, "Lubigo", "Conquista Indians", "9-5", "64%"], [2017, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2017, 9, "Gessimar", "BS Eagles", "6-8", "42%"], [2017, 10, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2017, 11, "Jordan", "CG Cuscuzers", "6-8", "42%"], [2017, 12, "Renato", "RP Falcoada", "6-8", "42%"], [2017, 13, "Eduardo", "BH OneBall", "7-7", "50%"], [2017, 14, "Arion", "Loanda Arioles", "6-8", "42%"], [2017, 15, "Esch", "JF Eschonators", "7-7", "50%"], [2017, 16, "Luiz Guilherme", "Humanas Brasil Team", "7-7", "50%"], [2017, 17, "Ronald", "Cangaceiros", "5-9", "35%"], [2017, 18, "Moita", "Brasilia Lobinhos", "5-9", "35%"], [2017, 19, "Fernando", "Vix TamiresJunto", "4-10", "28%"], [2017, 20, "Wanster", "Cuiaba Hell's", "3-11", "21%"], [2018, 1, "Pedro", "SJN team", "11-2", "84%"], [2018, 2, "Eduardo", "BH OneBall", "10-3", "76%"], [2018, 3, "Rafael", "Leoes Doutrinadores", "9-4", "69%"], [2018, 4, "Jaime", "Itajuba Farmers", "9-4", "69%"], [2018, 5, "Esch", "JF Eschonators", "8-5", "61%"], [2018, 6, "Francisco", "Barbas do Profeta", "8-5", "61%"], [2018, 7, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2018, 8, "Raul", "Itaquera Butchers", "7-6", "53%"], [2018, 9, "Pogliesi", "RDC Rehab", "5-8", "38%"], [2018, 10, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2018, 11, "Lubigo", "Conquista Indians", "5-8", "38%"], [2018, 12, "Walliston", "Tom10M1TO", "5-8", "38%"], [2018, 13, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2018, 14, "Jordan", "CG Cuscuzers", "7-6", "53%"], [2018, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2018, 16, "Wanster", "Cuiaba Hell's", "7-6", "53%"], [2018, 17, "Moita", "Brasilia Lobinhos", "4-9", "30%"], [2018, 18, "Yuri", "Giants United", "4-9", "30%"], [2018, 19, "Ronald", "Cangaceiros Deboa", "3-10", "23%"], [2018, 20, "Elivelton", "Bonde do Liveltinhu", "3-10", "23%"], [2019, 1, "Esch", "JF Eschonators", "8-5", "61%"], [2019, 2, "Rafael", "Leoes Doutrinadores", "6-7", "46%"], [2019, 3, "Wanster", "Brady Gaga", "9-4", "69%"], [2019, 4, "Moita", "Brasilia Lobinhos", "9-4", "69%"], [2019, 5, "Daniel", "Bebumgrinos do Japy", "7-6", "53%"], [2019, 6, "Niltomar", "Russell Will Son", "10-3", "76%"], [2019, 7, "Julio", "Amparo Warriors", "8-5", "61%"], [2019, 8, "Francisco", "Barbas do Profeta", "7-6", "53%"], [2019, 9, "Fernando", "Vix TamiresJunto", "7-6", "53%"], [2019, 10, "Jordan", "CG Cuscuzers", "6-7", "46%"], [2019, 11, "Parah", "Yippee Ki Yay Mother Tucker", "5-8", "38%"], [2019, 12, "Lubigo", "Conquista Indians", "5-8", "38%"], [2019, 13, "Pogliesi", "Thank you MINSHEW", "7-6", "53%"], [2019, 14, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2019, 15, "Pedro", "SJN team", "5-8", "38%"], [2019, 16, "Arion", "Loanda Arioles", "6-7", "46%"], [2019, 17, "Luis Fernando", "Luhlf Team", "5-8", "38%"], [2019, 18, "Jaime", "Itajuba Farmers", "5-8", "38%"], [2019, 19, "Ronald", "Cangaceiros Deboa", "5-8", "38%"], [2019, 20, "Walliston", "Tom10M1TO", "3-10", "23%"], [2020, 1, "Rafael", "Leoes Doutrinadores", "8-5", "61%"], [2020, 2, "Parah", "Yippee Ki Yay Mother Tucker", "8-5", "61%"], [2020, 3, "Daniel", "Bebumgrinos do Japy", "8-5", "61%"], [2020, 4, "Pedro", "SJN team", "9-4", "69%"], [2020, 5, "Eduardo", "BH One Ball", "8-5", "61%"], [2020, 6, "Elivelton", "Bonde do Liveltinhu", "7-6", "53%"], [2020, 7, "Luis Fernando", "Mitotrubisco", "8-5", "61%"], [2020, 8, "Niltomar", "Russell Will Son", "7-6", "53%"], [2020, 9, "Moita", "Brasilia Lobinhos", "7-6", "53%"], [2020, 10, "Jaime", "Itajuba Farmers", "6-7", "46%"], [2020, 11, "Jordan", "Three Rivers", "6-7", "46%"], [2020, 12, "Esch", "JF Eschonators", "7-6", "53%"], [2020, 13, "Wanster", "Brady Gaga", "7-6", "53%"], [2020, 14, "Julio", "Amparo Warriors", "6-7", "46%"], [2020, 15, "Arion", "Loanda Arioles", "5-8", "38%"], [2020, 16, "Ronald", "Cangaceiros Deboa", "6-7", "46%"], [2020, 17, "Vitor", "Tiradentes Eagles", "6-7", "46%"], [2020, 18, "Lubigo", "Conquista Indians", "5-8", "38%"], [2020, 19, "Francisco", "Barbas do Profeta", "3-10", "23%"], [2020, 20, "Pogliesi", "SUS Football Team", "3-10", "23%"], [2021, 1, "Niltomar", "Russell Will Son", "11-3", "78%"], [2021, 2, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2021, 3, "Francisco", "Barbas do Profeta", "10-4", "71%"], [2021, 4, "Wanster", "Brady Gaga", "8-6", "57%"], [2021, 5, "Luis Fernando", "Questionable Team", "6-8", "42%"], [2021, 6, "Julio", "Amparo Warriors", "9-5", "64%"], [2021, 7, "Vitor", "Manchester Sitio", "7-7", "50%"], [2021, 8, "Jordan", "CG Cuscuzers", "9-5", "64%"], [2021, 9, "Eduardo", "BH One Ball", "7-7", "50%"], [2021, 10, "Arion", "Loanda Arioles", "5-9", "35%"], [2021, 11, "Daniel", "Bebumgrinos do Japy", "6-8", "42%"], [2021, 12, "Elivelton", "Bonde do Liveltinhu", "6-8", "42%"], [2021, 13, "Lubigo", "Conquista Indians", "7-7", "50%"], [2021, 14, "Moita", "Brasilia Lobinhos", "6-8", "42%"], [2021, 15, "Ronald", "Cangaceiros Deboa", "8-6", "57%"], [2021, 16, "Raul", "Itaquera Butchers", "6-8", "42%"], [2021, 17, "Parah", "Yippee Ki Yay Mother Tucker", "6-8", "42%"], [2021, 18, "Esch", "JF Eschonators", "6-8", "42%"], [2021, 19, "Pogliesi", "VASCO", "5-9", "35%"], [2021, 20, "Luprimo", "Petrolina Brewers", "4-10", "28%"], [2022, 1, "Eduardo", "BH One Ball", "8-6", "57%"], [2022, 2, "Pogliesi", "RDC Superstars", "10-4", "71%"], [2022, 3, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2022, 4, "Julio", "Amparo Warriors", "9-5", "64%"], [2022, 5, "Lubigo", "Conquista Indians", "9-5", "64%"], [2022, 6, "Luprimo", "Petrolina Brewers", "10-4", "71%"], [2022, 7, "Parah", "Yippee Ki Yay Mother Tucker", "7-7", "50%"], [2022, 8, "Elivelton", "Bonde do Liveltinhu", "9-5", "64%"], [2022, 9, "Arion", "Loanda Arioles", "7-7", "50%"], [2022, 10, "Francisco", "Barbas do Profeta", "7-7", "50%"], [2022, 11, "Vitor", "Manchester Sitio", "8-6", "57%"], [2022, 12, "Niltomar", "Russell Will Son", "7-7", "50%"], [2022, 13, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2022, 14, "Wanster", "Brady Gaga", "6-8", "42%"], [2022, 15, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2022, 16, "Pedro", "sjn team", "6-7-1", "42%"], [2022, 17, "Esch", "JF Eschonators", "5-8-1", "35%"], [2022, 18, "Daniel", "Bebumgrinos do Japy", "5-9", "35%"], [2022, 19, "Raul", "Itaquera Butchers", "3-11", "21%"], [2022, 20, "Jordan", "CG Cuscuzers", "1-13", "7%"], [2023, 1, "Francisco", "Barbas do Profeta", "8-6", "57%"], [2023, 2, "Alvin", "Alceu_Dispor", "7-7", "50%"], [2023, 3, "Pedro", "sjn team", "8-6", "57%"], [2023, 4, "Parah", "Yippee Ki Yay Mother Tucker", "10-4", "71%"], [2023, 5, "Pogliesi", "MC Popokinha", "8-6", "57%"], [2023, 6, "Ronald", "Cangaceiros Deboa", "9-5", "64%"], [2023, 7, "Raul", "Itaquera Butchers", "9-5", "64%"], [2023, 8, "Vitor", "Manchester Sitio", "7-7", "50%"], [2023, 9, "Daniel", "Bebumgrinos do Japy", "7-7", "50%"], [2023, 10, "Eduardo", "BH One Ball", "7-7", "50%"], [2023, 11, "Luis Fernando", "Devante Orfans", "6-8", "42%"], [2023, 12, "Lubigo", "Conquista Indians", "9-5", "64%"], [2023, 13, "Luprimo", "Petrolina Brewers", "8-6", "57%"], [2023, 14, "Arion", "Loanda Arioles", "5-9", "35%"], [2023, 15, "Esch", "Eschonator", "6-8", "42%"], [2023, 16, "Wanster", "Brady Gaga", "7-7", "50%"], [2023, 17, "Jaime", "Itajuba Farmers", "5-9", "35%"], [2023, 18, "Niltomar", "Russell Will Son", "5-9", "35%"], [2023, 19, "Julio", "Amparo Warriors", "5-9", "35%"], [2023, 20, "Elivelton", "Bonde do Liveltinhu", "4-10", "28%"], [2024, 1, "Wanster", "Brady Gaga", "7-7", "50%"], [2024, 2, "Eduardo", "BH One Ball", "9-5", "64%"], [2024, 3, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2024, 4, "Luprimo", "Petrolina Brewers", "9-5", "64%"], [2024, 5, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2024, 6, "Luis Fernando", "Devante Orfans", "10-4", "71%"], [2024, 7, "Arion", "Taylor Swift", "8-6", "57%"], [2024, 8, "Francisco", "Barbas do Profeta", "9-5", "64%"], [2024, 9, "Pogliesi", "Bijan for men", "7-7", "50%"], [2024, 10, "Ronald", "Cangaceiros Deboa", "7-7", "50%"], [2024, 11, "Niltomar", "Russell Will Son", "6-8", "42%"], [2024, 12, "Julio", "Amparo Warriors", "8-6", "57%"], [2024, 13, "Vitor", "Manchester Sitio", "7-7", "50%"], [2024, 14, "Jaime", "Itajuba Farmers", "8-6", "57%"], [2024, 15, "Elivelton", "Bonde do Liveltinhu", "5-9", "35%"], [2024, 16, "Esch", "Eschonator", "6-8", "42%"], [2024, 17, "Parah", "RiPParah", "5-9", "35%"], [2024, 18, "Alvin", "Kidnapper", "5-9", "35%"], [2024, 19, "Pedro", "sjn team", "4-10", "28%"], [2024, 20, "Raul", "Itaquera Butchers", "1-13", "7%"], [2025, 1, "Niltomar", "Russell Will Son", "7-7", "50%"], [2025, 2, "Jaime", "Itajuba Farmers", "9-5", "64%"], [2025, 3, "Eduardo", "BH One Ball", "8-6", "57%"], [2025, 4, "Lubigo", "Pocoes Kings", "10-4", "71%"], [2025, 5, "Pogliesi", "Hail to the King", "8-6", "57%"], [2025, 6, "Elivelton", "Drake Maye Vascaino", "9-5", "64%"], [2025, 7, "Daniel", "Bebumgrinos do Japy", "9-5", "64%"], [2025, 8, "Parah", "Coca 3L", "9-5", "64%"], [2025, 9, "Douglas", "Bootfire Reptiles", "6-8", "42%"], [2025, 10, "Luis Fernando", "Devante Orfans", "5-9", "35%"], [2025, 11, "Wanster", "Brady Gaga", "7-7", "50%"], [2025, 12, "Vitor", "Manchester Sitio", "7-7", "50%"], [2025, 13, "Ricardo", "Purdy good", "7-7", "50%"], [2025, 14, "Arion", "Kamara com COVID", "6-8", "42%"], [2025, 15, "Julio", "Amparo Warriors", "7-7", "50%"], [2025, 16, "Carlos", "TIME 1", "7-7", "50%"], [2025, 17, "Arthur", "Minducas", "6-8", "42%"], [2025, 18, "Francisco", "Barbas do Profeta", "6-8", "42%"], [2025, 19, "Alvin", "Kidnapper", "4-10", "28%"], [2025, 20, "Luprimo", "Petrolina Brewers", "3-11", "21%"]];
 
 // Schema: [0: Ano, 1: Posição, 2: Jogador, 3: Time, 4: Record, 5: Win %]
@@ -3436,7 +3461,7 @@ function renderFranchiseView() {
         <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 14px; padding: 60px 20px; text-align: center;">
           <div style="font-size: 40px; margin-bottom: 12px;">🔬</div>
           <h3 style="font-size: 20px; color: #fff; margin-bottom: 8px;">Nenhuma franquia selecionada</h3>
-          <p style="color: var(--text-muted); font-size: 14px; max-width: 500px; margin: 0 auto;">Selecione um jogador no menu suspenso acima ou clique em qualquer jogador em outra aba para carregar o Raio-X histórico completo.</p>
+          <p style="color: var(--text-muted); font-size: 14px; max-width: 500px; margin: 0 auto;">Selecione um jogador no menu suspenso acima ou clique em qualquer jogador em outra aba para carregar o Raio-X histórico.</p>
         </div>
       `;
     }
@@ -3446,7 +3471,7 @@ function renderFranchiseView() {
   const player = selectedFranchisePlayer;
   const filteredData = getFilteredData();
 
-  // 1. Filtrar todos os jogos da carreira do jogador no filtro ativo
+  // Estruturas de agregação
   const myGames = [];
   const teamNamesSet = new Set();
   let wins = 0, losses = 0, ties = 0;
@@ -3456,31 +3481,21 @@ function renderFranchiseView() {
   let biggestWin = { margin: 0, year: 0, week: 0, opp: '', myPts: 0, oppPts: 0 };
   let worstLoss = { margin: 0, year: 0, week: 0, opp: '', myPts: 0, oppPts: 0 };
 
-  // Fases
   const phaseStats = {
-    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] },
-    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] },
-    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] }
+    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
+    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
+    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] }
   };
 
   const vsDivisionStats = {
-    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] },
-    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] },
-    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] },
-    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] }
+    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
+    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
+    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
+    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] }
   };
 
-  // Adversários para Algozes e Fregueses
-  const playerOverallStats = calculatePlayerStats(filteredData).find(s => s.name === player) || { avgPf: 0 };
-  const pAvg = playerOverallStats.avgPf;
   const oppMap = {};
+  let latestDivision = '';
 
   filteredData.forEach(r => {
     const [year, week, p1, t1, pts1, p2, t2, pts2, cat] = r;
@@ -3498,6 +3513,9 @@ function renderFranchiseView() {
     teamNamesSet.add(myTeam);
     pf += myPts;
     pa += oppPts;
+    
+    const myDiv = getDivisionForPlayer(player, year);
+    if (myDiv && year === 2026) latestDivision = myDiv; // Fetch current division if active
 
     const won = myPts > oppPts;
     const lost = oppPts > myPts;
@@ -3527,68 +3545,90 @@ function renderFranchiseView() {
       else vsDivisionStats[oppDiv].ties++;
     }
 
-    // Adversários
-    if (!oppMap[opp]) oppMap[opp] = { name: opp, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0,
-        history: [] };
+    if (!oppMap[opp]) oppMap[opp] = { name: opp, games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 };
     oppMap[opp].games++;
     oppMap[opp].pf += myPts;
     oppMap[opp].pa += oppPts;
-    oppMap[opp].history.push({ year, week, won: myPts > oppPts, lost: oppPts > myPts, tied: myPts === oppPts });
     if (won) oppMap[opp].wins++;
     else if (lost) oppMap[opp].losses++;
     else oppMap[opp].ties++;
 
-    // Recordes Pessoais
     if (myPts > maxScore.pts) maxScore = { pts: myPts, year, week, opp };
     if (myPts < minScore.pts) minScore = { pts: myPts, year, week, opp };
     if (won && margin > biggestWin.margin) biggestWin = { margin, year, week, opp, myPts, oppPts };
     if (lost && margin > worstLoss.margin) worstLoss = { margin, year, week, opp, myPts, oppPts };
 
-    myGames.push({ year, week, myPts, oppPts, opp, won, lost, tied, phase });
+    myGames.push({ year, week, myPts, oppPts, opp, won, lost, tied, phase, margin });
   });
 
   const totalGames = wins + losses + ties;
   const winRate = totalGames > 0 ? ((wins + 0.5 * ties) / totalGames) * 100 : 0;
   const avgPf = totalGames > 0 ? pf / totalGames : 0;
-  const avgPa = totalGames > 0 ? pa / totalGames : 0;
 
-  // Trajetória das colocações oficiais (STANDINGS_DATA)
+  // Standings & Trophies
   const seasonStandings = STANDINGS_DATA.filter(s => s[2] === player).sort((a, b) => b[0] - a[0]);
-  let titles = 0, seconds = 0, thirds = 0;
-  let bestPos = 99, worstPos = 0;
-
+  let golds = 0, silvers = 0, bronzes = 0, consolations = 0;
+  let bestPos = 99;
   seasonStandings.forEach(s => {
     const pos = s[1];
-    if (pos === 1) titles++;
-    if (pos === 2) seconds++;
-    if (pos === 3) thirds++;
+    if (pos === 1) golds++;
+    if (pos === 2) silvers++;
+    if (pos === 3) bronzes++;
+    if (pos === 9) consolations++;
     if (pos < bestPos) bestPos = pos;
-    if (pos > worstPos) worstPos = pos;
+  });
+  
+  const playoffApps = seasonStandings.filter(s => s[1] <= 8).length;
+  const playoffPct = seasonStandings.length > 0 ? (playoffApps / seasonStandings.length * 100).toFixed(0) : 0;
+
+  // Clutch Games (Margin < 5)
+  const clutchGames = myGames.filter(g => g.margin < 5.0 && !g.tied);
+  const clutchWins = clutchGames.filter(g => g.won).length;
+  const clutchLosses = clutchGames.filter(g => g.lost).length;
+  
+  // Personal Streaks
+  let curW = 0, maxW = 0, curL = 0, maxL = 0;
+  myGames.slice().sort((a, b) => a.year - b.year || a.week - b.week).forEach(g => {
+      if (g.won) { curW++; curL = 0; if (curW > maxW) maxW = curW; }
+      else if (g.lost) { curL++; curW = 0; if (curL > maxL) maxL = curL; }
+      else { curW = 0; curL = 0; }
   });
 
-  // Cálculo de All-Play e Sorte para o Raio-X
   const allStatsList = calculatePlayerStats(filteredData);
-  const myPlayerStats = allStatsList.find(s => s.name === player) || { apWinRate: 0, expWins: 0,
-          scores: [], luckDelta: 0 };
-
-  // Nomes Históricos Badge
+  const myPlayerStats = allStatsList.find(s => s.name === player) || { luckDelta: 0 };
   const teamNamesArr = Array.from(teamNamesSet);
-  if (badgeEl) {
-    badgeEl.innerHTML = `Nomes usados (${teamNamesArr.length}): <b style="color: #fff;">${teamNamesArr.slice(0, 3).join(', ')}${teamNamesArr.length > 3 ? '...' : ''}</b>`;
-  }
+  if (badgeEl) badgeEl.innerHTML = '';
 
-  // Renderizar o container do Raio-X
   const luckColor = myPlayerStats.luckDelta > 0.5 ? '#34d399' : (myPlayerStats.luckDelta < -0.5 ? '#f87171' : '#fbbf24');
-  const luckText = myPlayerStats.luckDelta > 0.5 ? 'Sortudo 🍀' : (myPlayerStats.luckDelta < -0.5 ? 'Azarado 🌧️' : 'Neutro ⚖️');
+  const luckIcon = myPlayerStats.luckDelta > 0.5 ? '🍀' : (myPlayerStats.luckDelta < -0.5 ? '🌧️' : '⚖️');
+  const avatarUrl = typeof AVATARES_SLEEPER !== 'undefined' ? AVATARES_SLEEPER[player] : null;
+  const avatarHtml = avatarUrl 
+    ? `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.outerHTML='${player.substring(0,2).toUpperCase()}'">` 
+    : player.substring(0,2).toUpperCase();
 
+  // Montagem do HTML
   container.innerHTML = `
-    <!-- Top 9 Badges da Franquia -->
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🏆</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Títulos:</span>
-        <span style="font-weight: 800; color: #fbbf24;">${titles}</span>
-      </span>
+    <!-- HERO BANNER -->
+    <div class="franchise-hero">
+      <div class="franchise-avatar">${avatarHtml}</div>
+      <div style="flex: 1;">
+        <h2 style="font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 2px; letter-spacing: -0.5px;">${player}</h2>
+        <div style="font-size: 14px; color: var(--accent-gold); font-weight: 700; margin-bottom: 8px;">👑 ${latestDivision ? 'Membro da Divisão ' + latestDivision : 'Franquia Histórica'}</div>
+        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+          🛡️ <b>Nomes utilizados:</b> ${teamNamesArr.join(' • ')}
+        </div>
+      </div>
+      <div class="franchise-trophies">
+        ${golds > 0 ? `<div class="trophy-badge" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);"><span style="font-size: 16px;">🥇</span> ${golds} Título${golds > 1 ? 's' : ''}</div>` : ''}
+        ${silvers > 0 ? `<div class="trophy-badge" style="color: #cbd5e1; border-color: rgba(203, 213, 225, 0.4);"><span style="font-size: 16px;">🥈</span> ${silvers} Vice${silvers > 1 ? 's' : ''}</div>` : ''}
+        ${bronzes > 0 ? `<div class="trophy-badge" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);"><span style="font-size: 16px;">🥉</span> ${bronzes} Terceiro${bronzes > 1 ? 's' : ''}</div>` : ''}
+        ${consolations > 0 ? `<div class="trophy-badge" style="color: #a78bfa; border-color: rgba(139, 92, 246, 0.4);"><span style="font-size: 16px;">🎖️</span> ${consolations} Consolation${consolations > 1 ? 's' : ''}</div>` : ''}
+        ${golds===0 && silvers===0 && bronzes===0 && consolations===0 ? `<div class="trophy-badge" style="color: var(--text-muted);">Nenhum título oficial</div>` : ''}
+      </div>
+    </div>
+
+    <!-- CARROSSEL DE KPIS (Badge Style) -->
+    <div class="franchise-kpis-wrapper">
       <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
         <span style="font-size: 16px;">📈</span>
         <span style="color: var(--text-muted); font-weight: 600;">Win Rate:</span>
@@ -3600,14 +3640,26 @@ function renderFranchiseView() {
         <span style="font-weight: 800; color: #60a5fa;">${avgPf.toFixed(1)} pts</span>
       </span>
       <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">${myPlayerStats.luckDelta > 0.5 ? '🍀' : (myPlayerStats.luckDelta < -0.5 ? '🌧️' : '⚖️')}</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Sorte:</span>
+        <span style="font-size: 16px;">${luckIcon}</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Índice de Sorte:</span>
         <span style="font-weight: 800; color: ${luckColor};">${myPlayerStats.luckDelta > 0 ? '+' : ''}${myPlayerStats.luckDelta.toFixed(1)}</span>
       </span>
       <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">📊</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Top Pos:</span>
-        <span style="font-weight: 800; color: #f472b6;">${bestPos !== 99 ? bestPos + 'º' : '--'}</span>
+        <span style="font-size: 16px;">🏆</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Playoffs App:</span>
+        <span style="font-weight: 800; color: #fbbf24;">${playoffApps} (${playoffPct}%)</span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;" title="Jogos decididos por menos de 5 pontos de diferença">
+        <span style="font-size: 16px;">⚡</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Fator Clutch:</span>
+        <span style="font-weight: 800;"><span style="color:#34d399">${clutchWins}V</span> - <span style="color:#f87171">${clutchLosses}D</span></span>
+      </span>
+      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+        <span style="font-size: 16px;">🚀</span>
+        <span style="color: var(--text-muted); font-weight: 600;">Max Streak:</span>
+        <span style="font-weight: 800; color: #34d399;">${maxW}V</span>
+        <span style="color: var(--text-muted);">/</span>
+        <span style="font-weight: 800; color: #f87171;">${maxL}D</span>
       </span>
       <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
         <span style="font-size: 16px;">🚀</span>
@@ -3619,59 +3671,44 @@ function renderFranchiseView() {
         <span style="color: var(--text-muted); font-weight: 600;">Min Pts:</span>
         <span style="font-weight: 800; color: #f87171;">${minScore.pts < 9999 ? minScore.pts.toFixed(1) : '--'}</span>
       </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">💥</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Maior Gol.:</span>
-        <span style="font-weight: 800; color: #60a5fa;">${biggestWin.margin > 0 ? '+' + biggestWin.margin.toFixed(1) : '--'}</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🩸</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Pior Derrota:</span>
-        <span style="font-weight: 800; color: #ec4899;">${worstLoss.margin > 0 ? '-' + worstLoss.margin.toFixed(1) : '--'}</span>
-      </span>
     </div>
 
-    <!-- Segmented Control das 3 Tabelas -->
+    <!-- CONTROLE SEGMENTADO MOBILE -->
     <div class="mobile-segmented-control" style="margin-bottom: 20px; background: var(--bg-input); border-radius: 10px; padding: 6px;">
       <button class="seg-btn active" onclick="switchSubTab('fra', 'fase', this)">📊 Por Fase</button>
       <button class="seg-btn" onclick="switchSubTab('fra', 'divisao', this)">🥊 vs Divisões</button>
       <button class="seg-btn" onclick="switchSubTab('fra', 'rivais', this)">⚔️ Rivais</button>
     </div>
 
-    <!-- Wrapper das Tabelas Multi-aba -->
-    <div style="margin-bottom: 24px;">
+    <!-- 3-COLUMN GRID DESKTOP / TABS MOBILE -->
+    <div class="franchise-stats-grid" style="margin-bottom: 24px;">
       
-      <!-- Card: Desempenho por Fase -->
-      <div id="fra-fase" class="table-card" style="display: block; margin-bottom: 0;">
-        <div class="table-header-bar">
-          <div class="table-title">📊 Aproveitamento por Fase</div>
+      <!-- Card 1: Por Fase -->
+      <div id="fra-fase" class="table-card">
+        <div class="table-header-bar" style="padding: 12px 16px;">
+          <div class="table-title" style="font-size: 14px;">📊 Por Fase</div>
         </div>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
                 <th>Fase</th>
-                <th style="text-align: center;">Jogos</th>
-                <th style="text-align: center;">V - D - E</th>
-                <th style="text-align: center;">Aprov. %</th>
-                <th style="text-align: right;">Média PF</th>
+                <th style="text-align: center;">V-D</th>
+                <th style="text-align: right;">Aprov.</th>
               </tr>
             </thead>
             <tbody>
               ${['Temporada Regular', 'Playoffs', 'Consolation'].map(phase => {
                 const ps = phaseStats[phase];
                 const pWinRate = ps.games > 0 ? ((ps.wins + 0.5 * ps.ties) / ps.games) * 100 : 0;
-                const pPPG = ps.games > 0 ? ps.pf / ps.games : 0;
-                let badge = '<span class="badge-tag">Regular</span>';
-                if (phase === 'Playoffs') badge = '<span class="badge-tag" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: #fbbf24;">Playoffs 🏆</span>';
-                if (phase === 'Consolation') badge = '<span class="badge-tag" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: #8b5cf6;">Consolation 🎖️</span>';
+                let badge = '<span class="badge-tag" style="font-size:11px;">Regular</span>';
+                if (phase === 'Playoffs') badge = '<span class="badge-tag" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: #fbbf24; font-size:11px;">Playoffs 🏆</span>';
+                if (phase === 'Consolation') badge = '<span class="badge-tag" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: #8b5cf6; font-size:11px;">Consolation</span>';
                 return `
                   <tr>
                     <td>${badge}</td>
-                    <td style="text-align: center; font-weight: 700;">${ps.games}</td>
-                    <td style="text-align: center;"><b>${ps.wins}</b> - <b>${ps.losses}</b>${ps.ties > 0 ? ' - ' + ps.ties : ''}</td>
-                    <td style="text-align: center; font-weight: 800; color: ${pWinRate >= 50 ? '#34d399' : '#f87171'};">${pWinRate.toFixed(1)}%</td>
-                    <td style="text-align: right; font-weight: 700;">${pPPG.toFixed(2)}</td>
+                    <td style="text-align: center; font-weight: 700; font-size: 13px;">${ps.wins}-${ps.losses}${ps.ties > 0 ? '-'+ps.ties : ''}</td>
+                    <td style="text-align: right; font-weight: 800; font-size: 13px; color: ${pWinRate >= 50 ? '#34d399' : '#f87171'};">${pWinRate.toFixed(0)}%</td>
                   </tr>
                 `;
               }).join('')}
@@ -3680,19 +3717,17 @@ function renderFranchiseView() {
         </div>
       </div>
 
-      <!-- Card: Retrospecto contra Divisões -->
-      <div id="fra-divisao" class="table-card mobile-hidden-sub" style="display: none; margin-bottom: 0;">
-        <div class="table-header-bar">
-          <div class="table-title">🥊 Retrospecto contra Divisões</div>
+      <!-- Card 2: vs Divisões -->
+      <div id="fra-divisao" class="table-card mobile-hidden-sub">
+        <div class="table-header-bar" style="padding: 12px 16px;">
+          <div class="table-title" style="font-size: 14px;">🥊 vs Divisões (Desde 2019)</div>
         </div>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Divisão Adv.</th>
-                <th style="text-align: center;">Jogos</th>
-                <th style="text-align: center;">V - D - E</th>
-                <th style="text-align: center;">Aprov. %</th>
+                <th>Divisão</th>
+                <th style="text-align: center;">V-D</th>
                 <th style="text-align: right;">Saldo</th>
               </tr>
             </thead>
@@ -3700,27 +3735,24 @@ function renderFranchiseView() {
               ${['MG', 'NE', 'SMT', 'SP'].map(divName => {
                 const ds = vsDivisionStats[divName];
                 if (!ds || ds.games === 0) return '';
-                const dWinRate = ds.games > 0 ? ((ds.wins + 0.5 * ds.ties) / ds.games) * 100 : 0;
                 const dDiff = ds.pf - ds.pa;
                 return `
                   <tr>
-                    <td><strong style="color: #fff;">Divisão ${divName}</strong></td>
-                    <td style="text-align: center; font-weight: 700;">${ds.games}</td>
-                    <td style="text-align: center;"><b>${ds.wins}</b> - <b>${ds.losses}</b>${ds.ties > 0 ? ' - ' + ds.ties : ''}</td>
-                    <td style="text-align: center; font-weight: 800; color: ${dWinRate >= 50 ? '#34d399' : '#f87171'};">${dWinRate.toFixed(1)}%</td>
-                    <td style="text-align: right; font-weight: 700; color: ${dDiff >= 0 ? '#34d399' : '#f87171'};">${dDiff > 0 ? '+' : ''}${dDiff.toFixed(1)}</td>
+                    <td><strong style="color: #fff; font-size:13px;">Div. ${divName}</strong></td>
+                    <td style="text-align: center; font-weight: 700; font-size:13px;">${ds.wins}-${ds.losses}${ds.ties > 0 ? '-'+ds.ties : ''}</td>
+                    <td style="text-align: right; font-weight: 700; font-size:13px; color: ${dDiff >= 0 ? '#34d399' : '#f87171'};">${dDiff > 0 ? '+' : ''}${dDiff.toFixed(1)}</td>
                   </tr>
                 `;
-              }).join('') || '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">Sem histórico divisional registrado.</td></tr>'}
+              }).join('') || '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 12px;">Sem histórico.</td></tr>'}
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Card: Maiores Vítimas & Algozes -->
-      <div id="fra-rivais" class="table-card mobile-hidden-sub" style="display: none; margin-bottom: 0;">
-        <div class="table-header-bar">
-          <div class="table-title">⚔️ Maiores Vítimas (Fregueses) e Algozes (Carrascos)</div>
+      <!-- Card 3: Rivais -->
+      <div id="fra-rivais" class="table-card mobile-hidden-sub">
+        <div class="table-header-bar" style="padding: 12px 16px;">
+          <div class="table-title" style="font-size: 14px;">⚔️ Fregueses & Algozes (Top 4)</div>
         </div>
         <div class="table-wrapper">
           <table>
@@ -3728,49 +3760,27 @@ function renderFranchiseView() {
               <tr>
                 <th>Status</th>
                 <th>Adversário</th>
-                <th style="text-align: center;">Duelos</th>
-                <th style="text-align: center;">Placar</th>
-                <th style="text-align: right;">Aprov.</th>
+                <th style="text-align: right;">Placar</th>
               </tr>
             </thead>
             <tbody>
               ${(() => {
                 const oppList = Object.values(oppMap);
-                oppList.forEach(o => {
-                  o.diff = o.wins - o.losses;
-                  o.wr = ((o.wins + 0.5 * o.ties) / o.games) * 100;
-                });
+                oppList.forEach(o => { o.diff = o.wins - o.losses; o.wr = ((o.wins + 0.5 * o.ties) / o.games) * 100; });
                 
                 const fregueses = oppList.filter(o => o.diff > 0).sort((a, b) => b.diff - a.diff || b.wins - a.wins).slice(0, 2);
                 const algozes = oppList.filter(o => o.diff < 0).sort((a, b) => a.diff - b.diff || b.losses - a.losses).slice(0, 2);
                 
                 const rows = [];
                 fregueses.forEach(f => {
-                  const tag = f.diff >= 4 ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; border-color: #10b981;">Freguês 🩸</span>' : '<span class="badge-tag" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-weight: 700; border-color: #3b82f6;">Vítima 🟢</span>';
-                  rows.push(`
-                    <tr>
-                      <td>${tag}</td>
-                      <td><strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${f.name}', 'tab-franchise')">${f.name}</strong></td>
-                      <td style="text-align: center;">${f.games}</td>
-                      <td style="text-align: center; font-weight: 800;"><span style="color:#34d399;">${f.wins}V</span> - <span style="color:#f87171;">${f.losses}D</span></td>
-                      <td style="text-align: right; font-weight: 800; color: #34d399;">${f.wr.toFixed(1)}%</td>
-                    </tr>
-                  `);
+                  const tag = f.diff >= 4 ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; border-color: #10b981; font-size:11px;">Freguês 🩸</span>' : '<span class="badge-tag" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-weight: 700; border-color: #3b82f6; font-size:11px;">Vítima 🟢</span>';
+                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${f.name}')">${f.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px;"><span style="color:#34d399;">${f.wins}</span>-<span style="color:#f87171;">${f.losses}</span></td></tr>`);
                 });
                 algozes.forEach(a => {
-                  const tag = a.diff <= -4 ? '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; border-color: #ef4444;">Carrasco 💀</span>' : '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border-color: rgba(239, 68, 68, 0.3);">Algoz 🔴</span>';
-                  rows.push(`
-                    <tr>
-                      <td>${tag}</td>
-                      <td><strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${a.name}', 'tab-franchise')">${a.name}</strong></td>
-                      <td style="text-align: center;">${a.games}</td>
-                      <td style="text-align: center; font-weight: 800;"><span style="color:#34d399;">${a.wins}V</span> - <span style="color:#f87171;">${a.losses}D</span></td>
-                      <td style="text-align: right; font-weight: 800; color: #f87171;">${a.wr.toFixed(1)}%</td>
-                    </tr>
-                  `);
+                  const tag = a.diff <= -4 ? '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; border-color: #ef4444; font-size:11px;">Carrasco 💀</span>' : '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border-color: rgba(239, 68, 68, 0.3); font-size:11px;">Algoz 🔴</span>';
+                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${a.name}')">${a.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px;"><span style="color:#34d399;">${a.wins}</span>-<span style="color:#f87171;">${a.losses}</span></td></tr>`);
                 });
-
-                if (rows.length === 0) return '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">Sem histórico suficiente.</td></tr>';
+                if (rows.length === 0) return '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 12px;">Sem histórico suficiente.</td></tr>';
                 return rows.join('');
               })()}
             </tbody>
@@ -3779,54 +3789,56 @@ function renderFranchiseView() {
       </div>
     </div>
 
-    <!-- Tabela: Trajetória Ano a Ano -->
+    <!-- Tabela: Trajetória Ano a Ano Visual -->
     <div class="table-card">
       <div class="table-header-bar">
         <div>
-          <div class="table-title">📅 Trajetória Temporada a Temporada</div>
-          <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Desempenho oficial e equipe usada em cada edição</div>
+          <div class="table-title">📅 Trajetória da Franquia</div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Gráfico de desempenho e posição final ano a ano</div>
         </div>
       </div>
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Temporada</th>
+              <th>Ano</th>
               <th>Nome da Equipe</th>
-              <th style="text-align: center;">Posição Final</th>
-              <th style="text-align: center;">Campanha Oficial</th>
-              <th style="text-align: center;">Jogos</th>
-              <th style="text-align: center;">V - D - E</th>
-              <th style="text-align: center;">Aprov. %</th>
-              <th style="text-align: right;">Média PF</th>
+              <th style="text-align: center;">Posição</th>
+              <th style="text-align: center;">Campanha</th>
+              <th class="col-traj-desktop" style="text-align: left;">Aproveitamento (Win %)</th>
+              <th class="col-traj-desktop" style="text-align: left;">Média PF Anual</th>
             </tr>
           </thead>
           <tbody>
             ${(() => {
-              if (seasonStandings.length === 0) return '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 16px;">Nenhum registro oficial encontrado.</td></tr>';
+              if (seasonStandings.length === 0) return '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">Nenhum registro oficial encontrado.</td></tr>';
+              
+              // Find max PF for relative bar sizing
+              let maxAvgPfGlobal = 0;
+              seasonStandings.forEach(s => {
+                const yearGames = myGames.filter(g => g.year === s[0]);
+                const yPf = yearGames.length > 0 ? yearGames.reduce((acc, g) => acc + g.myPts, 0) / yearGames.length : 0;
+                if (yPf > maxAvgPfGlobal) maxAvgPfGlobal = yPf;
+              });
+
               return seasonStandings.map(s => {
                 const [ano, pos, jog, time, record, winPct] = s;
                 let posBadge = `<span class="rank-badge">${pos}º</span>`;
                 let rowBg = '';
-                if (pos === 1) {
-                  posBadge = `<span class="rank-badge rank-1" style="width: auto; padding: 0 10px; border-radius: 12px;">🥇 1º Campeão</span>`;
-                  rowBg = 'background: rgba(251, 191, 36, 0.07);';
-                } else if (pos === 2) {
-                  posBadge = `<span class="rank-badge rank-2" style="width: auto; padding: 0 10px; border-radius: 12px;">🥈 2º Vice</span>`;
-                  rowBg = 'background: rgba(203, 213, 225, 0.05);';
-                } else if (pos === 3) {
-                  posBadge = `<span class="rank-badge rank-3" style="width: auto; padding: 0 10px; border-radius: 12px;">🥉 3º Lugar</span>`;
-                  rowBg = 'background: rgba(180, 83, 9, 0.05);';
-                }
+                if (pos === 1) { posBadge = `<span class="rank-badge rank-1" style="width: auto; padding: 0 10px; border-radius: 12px;">🥇 1º</span>`; rowBg = 'background: rgba(251, 191, 36, 0.07);'; } 
+                else if (pos === 2) { posBadge = `<span class="rank-badge rank-2" style="width: auto; padding: 0 10px; border-radius: 12px;">🥈 2º</span>`; rowBg = 'background: rgba(203, 213, 225, 0.05);'; } 
+                else if (pos === 3) { posBadge = `<span class="rank-badge rank-3" style="width: auto; padding: 0 10px; border-radius: 12px;">🥉 3º</span>`; rowBg = 'background: rgba(180, 83, 9, 0.05);'; }
 
-                // Jogos disputados naquele ano
                 const yearGames = myGames.filter(g => g.year === ano);
                 const yWins = yearGames.filter(g => g.won).length;
-                const yLosses = yearGames.filter(g => g.lost).length;
                 const yTies = yearGames.filter(g => g.tied).length;
                 const yTotal = yearGames.length;
                 const yWinRate = yTotal > 0 ? ((yWins + 0.5 * yTies) / yTotal) * 100 : 0;
                 const yPf = yTotal > 0 ? yearGames.reduce((acc, g) => acc + g.myPts, 0) / yTotal : 0;
+                
+                // CSS Bar logic
+                const wrColor = yWinRate >= 50 ? '#34d399' : '#f87171';
+                const pfWidth = maxAvgPfGlobal > 0 ? (yPf / maxAvgPfGlobal) * 100 : 0;
 
                 return `
                   <tr style="${rowBg}">
@@ -3834,10 +3846,18 @@ function renderFranchiseView() {
                     <td><strong style="color: #fff;">${time}</strong></td>
                     <td style="text-align: center;">${posBadge}</td>
                     <td style="text-align: center; font-weight: 700;">${record}</td>
-                    <td style="text-align: center;">${yTotal}</td>
-                    <td style="text-align: center;"><b>${yWins}</b> - <b>${yLosses}</b>${yTies > 0 ? ' - ' + yTies : ''}</td>
-                    <td style="text-align: center; font-weight: 800; color: ${yWinRate >= 50 ? '#34d399' : '#f87171'};">${yWinRate.toFixed(1)}%</td>
-                    <td style="text-align: right; font-weight: 700;">${yPf.toFixed(2)}</td>
+                    <td class="col-traj-desktop">
+                      <div class="win-rate-bar-bg" style="width: 80px; margin-right: 10px;">
+                        <div class="win-rate-bar-fill" style="width: ${yWinRate}%; background: ${wrColor};"></div>
+                      </div>
+                      <span style="font-weight: 800; color: ${wrColor};">${yWinRate.toFixed(1)}%</span>
+                    </td>
+                    <td class="col-traj-desktop">
+                      <div class="win-rate-bar-bg" style="width: 100px; margin-right: 10px; background: rgba(96, 165, 250, 0.1);">
+                        <div class="win-rate-bar-fill" style="width: ${pfWidth}%; background: #60a5fa;"></div>
+                      </div>
+                      <span style="font-weight: 700;">${yPf.toFixed(1)}</span>
+                    </td>
                   </tr>
                 `;
               }).join('');
@@ -3848,7 +3868,6 @@ function renderFranchiseView() {
     </div>
   `;
 }
-
 
 // GAMES EXPLORER TAB
 function renderGamesTable() {
@@ -5327,6 +5346,29 @@ refreshAllViews();
   .kpi-card.losses::before { background: var(--accent-loss) !important; }
   .kpi-card.points::before { background: var(--accent-purple) !important; }
   .kpi-card.avg::before { background: #06b6d4 !important; }
+</style>
+
+
+<style id="franchise-xray-css">
+/* CSS EXCLUSIVO PARA O RAIO-X DA FRANQUIA */
+.franchise-hero { background: linear-gradient(135deg, var(--bg-card) 0%, #162032 100%); border-radius: 16px; padding: 24px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border-color); position: relative; overflow: hidden; margin-bottom: 24px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); }
+.franchise-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.4); flex-shrink: 0; }
+.franchise-trophies { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.trophy-badge { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.franchise-kpis-wrapper { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+
+@media (min-width: 1025px) {
+    .franchise-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+    .franchise-stats-grid .table-card { display: block !important; margin-bottom: 0 !important; }
+    #tab-franchise .mobile-segmented-control { display: none !important; }
+}
+@media (max-width: 1024px) {
+    .col-traj-desktop { display: none !important; }
+    .franchise-hero { flex-direction: column; text-align: center; padding: 20px 16px; }
+    .franchise-trophies { justify-content: center; }
+    .franchise-kpis-wrapper { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+    .franchise-kpis-wrapper > span { scroll-snap-align: start; flex-shrink: 0; }
+}
 </style>
 
 </head>
