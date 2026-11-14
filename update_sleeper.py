@@ -222,10 +222,10 @@ def main():
     
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    with open("update_sleeper.py", "w", encoding="utf-8") as f:
+    with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"🚀 Script salvo com sucesso!")
+    print(f"🚀 Script salvo e atualizado no HTML com sucesso!")
 
 if __name__ == "__main__":
     main()
