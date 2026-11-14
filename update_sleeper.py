@@ -71,20 +71,35 @@ def main():
         4: meta.get("division_4", "Divisão 4"),
     }
 
-    # 3. Mapear user_id -> username, team_name e AVATARES
+    # 3. Mapear user_id -> username, team_name e AVATARES DO TIME
     user_info = {}
     avatars_dict = {}
     for u in users:
         uid = u["user_id"]
         uname = u.get("display_name", "")
-        tname = u.get("metadata", {}).get("team_name") or f"Team {uname}"
-        avatar_hash = u.get("avatar")
         
+        user_meta = u.get("metadata", {})
+        tname = user_meta.get("team_name") or f"Team {uname}"
+        
+        # Tenta pegar a foto específica do time na liga. Se não tiver, cai pro avatar global do perfil
+        team_avatar = user_meta.get("avatar")
+        global_avatar = u.get("avatar")
+        
+        final_avatar_url = None
+        if team_avatar:
+            # O avatar de time no Sleeper pode ser uma URL direta (ex: imgur) ou um hash interno
+            if team_avatar.startswith("http"):
+                final_avatar_url = team_avatar
+            else:
+                final_avatar_url = f"https://sleepercdn.com/avatars/thumbs/{team_avatar}"
+        elif global_avatar:
+            final_avatar_url = f"https://sleepercdn.com/avatars/thumbs/{global_avatar}"
+            
         user_info[uid] = {"username": uname, "team_name": tname}
         
         player_name = SLEEPER_TO_PLAYER.get(uname, uname)
-        if avatar_hash:
-            avatars_dict[player_name] = f"https://sleepercdn.com/avatars/thumbs/{avatar_hash}"
+        if final_avatar_url:
+            avatars_dict[player_name] = final_avatar_url
 
     # 4. Mapear roster_id e agrupar participantes por Divisão dinamicamente
     roster_map = {}
@@ -120,7 +135,6 @@ def main():
         if not matchups:
             continue
 
-        # CORREÇÃO CRÍTICA DO ERRO DE NoneType: O Sleeper retorna "points": null para semanas não jogadas.
         pontos = [get_safe_points(m) for m in matchups]
         if sum(pontos) == 0:
             continue  # Semana ainda não disputada ou com zero pontos
@@ -222,7 +236,7 @@ def main():
     
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    with open(HTML_FILE, "w", encoding="utf-8") as f:
+    with open("update_sleeper_novo.py", "w", encoding="utf-8") as f:
         f.write(html)
 
     print(f"🚀 Script salvo e atualizado no HTML com sucesso!")
