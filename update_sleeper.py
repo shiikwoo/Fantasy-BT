@@ -35,15 +35,27 @@ SLEEPER_TO_PLAYER = {
 }
 
 def fetch_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"⚠️ Erro ao acessar API {url}: {e}")
+        return None
+
+def get_safe_points(matchup_dict):
+    pts = matchup_dict.get("points")
+    return float(pts) if pts is not None else 0.0
 
 def main():
     print("🔍 Conectando à API pública do Sleeper...")
     league_data = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}")
-    users = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/users")
-    rosters = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/rosters")
+    if not league_data:
+        print("❌ Falha crítica: não foi possível carregar os dados da liga. Verifique o LEAGUE_ID.")
+        return
+
+    users = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/users") or []
+    rosters = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/rosters") or []
 
     # 1. Puxar o Ano da Temporada diretamente do Sleeper (dinâmico)
     season_str = league_data.get("season")
@@ -96,7 +108,8 @@ def main():
 
         if div_name not in divisions_dict:
             divisions_dict[div_name] = []
-        divisions_dict[div_name].append(player_name)
+        if player_name not in divisions_dict[div_name]:
+            divisions_dict[div_name].append(player_name)
 
     # 5. Baixar confrontos de todas as semanas da temporada detectada
     novos_jogos_ano = []
@@ -107,9 +120,10 @@ def main():
         if not matchups:
             continue
 
-        pontos = [m.get("points", 0) for m in matchups]
+        # CORREÇÃO CRÍTICA DO ERRO DE NoneType: O Sleeper retorna "points": null para semanas não jogadas.
+        pontos = [get_safe_points(m) for m in matchups]
         if sum(pontos) == 0:
-            continue  # Semana ainda não disputada
+            continue  # Semana ainda não disputada ou com zero pontos
 
         max_week_jogada = max(max_week_jogada, w)
 
@@ -122,10 +136,18 @@ def main():
         for mid, teams in duelos.items():
             if len(teams) == 2:
                 t1, t2 = teams[0], teams[1]
-                p1 = roster_map[t1["roster_id"]]
-                p2 = roster_map[t2["roster_id"]]
-                pts1 = round(float(t1.get("points", 0.0)), 2)
-                pts2 = round(float(t2.get("points", 0.0)), 2)
+                
+                rid1 = t1.get("roster_id")
+                rid2 = t2.get("roster_id")
+                
+                if not rid1 or not rid2 or rid1 not in roster_map or rid2 not in roster_map:
+                    continue
+                    
+                p1 = roster_map[rid1]
+                p2 = roster_map[rid2]
+                
+                pts1 = round(get_safe_points(t1), 2)
+                pts2 = round(get_safe_points(t2), 2)
                 fase = "Temporada Regular" if w <= 14 else "Playoffs"
 
                 novos_jogos_ano.append([
@@ -134,6 +156,10 @@ def main():
                 ])
 
     # 6. Atualizar o arquivo HTML
+    if not os.path.exists(HTML_FILE):
+        print(f"❌ Erro: Arquivo {HTML_FILE} não encontrado no repositório.")
+        return
+
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
 
@@ -149,50 +175,57 @@ def main():
             html = html[:idx_avatar_start + len("const AVATARES_SLEEPER = ")] + novo_avatars_json + html[idx_avatar_end + 1:]
             print("✅ Dicionário de Avatares (AVATARES_SLEEPER) injetado com sucesso.")
 
-    # Atualizar RAW_DATA
-    idx_raw_start = html.find("const RAW_DATA = [")
-    raw_list = json.loads(html[idx_raw_start + len("const RAW_DATA = "):html.find(";
-// Schema: [0: year")])
+    # Atualizar RAW_DATA (Usando Regex para evitar erro de formatação/quebra de linha)
+    match_raw = re.search(r"const RAW_DATA\s*=\s*(\[.*?\]);\s*// Schema:", html, re.DOTALL)
+    if match_raw:
+        try:
+            raw_list = json.loads(match_raw.group(1))
+            raw_historico = [r for r in raw_list if r[0] != ano_corrente]
+            raw_historico.extend(novos_jogos_ano)
+            raw_historico.sort(key=lambda x: (x[0], x[1]))
+            
+            novo_raw_json = json.dumps(raw_historico, ensure_ascii=False)
+            html = html[:match_raw.start(1)] + novo_raw_json + html[match_raw.end(1):]
+            print(f"✅ Jogos da temporada {ano_corrente} (até Semana {max_week_jogada}) injetados em RAW_DATA.")
+        except json.JSONDecodeError as e:
+            print(f"⚠️ Erro ao decodificar RAW_DATA no HTML: {e}")
+    else:
+        print("⚠️ Erro: Não foi possível localizar const RAW_DATA no HTML.")
 
-    raw_historico = [r for r in raw_list if r[0] != ano_corrente]
-    raw_historico.extend(novos_jogos_ano)
-    raw_historico.sort(key=lambda x: (x[0], x[1]))
-
-    # Atualizar HISTORICAL_DIVISIONS_MAP
-    idx_divs_start = html.find("const HISTORICAL_DIVISIONS_MAP = {")
-    if idx_divs_start != -1:
-        idx_divs_end = html.find("};
-
-let divStageFilter", idx_divs_start)
-        if idx_divs_end == -1: idx_divs_end = html.find("};", idx_divs_start)
-        if idx_divs_end != -1:
-            divs_str = html[idx_divs_start + len("const HISTORICAL_DIVISIONS_MAP = "):idx_divs_end + 1]
-            try:
-                fixed_str = re.sub(r'(\d{4}):', r'"":', divs_str)
-                hist_divs = json.loads(fixed_str)
-                hist_divs[str(ano_corrente)] = divisions_dict
-                novo_divs_json = json.dumps(hist_divs, ensure_ascii=False, indent=2)
-                novo_divs_json = re.sub(r'"(\d{4})":', r':', novo_divs_json)
-                html = html[:idx_divs_start + len("const HISTORICAL_DIVISIONS_MAP = ")] + novo_divs_json + html[idx_divs_end + 1:]
-            except Exception as e:
-                print(f"⚠️ Erro ao atualizar divisões: {e}")
+    # Atualizar HISTORICAL_DIVISIONS_MAP (Regex)
+    match_divs = re.search(r"const HISTORICAL_DIVISIONS_MAP\s*=\s*(\{.*?\});\s*(let divStageFilter|const STANDINGS_DATA|//)", html, re.DOTALL)
+    if match_divs:
+        divs_str = match_divs.group(1)
+        try:
+            fixed_str = re.sub(r'(\d{4}):', r'"":', divs_str)
+            hist_divs = json.loads(fixed_str)
+            hist_divs[str(ano_corrente)] = divisions_dict
+            novo_divs_json = json.dumps(hist_divs, ensure_ascii=False, indent=2)
+            novo_divs_json = re.sub(r'"(\d{4})":', r':', novo_divs_json)
+            
+            html = html[:match_divs.start(1)] + novo_divs_json + html[match_divs.end(1):]
+            print(f"✅ Divisões da temporada {ano_corrente} injetadas com sucesso.")
+        except Exception as e:
+            print(f"⚠️ Erro ao atualizar divisões: {e}")
+    else:
+        print("⚠️ Erro: Não foi possível localizar HISTORICAL_DIVISIONS_MAP no HTML.")
 
     # Atualizar total de confrontos e data no cabeçalho
     hoje = datetime.date.today().strftime("%d/%m/%Y")
-    total_jogos = f"{len(raw_historico):,}".replace(",", ".")
-    html = re.sub(r"[0-9\.]+ Confrontos", f"{total_jogos} Confrontos", html)
+    
+    if match_raw:
+        try:
+            total_jogos = f"{len(raw_historico):,}".replace(",", ".")
+            html = re.sub(r"[0-9\.]+ Confrontos", f"{total_jogos} Confrontos", html)
+        except NameError:
+            pass # Caso raw_historico não tenha sido gerado
+    
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    # Injetar o novo array RAW_DATA no HTML
-    idx_raw_start = html.find("const RAW_DATA = [")
-    novo_raw_json = json.dumps(raw_historico, ensure_ascii=False)
-    html = html[:idx_raw_start + len("const RAW_DATA = ")] + novo_raw_json + html[html.find(";
-// Schema: [0: year"):]
-
-    with open(HTML_FILE, "w", encoding="utf-8") as f:
+    with open("update_sleeper.py", "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"🚀 HTML atualizado e sincronizado com sucesso para a temporada {ano_corrente}!")
+    print(f"🚀 Script salvo com sucesso!")
 
 if __name__ == "__main__":
     main()
