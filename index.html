@@ -547,7 +547,7 @@
 .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 .table-wrapper table { min-width: max-content; } /* Garante que a tabela não esmague as colunas */
 
-.champ-grid-container { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; align-items: start; }
+.champ-grid-container { display: block; }
 .div-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px; }
 .rec-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
 
@@ -1318,7 +1318,7 @@
     <!-- Quadros de Medalhas e Tabela de Classificação Final -->
     <div style="" class="champ-grid-container">
       
-      <div class="mobile-segmented-control mobile-only" style="margin-bottom: 15px;">
+      <div class="mobile-segmented-control" style="margin-bottom: 15px;">
       <button class="seg-btn active" onclick="switchSubTab('aba0', 'medalhas', this)">🥇 Hall da Fama</button>
       <button class="seg-btn" onclick="switchSubTab('aba0', 'classificacao', this)">📊 Classificação Final</button>
     </div>
@@ -1352,7 +1352,7 @@
       </div>
 
       <!-- Tabela da Classificação Final da Temporada Selecionada -->
-      <div class="table-card mobile-hidden-sub" id="aba0-classificacao">
+      <div class="table-card mobile-hidden-sub" id="aba0-classificacao" style="display: none;">
         <div class="table-header-bar">
           <div>
             <div class="table-title" id="finalStandingsTitle">Classificação Final Oficial</div>
@@ -5769,7 +5769,7 @@ function renderPodiumRows() {
         tr.innerHTML = `
             <td><span class="${rankClass}">${idx + 1}</span></td>
             <td><strong style="color: #fff; cursor: pointer;" onclick="inspectPlayer('${m.name}')">${m.name}</strong></td>
-            <td style="text-align: center; font-weight: 800; color: #a78bfa;">${m.gp}</td>
+            <td style="text-align: center; font-weight: 800; color: #60a5fa;">${m.gp}</td>
             <td style="text-align: center; font-weight: 800; color: ${m.gold > 0 ? '#fbbf24' : 'var(--text-muted)'};">${m.gold}</td>
             <td style="text-align: center; font-weight: 800; color: ${m.silver > 0 ? '#cbd5e1' : 'var(--text-muted)'};">${m.silver}</td>
             <td style="text-align: center; font-weight: 800; color: ${m.bronze > 0 ? '#f59e0b' : 'var(--text-muted)'};">${m.bronze}</td>
