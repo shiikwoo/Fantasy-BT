@@ -50,6 +50,8 @@ def get_safe_points(matchup_dict):
 def main():
     print("🔍 Conectando à API pública do Sleeper...")
     league_data = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}")
+    nfl_state = fetch_json("https://api.sleeper.app/v1/state/nfl")
+    
     if not league_data:
         print("❌ Falha crítica: não foi possível carregar os dados da liga. Verifique o LEAGUE_ID.")
         return
@@ -61,6 +63,14 @@ def main():
     season_str = league_data.get("season")
     ano_corrente = int(season_str) if season_str else datetime.date.today().year
     print(f"📅 Temporada detectada automaticamente no Sleeper: {ano_corrente}")
+
+    # ========================================================
+    # TRAVA DE SEGURANÇA CONTRA RESULTADOS PARCIAIS
+    # ========================================================
+    semana_atual_nfl = 18
+    if nfl_state and nfl_state.get("season") == str(ano_corrente):
+        semana_atual_nfl = nfl_state.get("week", 18)
+        print(f"🏈 NFL Semana Atual (Sleeper): {semana_atual_nfl} (Rodadas em andamento não serão computadas no histórico)")
 
     # 2. Puxar nomes das Divisões configuradas na liga do Sleeper
     meta = league_data.get("metadata", {})
@@ -87,7 +97,6 @@ def main():
         
         final_avatar_url = None
         if team_avatar:
-            # O avatar de time no Sleeper pode ser uma URL direta (ex: imgur) ou um hash interno
             if team_avatar.startswith("http"):
                 final_avatar_url = team_avatar
             else:
@@ -131,13 +140,17 @@ def main():
     max_week_jogada = 0
 
     for w in range(1, 18):
+        # PULA A SEMANA SE ELA AINDA ESTIVER ACONTECENDO (RESULTADOS PARCIAIS)
+        if w >= semana_atual_nfl:
+            continue
+
         matchups = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/matchups/{w}")
         if not matchups:
             continue
 
         pontos = [get_safe_points(m) for m in matchups]
         if sum(pontos) == 0:
-            continue  # Semana ainda não disputada ou com zero pontos
+            continue  # Semana não disputada
 
         max_week_jogada = max(max_week_jogada, w)
 
@@ -187,9 +200,9 @@ def main():
         if idx_avatar_end != -1:
             novo_avatars_json = json.dumps(avatars_dict, ensure_ascii=False, indent=2)
             html = html[:idx_avatar_start + len("const AVATARES_SLEEPER = ")] + novo_avatars_json + html[idx_avatar_end + 1:]
-            print("✅ Dicionário de Avatares (AVATARES_SLEEPER) injetado com sucesso.")
+            print("✅ Dicionário de Avatares injetado com sucesso.")
 
-    # Atualizar RAW_DATA (Usando Regex para evitar erro de formatação/quebra de linha)
+    # Atualizar RAW_DATA (Usando Regex)
     match_raw = re.search(r"const RAW_DATA\s*=\s*(\[.*?\]);\s*// Schema:", html, re.DOTALL)
     if match_raw:
         try:
@@ -232,13 +245,10 @@ def main():
             total_jogos = f"{len(raw_historico):,}".replace(",", ".")
             html = re.sub(r"[0-9\.]+ Confrontos", f"{total_jogos} Confrontos", html)
         except NameError:
-            pass # Caso raw_historico não tenha sido gerado
+            pass
     
     html = re.sub(r"🕒 Atualizado: [0-9/]+ \(Semana \d+\)", f"🕒 Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    # ===============================================================
-    # CORREÇÃO: SALVAR NO index.html E NÃO NUM ARQUIVO .py ALEATÓRIO
-    # ===============================================================
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
