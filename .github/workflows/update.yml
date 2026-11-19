@@ -2,8 +2,9 @@ name: Atualizar Fantasy Dashboard
 
 on:
   schedule:
-    # Executa toda terça-feira às 10:00 UTC (07:00 horário de Brasília)
-    - cron: '0 10 * * 2'
+    # Executa todos os dias às 10:27 UTC (11:27 CET / 07:27 BRT)
+    # Minuto quebrado para evitar fila e descarte no GitHub Actions
+    - cron: '27 10 * * *'
   workflow_dispatch: # Permite rodar manualmente clicando em um botão a qualquer momento
 
 permissions:
