@@ -1206,6 +1206,748 @@
 }
 </style>
 
+
+<style id="trade-center-subtabs-css">
+  /* Sub-navigation inside Temporada Atual (2026) */
+  .season-subnav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+  }
+
+  .season-subtabs-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    background: var(--bg-input);
+    padding: 4px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+  }
+
+  .season-subtab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.18s ease;
+  }
+
+  .season-subtab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .season-subtab-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+  }
+
+  .season-subpage {
+    display: none;
+  }
+
+  .season-subpage.active {
+    display: block;
+    animation: fadeIn 0.22s ease;
+  }
+
+  /* Sync Status Banner for Trade & Rankings */
+  .tc-status-banner {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .tc-status-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-main);
+  }
+
+  .tc-status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent-win);
+    box-shadow: 0 0 8px var(--accent-win);
+    flex-shrink: 0;
+  }
+
+  .tc-status-dot.loading {
+    background: var(--accent-tie);
+    box-shadow: 0 0 8px var(--accent-tie);
+    animation: tcPulse 1.2s infinite;
+  }
+
+  .tc-status-dot.error {
+    background: var(--accent-loss);
+    box-shadow: 0 0 8px var(--accent-loss);
+  }
+
+  @keyframes tcPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .tc-rules-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .tc-rule-pill {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+  }
+
+  .tc-rule-pill.custom {
+    background: rgba(6, 182, 212, 0.14);
+    border-color: rgba(6, 182, 212, 0.35);
+    color: #67e8f9;
+  }
+
+  .tc-sync-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tc-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .tc-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: #3b82f6;
+  }
+
+  .tc-btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  .tc-btn-primary:hover {
+    background: var(--primary-hover);
+  }
+
+  /* Trade Evaluator Card */
+  .tc-evaluator-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .tc-evaluator-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .tc-evaluator-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tc-evaluator-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tc-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .tc-toggle-label input {
+    accent-color: var(--primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .tc-trade-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: stretch;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .tc-trade-summary-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tc-side-box {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 130px;
+  }
+
+  .tc-side-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tc-side-team {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .tc-side-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .tc-side-total {
+    text-align: right;
+  }
+
+  .tc-side-total .val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tc-side-total .bonus-tag {
+    font-size: 11px;
+    color: #38bdf8;
+    font-weight: 600;
+    display: block;
+  }
+
+  .tc-selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 34px;
+    align-items: center;
+  }
+
+  .tc-empty-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .tc-asset-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .tc-asset-chip .chip-val {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 11.5px;
+  }
+
+  .tc-asset-chip button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding-left: 2px;
+  }
+
+  .tc-asset-chip button:hover {
+    color: var(--accent-loss);
+  }
+
+  .tc-vs-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tc-vs-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-muted);
+  }
+
+  /* Fairness Meter */
+  .tc-meter-wrap {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .tc-meter-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tc-verdict-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .tc-verdict-fair {
+    background: rgba(16, 185, 129, 0.16);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  .tc-verdict-slight {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+
+  .tc-verdict-unfair {
+    background: rgba(239, 68, 68, 0.16);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+  }
+
+  .tc-verdict-neutral {
+    background: var(--bg-input);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+  }
+
+  .tc-meter-track {
+    height: 10px;
+    background: var(--bg-input);
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+  }
+
+  .tc-meter-a {
+    background: linear-gradient(90deg, #2563eb, #38bdf8);
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .tc-meter-b {
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .tc-meter-mid {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #fff;
+    opacity: 0.7;
+    transform: translateX(-50%);
+  }
+
+  /* Rosters Grid */
+  .tc-rosters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 960px) {
+    .tc-rosters-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tc-roster-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tc-roster-top {
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.55);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tc-team-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tc-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    color: #60a5fa;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .tc-team-select {
+    flex: 1;
+    min-width: 0;
+    font-weight: 700;
+  }
+
+  .tc-meta-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border-radius: 6px;
+  }
+
+  .tc-pos-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tc-pos-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tc-pos-btn:hover {
+    color: #fff;
+    border-color: #3b82f6;
+  }
+
+  .tc-pos-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  .tc-roster-list {
+    max-height: 520px;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .tc-player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 4px;
+  }
+
+  .tc-player-row:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-color);
+  }
+
+  .tc-player-row.selected {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: var(--primary);
+  }
+
+  .tc-player-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .tc-pos-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 0;
+    width: 38px;
+    text-align: center;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+
+  .tc-pos-QB { background: rgba(244, 63, 94, 0.16); color: #f43f5e; }
+  .tc-pos-RB { background: rgba(16, 185, 129, 0.16); color: #10b981; }
+  .tc-pos-WR { background: rgba(56, 189, 248, 0.16); color: #38bdf8; }
+  .tc-pos-TE { background: rgba(245, 158, 11, 0.16); color: #f59e0b; }
+  .tc-pos-DEF, .tc-pos-K { background: rgba(148, 163, 184, 0.16); color: #94a3b8; }
+
+  .tc-player-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tc-starter-tag {
+    font-size: 10px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .tc-player-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tc-player-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .tc-trend { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tc-trend-up { color: #34d399; }
+  .tc-trend-down { color: #f87171; }
+  .tc-trend-flat { color: var(--text-muted); }
+
+  .tc-val-box { text-align: right; min-width: 54px; }
+  .tc-val-num { font-size: 14px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+  .tc-val-ovr { font-size: 10.5px; color: var(--text-muted); }
+
+  /* Rankings Controls */
+  .tc-rankings-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .tc-subtab-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tc-subtab-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tc-subtab-btn:hover { color: #fff; border-color: #3b82f6; }
+  .tc-subtab-btn.active {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+
+  .tc-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tc-switcher {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .tc-switcher span {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding: 0 6px;
+    font-weight: 600;
+  }
+
+  .tc-sw-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .tc-sw-btn:hover { color: #fff; }
+  .tc-sw-btn.active { background: var(--primary); color: #fff; }
+  .tc-sw-btn.active-week { background: var(--accent-win); color: #052e16; font-weight: 700; }
+
+  .tc-owner-pill {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    display: inline-block;
+  }
+
+  .tc-owner-pill.fa {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
+
+  .tc-bye-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(239, 68, 68, 0.16);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    margin-left: 6px;
+  }
+
+  .tc-info-callout {
+    margin-top: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .tc-info-callout strong { color: #fff; }
+</style>
 </head>
 
 <body>
@@ -1359,12 +2101,12 @@
               <tr>
                 <th onclick="sortPodium('rank')" style="cursor:pointer; white-space:nowrap;"># ↕</th>
                 <th onclick="sortPodium('name')" style="cursor:pointer; white-space:nowrap;">Jogador ↕</th>
-                <th onclick="sortPodium('gp')" style="cursor:pointer; text-align: center; white-space:nowrap;">GP ↕</th>
+                <th onclick="sortPodium('gp')" style="cursor:pointer; text-align: center; white-space:nowrap;">Pontos ↕</th>
                 <th onclick="sortPodium('gold')" style="cursor:pointer; text-align: center; white-space:nowrap;">🥇 ↕</th>
                 <th onclick="sortPodium('silver')" style="cursor:pointer; text-align: center; white-space:nowrap;">🥈 ↕</th>
                 <th onclick="sortPodium('bronze')" style="cursor:pointer; text-align: center; white-space:nowrap;">🥉 ↕</th>
                 <th onclick="sortPodium('playoffs')" style="cursor:pointer; text-align: center; white-space:nowrap;">🔥 P.Offs ↕</th>
-                <th onclick="sortPodium('consolation')" style="cursor:pointer; text-align: center; white-space:nowrap;">🎖️ C.Champ ↕</th>
+                <th onclick="sortPodium('consolation')" style="cursor:pointer; text-align: center; white-space:nowrap;">🎖️ Consol. ↕</th>
               </tr>
             </thead>
             <tbody id="podiumBody">
@@ -1420,6 +2162,31 @@
 
   <!-- Tab: Temporada Atual (2026) & Divisões -->
   <div id="tab-season" class="tab-content">
+    
+    <!-- Barra de Sub-Abas da Temporada Atual -->
+    <div class="season-subnav-bar">
+      <div class="season-subtabs-group" role="tablist">
+        <button class="season-subtab-btn active" data-subpage="classificacao" onclick="switchSeasonSubpage('classificacao', this)">
+          📊 Classificação
+        </button>
+        <button class="season-subtab-btn" data-subpage="calculadora" onclick="switchSeasonSubpage('calculadora', this)">
+          ⚖️ Calculadora
+        </button>
+        <button class="season-subtab-btn" data-subpage="rankings" onclick="switchSeasonSubpage('rankings', this)">
+          🏆 Rankings
+        </button>
+      </div>
+
+      <div class="tc-sync-inline">
+        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Sleeper ID:</span>
+        <input type="text" id="tcLeagueIdInput" value="1398124193773527040" style="width: 165px; padding: 5px 10px; font-size: 12px; font-family: monospace;" />
+        <button class="tc-btn tc-btn-primary" onclick="tcLoadLeagueData(true)">🔄 Sincronizar</button>
+      </div>
+    </div>
+
+    <!-- SUB-ABA 1: CLASSIFICAÇÃO (Conteúdo original da Temporada Atual) -->
+    <div id="season-sub-classificacao" class="season-subpage active">
+      
     
     <div class="kpi-grid" id="seasonHighlightsGrid">
       <!-- Injetado via JS -->
@@ -1539,7 +2306,238 @@
       </div>
     </div>
 
+    
     </div>
+
+    <!-- SUB-ABA 2: CALCULADORA DE TRADES -->
+    <div id="season-sub-calculadora" class="season-subpage">
+      <div class="tc-status-banner">
+        <div class="tc-status-left">
+          <span class="tc-status-dot loading" id="tcStatusDotCalc"></span>
+          <span id="tcStatusTextCalc">Carregando elencos da liga e valores Rest of Season (FantasyCalc)...</span>
+        </div>
+        <div class="tc-rules-pills" id="tcRulesPillsCalc">
+          <span class="tc-rule-pill">Detectando regras...</span>
+        </div>
+      </div>
+
+      <div class="tc-evaluator-card">
+        <div class="tc-evaluator-header">
+          <div class="tc-evaluator-title">
+            📊 Simulador de Proposta (Valores Rest of Season)
+          </div>
+          <div class="tc-evaluator-options">
+            <label class="tc-toggle-label" title="Adiciona bônus de consolidação escalonado ao lado que recebe menos jogadores (2-por-1, 3-por-2, etc.)">
+              <input type="checkbox" id="tcStudBonusToggle" checked onchange="tcRecalculateTrade()" />
+              Ajuste de Consolidação (Stud Bonus)
+            </label>
+            <button class="tc-btn" onclick="tcSwapTeams()">⇄ Inverter Lados</button>
+            <button class="tc-btn" onclick="tcClearTrade()">🗑️ Limpar Troca</button>
+          </div>
+        </div>
+
+        <div class="tc-trade-summary-grid">
+          <div class="tc-side-box">
+            <div class="tc-side-header">
+              <div>
+                <div class="tc-side-team" id="tcSummaryTeamAName">Time A Recebe</div>
+                <div class="tc-side-subtitle" id="tcSummaryTeamASub">Jogadores vindos do Time B</div>
+              </div>
+              <div class="tc-side-total">
+                <div class="val" id="tcTotalValA">0</div>
+                <span class="bonus-tag" id="tcBonusTagA"></span>
+              </div>
+            </div>
+            <div class="tc-selected-list" id="tcSelectedListA">
+              <span class="tc-empty-hint">Selecione jogadores no elenco do Time B abaixo...</span>
+            </div>
+          </div>
+
+          <div class="tc-vs-center">
+            <div class="tc-vs-circle">VS</div>
+          </div>
+
+          <div class="tc-side-box">
+            <div class="tc-side-header">
+              <div>
+                <div class="tc-side-team" id="tcSummaryTeamBName">Time B Recebe</div>
+                <div class="tc-side-subtitle" id="tcSummaryTeamBSub">Jogadores vindos do Time A</div>
+              </div>
+              <div class="tc-side-total">
+                <div class="val" id="tcTotalValB">0</div>
+                <span class="bonus-tag" id="tcBonusTagB"></span>
+              </div>
+            </div>
+            <div class="tc-selected-list" id="tcSelectedListB">
+              <span class="tc-empty-hint">Selecione jogadores no elenco do Time A abaixo...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tc-meter-wrap">
+          <div class="tc-meter-labels">
+            <span id="tcMeterLabelA">Time A: 50%</span>
+            <span class="tc-verdict-badge tc-verdict-neutral" id="tcVerdictBadge">Selecione jogadores para avaliar</span>
+            <span id="tcMeterLabelB">Time B: 50%</span>
+          </div>
+          <div class="tc-meter-track">
+            <div class="tc-meter-a" id="tcMeterFillA" style="width: 50%;"></div>
+            <div class="tc-meter-b" id="tcMeterFillB" style="width: 50%;"></div>
+            <div class="tc-meter-mid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc-rosters-grid">
+        <div class="tc-roster-panel">
+          <div class="tc-roster-top">
+            <div class="tc-team-row">
+              <div class="tc-avatar" id="tcAvatarA">A</div>
+              <select class="tc-team-select" id="tcSelectTeamA" onchange="tcOnSelectTeam('A')"></select>
+            </div>
+            <div class="tc-meta-strip">
+              <span id="tcMetaRecordA">Campanha: —</span>
+              <span id="tcMetaStarterValA">⭐ Titulares: —</span>
+              <span id="tcMetaTotalValA">📦 Total: —</span>
+            </div>
+            <div class="tc-pos-filters" id="tcFiltersA">
+              <button class="tc-pos-btn active" onclick="tcSetPosFilter('A', 'ALL', this)">Todos</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'QB', this)">QB</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'RB', this)">RB</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'WR', this)">WR</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'TE', this)">TE</button>
+            </div>
+          </div>
+          <div class="tc-roster-list" id="tcRosterListA"></div>
+        </div>
+
+        <div class="tc-roster-panel">
+          <div class="tc-roster-top">
+            <div class="tc-team-row">
+              <div class="tc-avatar" id="tcAvatarB">B</div>
+              <select class="tc-team-select" id="tcSelectTeamB" onchange="tcOnSelectTeam('B')"></select>
+            </div>
+            <div class="tc-meta-strip">
+              <span id="tcMetaRecordB">Campanha: —</span>
+              <span id="tcMetaStarterValB">⭐ Titulares: —</span>
+              <span id="tcMetaTotalValB">📦 Total: —</span>
+            </div>
+            <div class="tc-pos-filters" id="tcFiltersB">
+              <button class="tc-pos-btn active" onclick="tcSetPosFilter('B', 'ALL', this)">Todos</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'QB', this)">QB</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'RB', this)">RB</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'WR', this)">WR</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'TE', this)">TE</button>
+            </div>
+          </div>
+          <div class="tc-roster-list" id="tcRosterListB"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-ABA 3: RANKINGS (ROS vs Semana Atual) -->
+    <div id="season-sub-rankings" class="season-subpage">
+      <div class="tc-status-banner">
+        <div class="tc-status-left">
+          <span class="tc-status-dot loading" id="tcStatusDotRank"></span>
+          <span id="tcStatusTextRank">Carregando elencos da liga, semana atual da NFL e projeções...</span>
+        </div>
+        <div class="tc-rules-pills" id="tcRulesPillsRank">
+          <span class="tc-rule-pill">Detectando regras...</span>
+        </div>
+      </div>
+
+      <div class="tc-rankings-bar">
+        <div class="tc-subtab-group">
+          <button class="tc-subtab-btn active" id="tcSubtabTeamsBtn" onclick="tcSwitchRankingsTab('teams')">
+            🏟️ Power Ranking dos Times
+          </button>
+          <button class="tc-subtab-btn" id="tcSubtabPlayersBtn" onclick="tcSwitchRankingsTab('players')">
+            🏃 Ranking de Jogadores
+          </button>
+        </div>
+
+        <div class="tc-controls-right">
+          <div class="tc-switcher" title="Alternar entre valor de troca Rest of Season e projeção da Semana Atual">
+            <span>Horizonte:</span>
+            <button class="tc-sw-btn active" id="tcHorizonRosBtn" onclick="tcSetRankingHorizon('ros')">📈 Rest of Season (ROS)</button>
+            <button class="tc-sw-btn" id="tcHorizonWeekBtn" onclick="tcSetRankingHorizon('week')">📅 Semana 11</button>
+          </div>
+
+          <div class="tc-switcher" id="tcPowerSortSwitcher">
+            <span>Ordenar por:</span>
+            <button class="tc-sw-btn active" id="tcSortStartersBtn" onclick="tcSetPowerSort('starters')">⭐ Time Titular</button>
+            <button class="tc-sw-btn" id="tcSortTotalBtn" onclick="tcSetPowerSort('total')">📦 Elenco Completo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-view A: Team Power Rankings -->
+      <div id="tc-rankings-teams-view" class="table-card">
+        <div class="table-header-bar">
+          <div>
+            <div class="table-title" id="tcTeamRankingsHeaderTitle">Power Ranking (Rest of Season) — Time Titular vs. Elenco Completo</div>
+            <div id="tcTeamRankingsHeaderSub" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+              A força do time titular considera automaticamente os melhores jogadores elegíveis para cada slot oficial da liga.
+            </div>
+          </div>
+          <span class="tc-rule-pill" id="tcRosterSlotsSummary">Slots: —</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60px; text-align: center;">#</th>
+                <th>Time / Manager</th>
+                <th>Campanha</th>
+                <th id="tcThStartersCol">⭐ Time Titular (ROS)</th>
+                <th id="tcThBenchCol">🪑 Banco (ROS)</th>
+                <th id="tcThTotalCol">📦 Elenco Completo (ROS)</th>
+                <th id="tcThMvpCol">Craque do Elenco (MVP)</th>
+              </tr>
+            </thead>
+            <tbody id="tcTeamRankingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sub-view B: Player Rankings -->
+      <div id="tc-rankings-players-view" class="table-card" style="display: none;">
+        <div class="table-header-bar">
+          <div class="tc-pos-filters" id="tcPlayerRankPosFilters">
+            <button class="tc-pos-btn active" onclick="tcSetPlayerRankPos('ALL', this)">Todos</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('QB', this)">QB</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('RB', this)">RB</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('WR', this)">WR</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('TE', this)">TE</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('FA', this)">🟢 Free Agents</button>
+          </div>
+          <input type="text" id="tcPlayerSearchInput" placeholder="Buscar jogador, time NFL ou manager..." oninput="tcRenderPlayerRankings()" style="width: 260px;" />
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 70px;">OVR</th>
+                <th style="width: 80px;">Pos Rank</th>
+                <th>Jogador</th>
+                <th>Time NFL</th>
+                <th>Status na Liga</th>
+                <th id="tcThPlayerExtraCol">Tendência (30d)</th>
+                <th id="tcThPlayerValCol" style="text-align: right;">Trade Value (ROS)</th>
+              </tr>
+            </thead>
+            <tbody id="tcPlayerRankingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tc-info-callout">
+        <strong>ℹ️ Diferença entre Rest of Season (ROS) e Semana Atual:</strong> O modo <strong>ROS</strong> utiliza os valores de mercado do <strong>FantasyCalc</strong> (visão para o restante da temporada). O modo <strong id="tcCalloutWeekLabel">Semana 11</strong> utiliza as <strong>projeções semanais oficiais do Sleeper</strong> calculadas diretamente com as regras exatas de pontuação da sua liga (incluindo <code>pass_cmp</code>, <code>rec</code>, etc.) e zera automaticamente jogadores em <em>Bye Week</em> ou lesionados (<em>Out/IR</em>).
+      </div>
+    </div>
+
+  </div>
 
   <!-- Tab 1: Leaderboard -->
   <div id="tab-leaderboard" class="tab-content">
@@ -1637,7 +2635,7 @@
     
     <div class="mobile-segmented-control" style="margin-bottom: 20px;">
       <button class="seg-btn active" onclick="switchH2HView('h2h-detalhado', this)">⚔️ H2H Detalhado</button>
-      <button class="seg-btn" onclick="switchH2HView('h2h-todos', this)">📊 Desempenho Geral vs Todos</button>
+      <button class="seg-btn" onclick="switchH2HView('h2h-todos', this)">📊 Desempenho Geral</button>
     </div>
     <div id="h2h-detalhado" class="h2h-view-section active">
 <!-- Selectors -->
@@ -2452,7 +3450,7 @@ function switchTab(tabId, btn) {
   }
 
   if (tabId === 'tab-champions') renderChampionsView();
-  if (tabId === 'tab-season') renderSeasonView();
+  if (tabId === 'tab-season') { renderSeasonView(); if (!tcState.loaded) tcLoadLeagueData(false); }
   if (tabId === 'tab-leaderboard') renderLeaderboard();
   if (tabId === 'tab-franchise') renderFranchiseView();
   if (tabId === 'tab-h2h') renderHeadToHead();
@@ -5952,6 +6950,929 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 600);
 });
 
+
+// ==================== TRADE CALCULATOR & RANKINGS (TEMPORADA ATUAL) ====================
+const tcState = {
+  leagueId: '1398124193773527040',
+  loaded: false,
+  leagueInfo: null,
+  nflState: { season: '2026', week: 11 },
+  teams: [],
+  playersMap: {},
+  fcValuesById: {},
+  fcAllPlayers: [],
+  weeklyProjById: {},
+  weeklyAllPlayers: [],
+  rosterPositions: [],
+  customMultipliers: { QB: 1, RB: 1, WR: 1, TE: 1, notes: [] },
+  selectedTeamA: null,
+  selectedTeamB: null,
+  offerFromA: [],
+  offerFromB: [],
+  filterPosA: 'ALL',
+  filterPosB: 'ALL',
+  rankingHorizon: 'ros',
+  powerSort: 'starters',
+  playerRankPos: 'ALL'
+};
+
+const TC_NFL_PLAYERS_CACHE_KEY = 'bt_nfl_players_v3';
+const TC_NFL_PLAYERS_CACHE_TTL = 1000 * 60 * 60 * 24 * 3;
+
+function switchSeasonSubpage(subName, btn) {
+  document.querySelectorAll('.season-subtab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const targetBtn = document.querySelector(`.season-subtab-btn[data-subpage="${subName}"]`);
+    if (targetBtn) targetBtn.classList.add('active');
+  }
+
+  document.querySelectorAll('.season-subpage').forEach(p => p.classList.remove('active'));
+  const targetPage = document.getElementById(`season-sub-${subName}`);
+  if (targetPage) targetPage.classList.add('active');
+
+  if ((subName === 'calculadora' || subName === 'rankings') && !tcState.loaded) {
+    tcLoadLeagueData(false);
+  }
+}
+
+function tcSetStatus(type, text) {
+  ['Calc', 'Rank'].forEach(suffix => {
+    const dot = document.getElementById(`tcStatusDot${suffix}`);
+    const label = document.getElementById(`tcStatusText${suffix}`);
+    if (dot) dot.className = 'tc-status-dot ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
+    if (label) label.textContent = text;
+  });
+}
+
+async function tcLoadLeagueData(forceRefresh = false) {
+  const inputEl = document.getElementById('tcLeagueIdInput');
+  const inputId = inputEl ? inputEl.value.trim() : tcState.leagueId;
+  if (!inputId) return;
+  tcState.leagueId = inputId;
+
+  tcSetStatus('loading', `Sincronizando liga ${tcState.leagueId}, semana atual da NFL e projeções...`);
+
+  try {
+    const [nflStateRes, leagueRes, rostersRes, usersRes] = await Promise.all([
+      fetch('https://api.sleeper.app/v1/state/nfl'),
+      fetch(`https://api.sleeper.app/v1/league/${tcState.leagueId}`),
+      fetch(`https://api.sleeper.app/v1/league/${tcState.leagueId}/rosters`),
+      fetch(`https://api.sleeper.app/v1/league/${tcState.leagueId}/users`)
+    ]);
+
+    if (!leagueRes.ok) throw new Error('Liga não encontrada no Sleeper. Verifique o League ID.');
+
+    const nflState = nflStateRes.ok ? await nflStateRes.json() : { season: '2026', week: 11 };
+    const league = await leagueRes.json();
+    const rosters = await rostersRes.json();
+    const users = await usersRes.json();
+
+    const activeWeek = league.settings?.leg || nflState.week || 11;
+    const activeSeason = league.season || nflState.season || '2026';
+    tcState.nflState = { season: activeSeason, week: activeWeek };
+    tcState.leagueInfo = league;
+    tcState.rosterPositions = league.roster_positions || [];
+
+    const wkBtn = document.getElementById('tcHorizonWeekBtn');
+    const wkCallout = document.getElementById('tcCalloutWeekLabel');
+    if (wkBtn) wkBtn.textContent = `📅 Semana ${activeWeek}`;
+    if (wkCallout) wkCallout.textContent = `Semana ${activeWeek}`;
+
+    const rules = tcAnalyzeLeagueRules(league);
+    tcRenderRulesPills(rules, activeWeek);
+
+    const fcUrl = `https://api.fantasycalc.com/values/current?isDynasty=${rules.isDynasty}&numQbs=${rules.numQbs}&numTeams=${rules.numTeams}&ppr=${rules.ppr}`;
+    const projUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}/${activeWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE`;
+
+    const [fcRes, playersDict, projRes] = await Promise.all([
+      fetch(fcUrl),
+      tcGetNflPlayersDictionary(forceRefresh),
+      fetch(projUrl).catch(() => null)
+    ]);
+
+    if (!fcRes.ok) throw new Error('Falha ao obter valores do FantasyCalc.');
+    const fcData = await fcRes.json();
+    const projData = (projRes && projRes.ok) ? await projRes.json() : [];
+
+    tcState.playersMap = playersDict;
+
+    tcProcessFantasyCalcData(fcData);
+    tcProcessWeeklyProjections(projData, league.scoring_settings || {});
+    tcBuildLeagueTeams(rosters, users);
+
+    tcPopulateTeamSelectors();
+    tcRenderTeamRankings();
+    tcRenderPlayerRankings();
+
+    tcState.loaded = true;
+    tcSetStatus('ok', `Sincronizado! ${tcState.teams.length} times carregados (ROS + Projeções da Semana ${activeWeek}).`);
+  } catch (err) {
+    console.error(err);
+    tcSetStatus('error', `Erro: ${err.message}`);
+  }
+}
+
+function tcAnalyzeLeagueRules(league) {
+  const settings = league.settings || {};
+  const scoring = league.scoring_settings || {};
+  const positions = league.roster_positions || [];
+
+  const isDynasty = settings.type === 2;
+  const numTeams = league.total_rosters || 12;
+  const qbSlots = positions.filter(p => p === 'QB').length;
+  const sfSlots = positions.filter(p => p === 'SUPER_FLEX').length;
+  const numQbs = (qbSlots + sfSlots) >= 2 ? 2 : 1;
+
+  const rec = scoring.rec ?? 0.5;
+  const ppr = rec >= 0.8 ? 1 : rec >= 0.3 ? 0.5 : 0;
+
+  const mult = { QB: 1, RB: 1, WR: 1, TE: 1, notes: [] };
+
+  if (scoring.pass_cmp && scoring.pass_cmp > 0) {
+    const boost = Math.min(0.25, scoring.pass_cmp * 1.1);
+    mult.QB += boost;
+    mult.notes.push(`+${scoring.pass_cmp}/passe completo`);
+  }
+
+  if (scoring.pass_td && scoring.pass_td >= 6) {
+    mult.QB += 0.08;
+    mult.notes.push(`Pass TD ${scoring.pass_td}pts`);
+  }
+
+  if (scoring.bonus_rec_te && scoring.bonus_rec_te > 0) {
+    const teBoost = Math.min(0.30, scoring.bonus_rec_te * 0.25);
+    mult.TE += teBoost;
+    mult.notes.push(`TE Premium +${scoring.bonus_rec_te}`);
+  }
+
+  if (scoring.rush_fd && scoring.rush_fd > 0) {
+    mult.RB += 0.05;
+    mult.notes.push(`+${scoring.rush_fd}/1st Down corrida`);
+  }
+
+  tcState.customMultipliers = mult;
+  return { isDynasty, numTeams, numQbs, ppr, rec, mult };
+}
+
+function tcRenderRulesPills(rules, week) {
+  const pills = [
+    `<span class="tc-rule-pill">Semana ${week}</span>`,
+    `<span class="tc-rule-pill">${rules.isDynasty ? 'Dynasty' : 'Redraft'}</span>`,
+    `<span class="tc-rule-pill">${rules.numTeams} Times</span>`,
+    `<span class="tc-rule-pill">${rules.numQbs === 2 ? 'Superflex / 2QB' : '1QB'}</span>`,
+    `<span class="tc-rule-pill">${rules.rec} PPR</span>`
+  ];
+
+  rules.mult.notes.forEach(note => {
+    pills.push(`<span class="tc-rule-pill custom">⚙️ ${note}</span>`);
+  });
+
+  const html = pills.join('');
+  ['Calc', 'Rank'].forEach(suffix => {
+    const el = document.getElementById(`tcRulesPills${suffix}`);
+    if (el) el.innerHTML = html;
+  });
+}
+
+async function tcGetNflPlayersDictionary(forceRefresh) {
+  if (!forceRefresh) {
+    try {
+      const cachedRaw = localStorage.getItem(TC_NFL_PLAYERS_CACHE_KEY);
+      if (cachedRaw) {
+        const parsed = JSON.parse(cachedRaw);
+        if (Date.now() - parsed.ts < TC_NFL_PLAYERS_CACHE_TTL && parsed.data) {
+          return parsed.data;
+        }
+      }
+    } catch (e) {}
+  }
+
+  const res = await fetch('https://api.sleeper.app/v1/players/nfl');
+  if (!res.ok) return {};
+  const fullData = await res.json();
+
+  const compact = {};
+  for (const [id, p] of Object.entries(fullData)) {
+    if (!p || !p.position) continue;
+    if (['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(p.position)) {
+      compact[id] = {
+        n: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || id,
+        p: p.position,
+        t: p.team || 'FA',
+        inj: p.injury_status || null
+      };
+    }
+  }
+
+  try {
+    localStorage.setItem(TC_NFL_PLAYERS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: compact }));
+  } catch (e) {}
+
+  return compact;
+}
+
+function tcProcessFantasyCalcData(fcData) {
+  tcState.fcValuesById = {};
+  tcState.fcAllPlayers = [];
+
+  const mult = tcState.customMultipliers;
+
+  fcData.forEach(item => {
+    const p = item.player || {};
+    const pos = p.position;
+    if (!pos || pos === 'PICK') return;
+
+    const posMult = mult[pos] || 1;
+    const adjustedValue = Math.round((item.value || 0) * posMult);
+
+    const entry = {
+      sleeperId: p.sleeperId ? String(p.sleeperId) : null,
+      name: p.name,
+      position: pos,
+      team: p.maybeTeam || p.team || 'FA',
+      value: adjustedValue,
+      trend30Day: item.trend30Day || 0,
+      overallRank: item.overallRank || 999,
+      positionRank: item.positionRank || 999
+    };
+
+    if (entry.sleeperId) {
+      tcState.fcValuesById[entry.sleeperId] = entry;
+    }
+    tcState.fcAllPlayers.push(entry);
+  });
+
+  tcState.fcAllPlayers.sort((a, b) => b.value - a.value);
+  const posCounters = {};
+  tcState.fcAllPlayers.forEach((item, idx) => {
+    item.overallRank = idx + 1;
+    posCounters[item.position] = (posCounters[item.position] || 0) + 1;
+    item.positionRank = posCounters[item.position];
+  });
+}
+
+function tcCalculateLeagueCustomPoints(stats, scoring) {
+  if (!stats) return 0;
+  let total = 0;
+  for (const [statKey, weight] of Object.entries(scoring)) {
+    if (typeof weight === 'number' && typeof stats[statKey] === 'number') {
+      total += stats[statKey] * weight;
+    }
+  }
+  if (total === 0) {
+    const rec = scoring.rec ?? 0.5;
+    total = rec >= 0.8 ? (stats.pts_ppr || 0) : rec >= 0.3 ? (stats.pts_half_ppr || 0) : (stats.pts_std || 0);
+  }
+  return Math.round(total * 10) / 10;
+}
+
+function tcProcessWeeklyProjections(projData, scoring) {
+  tcState.weeklyProjById = {};
+  tcState.weeklyAllPlayers = [];
+
+  if (Array.isArray(projData)) {
+    projData.forEach(item => {
+      const pid = String(item.player_id || '');
+      const dict = tcState.playersMap[pid];
+      const pInfo = item.player || {};
+      const pos = dict?.p || pInfo.position;
+      if (!pid || !['QB', 'RB', 'WR', 'TE'].includes(pos)) return;
+
+      const inj = dict?.inj || pInfo.injury_status || null;
+      const isOut = ['Out', 'IR', 'PUP', 'Sus'].includes(inj);
+      const pts = isOut ? 0 : tcCalculateLeagueCustomPoints(item.stats, scoring);
+
+      const opp = item.opponent ? `vs ${item.opponent}` : 'BYE';
+      const entry = {
+        sleeperId: pid,
+        name: dict?.n || `${pInfo.first_name || ''} ${pInfo.last_name || ''}`.trim() || pid,
+        position: pos,
+        team: dict?.t || item.team || 'FA',
+        pts,
+        opp,
+        inj,
+        isBye: !item.opponent
+      };
+
+      tcState.weeklyProjById[pid] = entry;
+      tcState.weeklyAllPlayers.push(entry);
+    });
+  }
+
+  tcState.fcAllPlayers.forEach(fc => {
+    if (fc.sleeperId && !tcState.weeklyProjById[fc.sleeperId]) {
+      const dict = tcState.playersMap[fc.sleeperId];
+      const entry = {
+        sleeperId: fc.sleeperId,
+        name: fc.name,
+        position: fc.position,
+        team: dict?.t || fc.team || 'FA',
+        pts: 0,
+        opp: 'BYE / Sem Jogo',
+        inj: dict?.inj || null,
+        isBye: true
+      };
+      tcState.weeklyProjById[fc.sleeperId] = entry;
+      tcState.weeklyAllPlayers.push(entry);
+    }
+  });
+
+  tcState.weeklyAllPlayers.sort((a, b) => b.pts - a.pts);
+  const posCounters = {};
+  tcState.weeklyAllPlayers.forEach((item, idx) => {
+    item.overallRank = idx + 1;
+    posCounters[item.position] = (posCounters[item.position] || 0) + 1;
+    item.positionRank = posCounters[item.position];
+  });
+}
+
+function tcBuildLeagueTeams(rosters, users) {
+  const userMap = {};
+  users.forEach(u => { userMap[u.user_id] = u; });
+
+  const teams = rosters.map(r => {
+    const user = userMap[r.owner_id] || {};
+    const teamName = user.metadata?.team_name || user.display_name || `Time #${r.roster_id}`;
+    const ownerName = user.display_name || 'Manager';
+    const avatarUrl = user.avatar ? `https://sleepercdn.com/avatars/thumbs/${user.avatar}` : null;
+
+    const playerIds = r.players || [];
+    const assets = [];
+
+    playerIds.forEach(pid => {
+      const fc = tcState.fcValuesById[pid];
+      const dict = tcState.playersMap[pid];
+      const wk = tcState.weeklyProjById[pid];
+
+      if (fc || dict) {
+        assets.push({
+          id: pid,
+          name: fc?.name || dict?.n || pid,
+          position: fc?.position || dict?.p || 'WR',
+          team: dict?.t || fc?.team || 'FA',
+          value: fc?.value || 0,
+          weekPts: wk?.pts || 0,
+          weekOpp: wk?.opp || 'BYE',
+          isBye: wk?.isBye ?? true,
+          inj: dict?.inj || wk?.inj || null,
+          trend30Day: fc?.trend30Day || 0,
+          overallRank: fc?.overallRank || null,
+          positionRank: fc?.positionRank || null
+        });
+      }
+    });
+
+    assets.sort((a, b) => b.value - a.value);
+
+    const rosLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'value');
+    assets.forEach(a => { a.isOptimalStarter = rosLineup.starterIds.has(a.id); });
+
+    const totalValue = assets.reduce((sum, a) => sum + a.value, 0);
+    const benchValue = Math.max(0, totalValue - rosLineup.totalScore);
+    const topPlayerRos = assets.length > 0 ? assets[0] : null;
+
+    const weekLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'weekPts');
+    const totalWeekPts = Math.round(assets.reduce((sum, a) => sum + a.weekPts, 0) * 10) / 10;
+    const startersWeekPts = Math.round(weekLineup.totalScore * 10) / 10;
+    const benchWeekPts = Math.max(0, Math.round((totalWeekPts - startersWeekPts) * 10) / 10);
+    const topPlayerWeek = [...assets].sort((a, b) => b.weekPts - a.weekPts)[0] || null;
+
+    const wins = r.settings?.wins ?? 0;
+    const losses = r.settings?.losses ?? 0;
+    const ties = r.settings?.ties ?? 0;
+    const record = ties > 0 ? `${wins}-${losses}-${ties}` : `${wins}-${losses}`;
+
+    return {
+      rosterId: r.roster_id,
+      teamName,
+      ownerName,
+      avatarUrl,
+      record,
+      assets,
+      startersValue: rosLineup.totalScore,
+      benchValue,
+      totalValue,
+      topPlayerRos,
+      startersWeekPts,
+      benchWeekPts,
+      totalWeekPts,
+      topPlayerWeek
+    };
+  });
+
+  teams.sort((a, b) => b.startersValue - a.startersValue);
+  tcState.teams = teams;
+}
+
+function tcComputeOptimalStarters(assets, rosterPositions, metricKey) {
+  const playersOnly = [...assets].sort((a, b) => (b[metricKey] || 0) - (a[metricKey] || 0));
+  const usedIds = new Set();
+  const starters = [];
+
+  const starterSlots = rosterPositions.filter(slot =>
+    ['QB', 'RB', 'WR', 'TE', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
+  );
+
+  const orderedSlots = [
+    ...starterSlots.filter(s => ['QB', 'RB', 'WR', 'TE'].includes(s)),
+    ...starterSlots.filter(s => !['QB', 'RB', 'WR', 'TE'].includes(s))
+  ];
+
+  orderedSlots.forEach(slot => {
+    const eligible = playersOnly.find(p => {
+      if (usedIds.has(p.id)) return false;
+      if (slot === 'QB') return p.position === 'QB';
+      if (slot === 'RB') return p.position === 'RB';
+      if (slot === 'WR') return p.position === 'WR';
+      if (slot === 'TE') return p.position === 'TE';
+      if (slot === 'FLEX') return ['RB', 'WR', 'TE'].includes(p.position);
+      if (slot === 'WRRB_FLEX') return ['RB', 'WR'].includes(p.position);
+      if (slot === 'REC_FLEX') return ['WR', 'TE'].includes(p.position);
+      if (slot === 'SUPER_FLEX') return ['QB', 'RB', 'WR', 'TE'].includes(p.position);
+      return false;
+    });
+
+    if (eligible) {
+      usedIds.add(eligible.id);
+      starters.push({ ...eligible, slot });
+    }
+  });
+
+  const totalScore = starters.reduce((sum, p) => sum + (p[metricKey] || 0), 0);
+  return { starters, starterIds: usedIds, totalScore };
+}
+
+function tcSwitchRankingsTab(tab) {
+  const isTeams = tab === 'teams';
+  document.getElementById('tcSubtabTeamsBtn').classList.toggle('active', isTeams);
+  document.getElementById('tcSubtabPlayersBtn').classList.toggle('active', !isTeams);
+  document.getElementById('tc-rankings-teams-view').style.display = isTeams ? 'block' : 'none';
+  document.getElementById('tc-rankings-players-view').style.display = isTeams ? 'none' : 'block';
+  document.getElementById('tcPowerSortSwitcher').style.display = isTeams ? 'flex' : 'none';
+}
+
+function tcSetRankingHorizon(horizon) {
+  tcState.rankingHorizon = horizon;
+  const isRos = horizon === 'ros';
+
+  document.getElementById('tcHorizonRosBtn').className = 'tc-sw-btn' + (isRos ? ' active' : '');
+  document.getElementById('tcHorizonWeekBtn').className = 'tc-sw-btn' + (!isRos ? ' active-week' : '');
+
+  tcRenderTeamRankings();
+  tcRenderPlayerRankings();
+}
+
+function tcPopulateTeamSelectors() {
+  const selA = document.getElementById('tcSelectTeamA');
+  const selB = document.getElementById('tcSelectTeamB');
+  if (!selA || !selB) return;
+
+  const optionsHtml = tcState.teams.map(t =>
+    `<option value="${t.rosterId}">${t.teamName} (${t.ownerName}) — Titulares: ${t.startersValue.toLocaleString('pt-BR')}</option>`
+  ).join('');
+
+  selA.innerHTML = optionsHtml;
+  selB.innerHTML = optionsHtml;
+
+  if (tcState.teams.length >= 2) {
+    tcState.selectedTeamA = tcState.teams[0].rosterId;
+    tcState.selectedTeamB = tcState.teams[1].rosterId;
+    selA.value = tcState.selectedTeamA;
+    selB.value = tcState.selectedTeamB;
+  }
+
+  tcRenderTeamPanel('A');
+  tcRenderTeamPanel('B');
+  tcRecalculateTrade();
+}
+
+function tcOnSelectTeam(side) {
+  const val = parseInt(document.getElementById(`tcSelectTeam${side}`).value, 10);
+  if (side === 'A') {
+    tcState.selectedTeamA = val;
+    tcState.offerFromA = [];
+  } else {
+    tcState.selectedTeamB = val;
+    tcState.offerFromB = [];
+  }
+  tcRenderTeamPanel(side);
+  tcRecalculateTrade();
+}
+
+function tcSwapTeams() {
+  const tempTeam = tcState.selectedTeamA;
+  tcState.selectedTeamA = tcState.selectedTeamB;
+  tcState.selectedTeamB = tempTeam;
+
+  const tempOffer = tcState.offerFromA;
+  tcState.offerFromA = tcState.offerFromB;
+  tcState.offerFromB = tempOffer;
+
+  document.getElementById('tcSelectTeamA').value = tcState.selectedTeamA;
+  document.getElementById('tcSelectTeamB').value = tcState.selectedTeamB;
+
+  tcRenderTeamPanel('A');
+  tcRenderTeamPanel('B');
+  tcRecalculateTrade();
+}
+
+function tcClearTrade() {
+  tcState.offerFromA = [];
+  tcState.offerFromB = [];
+  tcRenderTeamPanel('A');
+  tcRenderTeamPanel('B');
+  tcRecalculateTrade();
+}
+
+function tcSetPosFilter(side, pos, btn) {
+  if (side === 'A') tcState.filterPosA = pos;
+  else tcState.filterPosB = pos;
+
+  document.querySelectorAll(`#tcFilters${side} .tc-pos-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tcRenderTeamPanel(side);
+}
+
+function tcRenderTeamPanel(side) {
+  const rosterId = side === 'A' ? tcState.selectedTeamA : tcState.selectedTeamB;
+  const team = tcState.teams.find(t => t.rosterId === rosterId);
+  if (!team) return;
+
+  const avatarEl = document.getElementById(`tcAvatar${side}`);
+  if (team.avatarUrl) {
+    avatarEl.innerHTML = `<img src="${team.avatarUrl}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+  } else {
+    avatarEl.textContent = team.teamName.substring(0, 2).toUpperCase();
+  }
+
+  document.getElementById(`tcMetaRecord${side}`).textContent = `Campanha: ${team.record}`;
+  document.getElementById(`tcMetaStarterVal${side}`).textContent = `⭐ Titulares: ${team.startersValue.toLocaleString('pt-BR')}`;
+  document.getElementById(`tcMetaTotalVal${side}`).textContent = `📦 Total: ${team.totalValue.toLocaleString('pt-BR')}`;
+
+  const filter = side === 'A' ? tcState.filterPosA : tcState.filterPosB;
+  const selectedOffers = side === 'A' ? tcState.offerFromA : tcState.offerFromB;
+  const selectedIds = new Set(selectedOffers.map(o => o.id));
+
+  const filteredAssets = team.assets.filter(a => filter === 'ALL' || a.position === filter);
+  const listEl = document.getElementById(`tcRosterList${side}`);
+
+  listEl.innerHTML = filteredAssets.map(asset => {
+    const isSelected = selectedIds.has(asset.id);
+    const trendHtml = asset.trend30Day > 0
+      ? `<span class="tc-trend tc-trend-up">▲ +${asset.trend30Day}</span>`
+      : asset.trend30Day < 0
+      ? `<span class="tc-trend tc-trend-down">▼ ${asset.trend30Day}</span>`
+      : `<span class="tc-trend tc-trend-flat">—</span>`;
+
+    const rankLabel = asset.positionRank ? `${asset.position}${asset.positionRank}` : asset.team;
+    const ovrLabel = asset.overallRank ? `OVR #${asset.overallRank}` : 'Sem Rank';
+
+    return `
+      <div class="tc-player-row ${isSelected ? 'selected' : ''}" onclick="tcToggleAsset('${side}', '${asset.id}')">
+        <div class="tc-player-left">
+          <span class="tc-pos-badge tc-pos-${asset.position}">${asset.position}</span>
+          <div style="min-width:0;">
+            <div class="tc-player-name">
+              ${asset.name}
+              ${asset.isOptimalStarter ? '<span class="tc-starter-tag">TITULAR</span>' : ''}
+            </div>
+            <div class="tc-player-sub">
+              <span>${asset.team}</span>
+              <span>•</span>
+              <span>${rankLabel}</span>
+            </div>
+          </div>
+        </div>
+        <div class="tc-player-right">
+          ${trendHtml}
+          <div class="tc-val-box">
+            <div class="tc-val-num">${asset.value.toLocaleString('pt-BR')}</div>
+            <div class="tc-val-ovr">${ovrLabel}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function tcToggleAsset(side, assetId) {
+  const rosterId = side === 'A' ? tcState.selectedTeamA : tcState.selectedTeamB;
+  const team = tcState.teams.find(t => t.rosterId === rosterId);
+  if (!team) return;
+
+  const asset = team.assets.find(a => a.id === assetId);
+  if (!asset) return;
+
+  const offerList = side === 'A' ? tcState.offerFromA : tcState.offerFromB;
+  const idx = offerList.findIndex(o => o.id === assetId);
+
+  if (idx >= 0) offerList.splice(idx, 1);
+  else offerList.push(asset);
+
+  tcRenderTeamPanel(side);
+  tcRecalculateTrade();
+}
+
+function tcComputeConsolidationBonus(smallerSideAssets, largerSideAssets) {
+  const sCount = smallerSideAssets.length;
+  const lCount = largerSideAssets.length;
+  if (sCount === 0 || lCount === 0 || sCount >= lCount) {
+    return { bonus: 0, pct: 0 };
+  }
+
+  const baseRate = 0.12;
+  const extraSlots = lCount - sCount;
+  const dilutionRatio = extraSlots / sCount;
+  const pct = Math.min(0.25, baseRate * dilutionRatio);
+
+  const maxAssetVal = Math.max(...smallerSideAssets.map(a => a.value));
+  const bonus = Math.round(maxAssetVal * pct);
+  return { bonus, pct: Math.round(pct * 1000) / 10 };
+}
+
+function tcRecalculateTrade() {
+  const teamA = tcState.teams.find(t => t.rosterId === tcState.selectedTeamA);
+  const teamB = tcState.teams.find(t => t.rosterId === tcState.selectedTeamB);
+
+  const nameA = teamA ? teamA.teamName : 'Time A';
+  const nameB = teamB ? teamB.teamName : 'Time B';
+
+  document.getElementById('tcSummaryTeamAName').textContent = `${nameA} Recebe`;
+  document.getElementById('tcSummaryTeamASub').textContent = `Enviados por ${nameB}`;
+  document.getElementById('tcSummaryTeamBName').textContent = `${nameB} Recebe`;
+  document.getElementById('tcSummaryTeamBSub').textContent = `Enviados por ${nameA}`;
+
+  const receivedByA = tcState.offerFromB;
+  const receivedByB = tcState.offerFromA;
+
+  tcRenderSelectedChips('tcSelectedListA', receivedByA, 'B', `Selecione jogadores no elenco de ${nameB} abaixo...`);
+  tcRenderSelectedChips('tcSelectedListB', receivedByB, 'A', `Selecione jogadores no elenco de ${nameA} abaixo...`);
+
+  let adjA = receivedByA.reduce((s, a) => s + a.value, 0);
+  let adjB = receivedByB.reduce((s, a) => s + a.value, 0);
+  let bonusTextA = '';
+  let bonusTextB = '';
+
+  const applyStudBonus = document.getElementById('tcStudBonusToggle').checked;
+  if (applyStudBonus && receivedByA.length > 0 && receivedByB.length > 0 && receivedByA.length !== receivedByB.length) {
+    if (receivedByA.length < receivedByB.length) {
+      const { bonus, pct } = tcComputeConsolidationBonus(receivedByA, receivedByB);
+      adjA += bonus;
+      bonusTextA = `+${bonus.toLocaleString('pt-BR')} Stud Bonus (+${pct}%)`;
+    } else {
+      const { bonus, pct } = tcComputeConsolidationBonus(receivedByB, receivedByA);
+      adjB += bonus;
+      bonusTextB = `+${bonus.toLocaleString('pt-BR')} Stud Bonus (+${pct}%)`;
+    }
+  }
+
+  document.getElementById('tcTotalValA').textContent = adjA.toLocaleString('pt-BR');
+  document.getElementById('tcTotalValB').textContent = adjB.toLocaleString('pt-BR');
+  document.getElementById('tcBonusTagA').textContent = bonusTextA;
+  document.getElementById('tcBonusTagB').textContent = bonusTextB;
+
+  const total = adjA + adjB;
+  const badge = document.getElementById('tcVerdictBadge');
+
+  if (total === 0) {
+    document.getElementById('tcMeterLabelA').textContent = `${nameA}: 50%`;
+    document.getElementById('tcMeterLabelB').textContent = `${nameB}: 50%`;
+    document.getElementById('tcMeterFillA').style.width = '50%';
+    document.getElementById('tcMeterFillB').style.width = '50%';
+    badge.className = 'tc-verdict-badge tc-verdict-neutral';
+    badge.textContent = 'Selecione jogadores para avaliar';
+    return;
+  }
+
+  const pctA = Math.round((adjA / total) * 100);
+  const pctB = 100 - pctA;
+  const diffPct = Math.abs(pctA - pctB);
+
+  document.getElementById('tcMeterLabelA').textContent = `${nameA}: ${pctA}%`;
+  document.getElementById('tcMeterLabelB').textContent = `${nameB}: ${pctB}%`;
+  document.getElementById('tcMeterFillA').style.width = `${pctA}%`;
+  document.getElementById('tcMeterFillB').style.width = `${pctB}%`;
+
+  if (diffPct <= 8) {
+    badge.className = 'tc-verdict-badge tc-verdict-fair';
+    badge.textContent = `✅ Troca Equilibrada (Diff: ${diffPct}%)`;
+  } else if (diffPct <= 18) {
+    const winner = adjA > adjB ? nameA : nameB;
+    badge.className = 'tc-verdict-badge tc-verdict-slight';
+    badge.textContent = `⚠️ Leve vantagem para ${winner} (+${diffPct}%)`;
+  } else {
+    const winner = adjA > adjB ? nameA : nameB;
+    badge.className = 'tc-verdict-badge tc-verdict-unfair';
+    badge.textContent = `🚨 Vantagem alta para ${winner} (+${diffPct}%)`;
+  }
+}
+
+function tcRenderSelectedChips(containerId, items, originSide, emptyHint) {
+  const container = document.getElementById(containerId);
+  if (!items.length) {
+    container.innerHTML = `<span class="tc-empty-hint">${emptyHint}</span>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => `
+    <span class="tc-asset-chip">
+      <span class="tc-pos-badge tc-pos-${item.position}" style="width:auto;padding:1px 5px;font-size:10px;">${item.position}</span>
+      <span>${item.name}</span>
+      <span class="chip-val">(${item.value.toLocaleString('pt-BR')})</span>
+      <button onclick="tcToggleAsset('${originSide}', '${item.id}')" title="Remover">×</button>
+    </span>
+  `).join('');
+}
+
+function tcSetPowerSort(mode) {
+  tcState.powerSort = mode;
+  document.getElementById('tcSortStartersBtn').classList.toggle('active', mode === 'starters');
+  document.getElementById('tcSortTotalBtn').classList.toggle('active', mode === 'total');
+  tcRenderTeamRankings();
+}
+
+function tcRenderTeamRankings() {
+  const isRos = tcState.rankingHorizon === 'ros';
+  const wk = tcState.nflState.week;
+
+  const starterSlots = tcState.rosterPositions.filter(slot =>
+    ['QB', 'RB', 'WR', 'TE', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
+  );
+  document.getElementById('tcRosterSlotsSummary').textContent = `Slots Titulares (${starterSlots.length}): ${starterSlots.join(', ')}`;
+
+  document.getElementById('tcTeamRankingsHeaderTitle').textContent = isRos
+    ? 'Power Ranking (Rest of Season) — Time Titular vs. Elenco Completo'
+    : `Power Ranking (Semana ${wk}) — Projeção Titular vs. Elenco Completo`;
+
+  document.getElementById('tcTeamRankingsHeaderSub').textContent = isRos
+    ? 'A força do time titular considera automaticamente os melhores valores ROS elegíveis para cada slot oficial da liga.'
+    : `Projeção de pontos para a Semana ${wk} usando as regras da liga (jogadores em Bye Week ou Out/IR valem 0 pts).`;
+
+  document.getElementById('tcThStartersCol').textContent = isRos ? '⭐ Time Titular (ROS)' : `⭐ Titulares (Sem ${wk})`;
+  document.getElementById('tcThBenchCol').textContent = isRos ? '🪑 Banco (ROS)' : `🪑 Banco (Sem ${wk})`;
+  document.getElementById('tcThTotalCol').textContent = isRos ? '📦 Elenco Completo (ROS)' : `📦 Total Elenco (Sem ${wk})`;
+  document.getElementById('tcThMvpCol').textContent = isRos ? 'Craque do Elenco (ROS)' : `Maior Projeção (Sem ${wk})`;
+
+  const sortedTeams = [...tcState.teams].sort((a, b) => {
+    if (isRos) {
+      return tcState.powerSort === 'starters'
+        ? b.startersValue - a.startersValue
+        : b.totalValue - a.totalValue;
+    } else {
+      return tcState.powerSort === 'starters'
+        ? b.startersWeekPts - a.startersWeekPts
+        : b.totalWeekPts - a.totalWeekPts;
+    }
+  });
+
+  const formatVal = (val) => isRos
+    ? val.toLocaleString('pt-BR')
+    : `${val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} pts`;
+
+  const tbody = document.getElementById('tcTeamRankingsBody');
+  tbody.innerHTML = sortedTeams.map((t, idx) => {
+    const rank = idx + 1;
+    let rankClass = 'rank-badge';
+    if (rank === 1) rankClass += ' rank-1';
+    else if (rank === 2) rankClass += ' rank-2';
+    else if (rank === 3) rankClass += ' rank-3';
+
+    const starterScore = isRos ? t.startersValue : t.startersWeekPts;
+    const benchScore = isRos ? t.benchValue : t.benchWeekPts;
+    const totalScore = isRos ? t.totalValue : t.totalWeekPts;
+    const mvp = isRos ? t.topPlayerRos : t.topPlayerWeek;
+    const mvpMetric = mvp ? (isRos ? `${mvp.value.toLocaleString('pt-BR')} pts` : `${mvp.weekPts.toFixed(1)} pts (${mvp.weekOpp})`) : '';
+
+    const mvpHtml = mvp
+      ? `<div style="display:flex;align-items:center;gap:8px;">
+           <span class="tc-pos-badge tc-pos-${mvp.position}" style="width:32px;font-size:10px;">${mvp.position}</span>
+           <div>
+             <div style="font-weight:700;color:#fff;font-size:12.5px;">${mvp.name}</div>
+             <div style="font-size:11px;color:var(--text-muted);">${mvpMetric}</div>
+           </div>
+         </div>`
+      : '—';
+
+    const activeColor = isRos ? '#38bdf8' : '#34d399';
+
+    return `
+      <tr>
+        <td style="text-align: center;">
+          <span class="${rankClass}">${rank}</span>
+        </td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="tc-avatar" style="width:32px;height:32px;font-size:12px;">
+              ${t.avatarUrl ? `<img src="${t.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : t.teamName.substring(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight:700;color:#fff;">${t.teamName}</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">${t.ownerName}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="tc-rule-pill">${t.record}</span></td>
+        <td>
+          <div style="font-weight:800;font-size:14px;${tcState.powerSort === 'starters' ? `color:${activeColor};` : 'color:#fff;'}">
+            ${formatVal(starterScore)}
+          </div>
+        </td>
+        <td>
+          <div style="font-size:12.5px;color:var(--text-muted);">${formatVal(benchScore)}</div>
+        </td>
+        <td>
+          <div style="font-weight:800;font-size:14px;${tcState.powerSort === 'total' ? `color:${activeColor};` : 'color:#fff;'}">
+            ${formatVal(totalScore)}
+          </div>
+        </td>
+        <td>${mvpHtml}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function tcSetPlayerRankPos(pos, btn) {
+  tcState.playerRankPos = pos;
+  document.querySelectorAll('#tcPlayerRankPosFilters .tc-pos-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tcRenderPlayerRankings();
+}
+
+function tcRenderPlayerRankings() {
+  const isRos = tcState.rankingHorizon === 'ros';
+  const wk = tcState.nflState.week;
+  const search = (document.getElementById('tcPlayerSearchInput')?.value || '').toLowerCase().trim();
+
+  document.getElementById('tcThPlayerExtraCol').textContent = isRos ? 'Tendência (30d)' : `Confronto (Sem ${wk})`;
+  document.getElementById('tcThPlayerValCol').textContent = isRos ? 'Trade Value (ROS)' : `Projeção (Sem ${wk})`;
+
+  const ownerByPlayerId = {};
+  tcState.teams.forEach(t => {
+    t.assets.forEach(a => {
+      ownerByPlayerId[a.id] = t.teamName;
+    });
+  });
+
+  const sourceList = isRos ? tcState.fcAllPlayers : tcState.weeklyAllPlayers;
+
+  const filtered = sourceList.filter(p => {
+    const owner = p.sleeperId ? ownerByPlayerId[p.sleeperId] : null;
+    if (tcState.playerRankPos === 'FA') {
+      if (owner) return false;
+    } else if (tcState.playerRankPos !== 'ALL') {
+      if (p.position !== tcState.playerRankPos) return false;
+    }
+
+    if (search) {
+      const hay = `${p.name} ${p.team} ${owner || 'free agent'}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  }).slice(0, 150);
+
+  const tbody = document.getElementById('tcPlayerRankingsBody');
+  tbody.innerHTML = filtered.map(p => {
+    const owner = p.sleeperId ? ownerByPlayerId[p.sleeperId] : null;
+
+    let extraColHtml = '';
+    let valColHtml = '';
+
+    if (isRos) {
+      extraColHtml = p.trend30Day > 0
+        ? `<span class="tc-trend tc-trend-up">▲ +${p.trend30Day}</span>`
+        : p.trend30Day < 0
+        ? `<span class="tc-trend tc-trend-down">▼ ${p.trend30Day}</span>`
+        : `<span class="tc-trend tc-trend-flat">—</span>`;
+      valColHtml = `<strong style="color:#fff;font-size:14px;">${p.value.toLocaleString('pt-BR')}</strong>`;
+    } else {
+      const statusTag = p.inj
+        ? `<span class="tc-bye-pill">${p.inj}</span>`
+        : p.isBye
+        ? `<span class="tc-bye-pill">BYE</span>`
+        : '';
+      extraColHtml = `<span style="font-size:12px;color:var(--text-muted);font-weight:600;">${p.opp}</span>${statusTag}`;
+      valColHtml = `<strong style="font-size:14px;color:${p.pts > 0 ? '#34d399' : 'var(--text-muted)'};">${p.pts.toFixed(1)} pts</strong>`;
+    }
+
+    return `
+      <tr>
+        <td><strong>#${p.overallRank}</strong></td>
+        <td><span class="tc-pos-badge tc-pos-${p.position}">${p.position}${p.positionRank}</span></td>
+        <td><strong style="color:#fff;">${p.name}</strong></td>
+        <td>${p.team}</td>
+        <td>
+          ${owner
+            ? `<span class="tc-owner-pill">${owner}</span>`
+            : `<span class="tc-owner-pill fa">Free Agent</span>`}
+        </td>
+        <td>${extraColHtml}</td>
+        <td style="text-align: right;">${valColHtml}</td>
+      </tr>
+    `;
+  }).join('');
+}
 </script>
 </body>
 
