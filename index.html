@@ -2176,12 +2176,6 @@
           🏆 Rankings
         </button>
       </div>
-
-      <div class="tc-sync-inline">
-        <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Sleeper ID:</span>
-        <input type="text" id="tcLeagueIdInput" value="1398124193773527040" style="width: 165px; padding: 5px 10px; font-size: 12px; font-family: monospace;" />
-        <button class="tc-btn tc-btn-primary" onclick="tcLoadLeagueData(true)">🔄 Sincronizar</button>
-      </div>
     </div>
 
     <!-- SUB-ABA 1: CLASSIFICAÇÃO (Conteúdo original da Temporada Atual) -->
@@ -2316,8 +2310,15 @@
           <span class="tc-status-dot loading" id="tcStatusDotCalc"></span>
           <span id="tcStatusTextCalc">Carregando elencos da liga e valores Rest of Season (FantasyCalc)...</span>
         </div>
-        <div class="tc-rules-pills" id="tcRulesPillsCalc">
-          <span class="tc-rule-pill">Detectando regras...</span>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+          <div class="tc-rules-pills" id="tcRulesPillsCalc">
+            <span class="tc-rule-pill">Detectando regras...</span>
+          </div>
+          <div class="tc-sync-inline">
+            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Sleeper ID:</span>
+            <input type="text" id="tcLeagueIdInputCalc" value="1398124193773527040" oninput="tcSyncInputFields(this.value)" style="width: 165px; padding: 5px 10px; font-size: 12px; font-family: monospace;" />
+            <button class="tc-btn tc-btn-primary" onclick="tcLoadLeagueData(true, 'Calc')">🔄 Sincronizar</button>
+          </div>
         </div>
       </div>
 
@@ -2385,6 +2386,64 @@
             <div class="tc-meter-b" id="tcMeterFillB" style="width: 50%;"></div>
             <div class="tc-meter-mid"></div>
           </div>
+
+          <div class="tc-pr-impact-grid" id="tcPrImpactGrid">
+            <!-- Time A Impact -->
+            <div class="tc-pr-team-card">
+              <div class="tc-pr-team-header">
+                <span class="tc-pr-team-name" id="tcImpactTitleA">Impacto no Power Ranking — Time A</span>
+                <span class="tc-rule-pill" id="tcRosterSizeTagA">Elenco: —</span>
+              </div>
+              <div class="tc-pr-rows">
+                <div class="tc-pr-metric-box">
+                  <div class="tc-pr-metric-label">⭐ Time Titular</div>
+                  <div class="tc-pr-metric-vals">
+                    <span id="tcBeforeStarterA">—</span>
+                    <span>➔</span>
+                    <strong id="tcAfterStarterA">—</strong>
+                  </div>
+                  <div class="tc-pr-delta tc-delta-neu" id="tcDeltaStarterA">0 pts (0.0%)</div>
+                </div>
+                <div class="tc-pr-metric-box">
+                  <div class="tc-pr-metric-label">📦 Elenco Completo</div>
+                  <div class="tc-pr-metric-vals">
+                    <span id="tcBeforeTotalA">—</span>
+                    <span>➔</span>
+                    <strong id="tcAfterTotalA">—</strong>
+                  </div>
+                  <div class="tc-pr-delta tc-delta-neu" id="tcDeltaTotalA">0 pts (0.0%)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Time B Impact -->
+            <div class="tc-pr-team-card">
+              <div class="tc-pr-team-header">
+                <span class="tc-pr-team-name" id="tcImpactTitleB">Impacto no Power Ranking — Time B</span>
+                <span class="tc-rule-pill" id="tcRosterSizeTagB">Elenco: —</span>
+              </div>
+              <div class="tc-pr-rows">
+                <div class="tc-pr-metric-box">
+                  <div class="tc-pr-metric-label">⭐ Time Titular</div>
+                  <div class="tc-pr-metric-vals">
+                    <span id="tcBeforeStarterB">—</span>
+                    <span>➔</span>
+                    <strong id="tcAfterStarterB">—</strong>
+                  </div>
+                  <div class="tc-pr-delta tc-delta-neu" id="tcDeltaStarterB">0 pts (0.0%)</div>
+                </div>
+                <div class="tc-pr-metric-box">
+                  <div class="tc-pr-metric-label">📦 Elenco Completo</div>
+                  <div class="tc-pr-metric-vals">
+                    <span id="tcBeforeTotalB">—</span>
+                    <span>➔</span>
+                    <strong id="tcAfterTotalB">—</strong>
+                  </div>
+                  <div class="tc-pr-delta tc-delta-neu" id="tcDeltaTotalB">0 pts (0.0%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2406,6 +2465,8 @@
               <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'RB', this)">RB</button>
               <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'WR', this)">WR</button>
               <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'TE', this)">TE</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'K', this)">K</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('A', 'DEF', this)">DEF</button>
             </div>
           </div>
           <div class="tc-roster-list" id="tcRosterListA"></div>
@@ -2428,6 +2489,8 @@
               <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'RB', this)">RB</button>
               <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'WR', this)">WR</button>
               <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'TE', this)">TE</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'K', this)">K</button>
+              <button class="tc-pos-btn" onclick="tcSetPosFilter('B', 'DEF', this)">DEF</button>
             </div>
           </div>
           <div class="tc-roster-list" id="tcRosterListB"></div>
@@ -2442,8 +2505,15 @@
           <span class="tc-status-dot loading" id="tcStatusDotRank"></span>
           <span id="tcStatusTextRank">Carregando elencos da liga, semana atual da NFL e projeções...</span>
         </div>
-        <div class="tc-rules-pills" id="tcRulesPillsRank">
-          <span class="tc-rule-pill">Detectando regras...</span>
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+          <div class="tc-rules-pills" id="tcRulesPillsRank">
+            <span class="tc-rule-pill">Detectando regras...</span>
+          </div>
+          <div class="tc-sync-inline">
+            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Sleeper ID:</span>
+            <input type="text" id="tcLeagueIdInputRank" value="1398124193773527040" oninput="tcSyncInputFields(this.value)" style="width: 165px; padding: 5px 10px; font-size: 12px; font-family: monospace;" />
+            <button class="tc-btn tc-btn-primary" onclick="tcLoadLeagueData(true, 'Rank')">🔄 Sincronizar</button>
+          </div>
         </div>
       </div>
 
@@ -2487,13 +2557,13 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 60px; text-align: center;">#</th>
-                <th>Time / Manager</th>
-                <th>Campanha</th>
-                <th id="tcThStartersCol">⭐ Time Titular (ROS)</th>
-                <th id="tcThBenchCol">🪑 Banco (ROS)</th>
-                <th id="tcThTotalCol">📦 Elenco Completo (ROS)</th>
-                <th id="tcThMvpCol">Craque do Elenco (MVP)</th>
+                <th style="width: 60px; text-align: center; cursor:pointer;" onclick="tcSortTeamRankings('rank')"># ↕</th>
+                <th style="cursor:pointer;" onclick="tcSortTeamRankings('team')">Time / Manager ↕</th>
+                <th style="cursor:pointer;" onclick="tcSortTeamRankings('record')">Campanha ↕</th>
+                <th id="tcThStartersCol" style="cursor:pointer;" onclick="tcSortTeamRankings('starters')">⭐ Time Titular (ROS) ↕</th>
+                <th id="tcThBenchCol" style="cursor:pointer;" onclick="tcSortTeamRankings('bench')">🪑 Banco (ROS) ↕</th>
+                <th id="tcThTotalCol" style="cursor:pointer;" onclick="tcSortTeamRankings('total')">📦 Elenco Consolidado (ROS) ↕</th>
+                <th id="tcThMvpCol" style="cursor:pointer;" onclick="tcSortTeamRankings('mvp')">Craque do Elenco (MVP) ↕</th>
               </tr>
             </thead>
             <tbody id="tcTeamRankingsBody"></tbody>
@@ -2510,6 +2580,8 @@
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('RB', this)">RB</button>
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('WR', this)">WR</button>
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('TE', this)">TE</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('K', this)">K</button>
+            <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('DEF', this)">DEF</button>
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('FA', this)">🟢 Free Agents</button>
           </div>
           <input type="text" id="tcPlayerSearchInput" placeholder="Buscar jogador, time NFL ou manager..." oninput="tcRenderPlayerRankings()" style="width: 260px;" />
@@ -6388,6 +6460,95 @@ refreshAllViews();
     .franchise-kpis-wrapper { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 12px; scroll-snap-type: x mandatory; }
     .franchise-kpis-wrapper > span { scroll-snap-align: start; flex-shrink: 0; }
 }
+
+  /* Power Ranking Trade Impact Grid (Starters & Full Roster for Both Teams) */
+  .tc-pr-impact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .tc-pr-impact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tc-pr-team-card {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .tc-pr-team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tc-pr-team-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .tc-pr-rows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 560px) {
+    .tc-pr-rows {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tc-pr-metric-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .tc-pr-metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+  }
+
+  .tc-pr-metric-vals {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .tc-pr-metric-vals strong {
+    color: #fff;
+    font-size: 13px;
+  }
+
+  .tc-pr-delta {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tc-delta-pos { color: #34d399; }
+  .tc-delta-neg { color: #f87171; }
+  .tc-delta-neu { color: var(--text-muted); }
 </style>
 
 </head>
@@ -6960,11 +7121,13 @@ const tcState = {
   teams: [],
   playersMap: {},
   fcValuesById: {},
-  fcAllPlayers: [],
-  weeklyProjById: {},
-  weeklyAllPlayers: [],
+  fcAllPlayers: [],        // Trade values (QB, RB, WR, TE)
+  rosRankingPlayers: [],   // Full ROS rankings including K and DEF
+  rosScoreById: {},        // sleeperId -> ROS score for rankings/power rankings
+  weeklyProjById: {},      // sleeperId -> { pts, opp, inj, isBye }
+  weeklyAllPlayers: [],    // Full weekly rankings including K and DEF
   rosterPositions: [],
-  customMultipliers: { QB: 1, RB: 1, WR: 1, TE: 1, notes: [] },
+  customMultipliers: { QB: 1, RB: 1, WR: 1, TE: 1, K: 1, DEF: 1, notes: [] },
   selectedTeamA: null,
   selectedTeamB: null,
   offerFromA: [],
@@ -6973,11 +7136,20 @@ const tcState = {
   filterPosB: 'ALL',
   rankingHorizon: 'ros',
   powerSort: 'starters',
+  teamRankSortCol: 'starters',
+  teamRankSortDir: 'desc',
   playerRankPos: 'ALL'
 };
 
 const TC_NFL_PLAYERS_CACHE_KEY = 'bt_nfl_players_v3';
 const TC_NFL_PLAYERS_CACHE_TTL = 1000 * 60 * 60 * 24 * 3;
+
+function tcSyncInputFields(val) {
+  const c = document.getElementById('tcLeagueIdInputCalc');
+  const r = document.getElementById('tcLeagueIdInputRank');
+  if (c && c.value !== val) c.value = val;
+  if (r && r.value !== val) r.value = val;
+}
 
 function switchSeasonSubpage(subName, btn) {
   document.querySelectorAll('.season-subtab-btn').forEach(b => b.classList.remove('active'));
@@ -7006,13 +7178,14 @@ function tcSetStatus(type, text) {
   });
 }
 
-async function tcLoadLeagueData(forceRefresh = false) {
-  const inputEl = document.getElementById('tcLeagueIdInput');
+async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
+  const inputEl = document.getElementById(`tcLeagueIdInput${sourceSuffix}`) || document.getElementById('tcLeagueIdInputCalc') || document.getElementById('tcLeagueIdInputRank');
   const inputId = inputEl ? inputEl.value.trim() : tcState.leagueId;
   if (!inputId) return;
   tcState.leagueId = inputId;
+  tcSyncInputFields(inputId);
 
-  tcSetStatus('loading', `Sincronizando liga ${tcState.leagueId}, semana atual da NFL e projeções...`);
+  tcSetStatus('loading', `Sincronizando liga ${tcState.leagueId}, semana atual da NFL e projeções (incluindo K e DEF)...`);
 
   try {
     const [nflStateRes, leagueRes, rostersRes, usersRes] = await Promise.all([
@@ -7044,22 +7217,27 @@ async function tcLoadLeagueData(forceRefresh = false) {
     tcRenderRulesPills(rules, activeWeek);
 
     const fcUrl = `https://api.fantasycalc.com/values/current?isDynasty=${rules.isDynasty}&numQbs=${rules.numQbs}&numTeams=${rules.numTeams}&ppr=${rules.ppr}`;
-    const projUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}/${activeWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE`;
+    const projUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}/${activeWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`;
+    const rosProjUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}?season_type=regular&position[]=K&position[]=DEF`;
 
-    const [fcRes, playersDict, projRes] = await Promise.all([
+    const [fcRes, playersDict, projRes, rosKdRes] = await Promise.all([
       fetch(fcUrl),
       tcGetNflPlayersDictionary(forceRefresh),
-      fetch(projUrl).catch(() => null)
+      fetch(projUrl).catch(() => null),
+      fetch(rosProjUrl).catch(() => null)
     ]);
 
     if (!fcRes.ok) throw new Error('Falha ao obter valores do FantasyCalc.');
     const fcData = await fcRes.json();
     const projData = (projRes && projRes.ok) ? await projRes.json() : [];
+    const rosKdData = (rosKdRes && rosKdRes.ok) ? await rosKdRes.json() : [];
 
     tcState.playersMap = playersDict;
 
+    const scoring = league.scoring_settings || {};
     tcProcessFantasyCalcData(fcData);
-    tcProcessWeeklyProjections(projData, league.scoring_settings || {});
+    tcProcessWeeklyProjections(projData, scoring);
+    tcBuildRosRankingsWithKDef(rosKdData, projData, scoring, activeWeek);
     tcBuildLeagueTeams(rosters, users);
 
     tcPopulateTeamSelectors();
@@ -7067,7 +7245,7 @@ async function tcLoadLeagueData(forceRefresh = false) {
     tcRenderPlayerRankings();
 
     tcState.loaded = true;
-    tcSetStatus('ok', `Sincronizado! ${tcState.teams.length} times carregados (ROS + Projeções da Semana ${activeWeek}).`);
+    tcSetStatus('ok', `Sincronizado! ${tcState.teams.length} times carregados (ROS + Semana ${activeWeek}, com K e DEF nos Rankings).`);
   } catch (err) {
     console.error(err);
     tcSetStatus('error', `Erro: ${err.message}`);
@@ -7088,7 +7266,7 @@ function tcAnalyzeLeagueRules(league) {
   const rec = scoring.rec ?? 0.5;
   const ppr = rec >= 0.8 ? 1 : rec >= 0.3 ? 0.5 : 0;
 
-  const mult = { QB: 1, RB: 1, WR: 1, TE: 1, notes: [] };
+  const mult = { QB: 1, RB: 1, WR: 1, TE: 1, K: 1, DEF: 1, notes: [] };
 
   if (scoring.pass_cmp && scoring.pass_cmp > 0) {
     const boost = Math.min(0.25, scoring.pass_cmp * 1.1);
@@ -7160,7 +7338,7 @@ async function tcGetNflPlayersDictionary(forceRefresh) {
       compact[id] = {
         n: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || id,
         p: p.position,
-        t: p.team || 'FA',
+        t: p.team || id,
         inj: p.injury_status || null
       };
     }
@@ -7184,8 +7362,10 @@ function tcProcessFantasyCalcData(fcData) {
     const pos = p.position;
     if (!pos || pos === 'PICK') return;
 
+    // Trade values apply only to QB, RB, WR, TE (K and DEF remain 0 in Trade Calculator)
+    const isTradePos = ['QB', 'RB', 'WR', 'TE'].includes(pos);
     const posMult = mult[pos] || 1;
-    const adjustedValue = Math.round((item.value || 0) * posMult);
+    const adjustedValue = isTradePos ? Math.round((item.value || 0) * posMult) : 0;
 
     const entry = {
       sleeperId: p.sleeperId ? String(p.sleeperId) : null,
@@ -7198,10 +7378,12 @@ function tcProcessFantasyCalcData(fcData) {
       positionRank: item.positionRank || 999
     };
 
-    if (entry.sleeperId) {
+    if (entry.sleeperId && isTradePos) {
       tcState.fcValuesById[entry.sleeperId] = entry;
     }
-    tcState.fcAllPlayers.push(entry);
+    if (isTradePos) {
+      tcState.fcAllPlayers.push(entry);
+    }
   });
 
   tcState.fcAllPlayers.sort((a, b) => b.value - a.value);
@@ -7237,19 +7419,21 @@ function tcProcessWeeklyProjections(projData, scoring) {
       const pid = String(item.player_id || '');
       const dict = tcState.playersMap[pid];
       const pInfo = item.player || {};
-      const pos = dict?.p || pInfo.position;
-      if (!pid || !['QB', 'RB', 'WR', 'TE'].includes(pos)) return;
+      const pos = dict?.p || pInfo.position || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : null);
+      if (!pid || !['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(pos)) return;
 
       const inj = dict?.inj || pInfo.injury_status || null;
       const isOut = ['Out', 'IR', 'PUP', 'Sus'].includes(inj);
       const pts = isOut ? 0 : tcCalculateLeagueCustomPoints(item.stats, scoring);
 
       const opp = item.opponent ? `vs ${item.opponent}` : 'BYE';
+      const defaultName = pos === 'DEF' ? `${pid} Defense` : (`${pInfo.first_name || ''} ${pInfo.last_name || ''}`.trim() || pid);
+
       const entry = {
         sleeperId: pid,
-        name: dict?.n || `${pInfo.first_name || ''} ${pInfo.last_name || ''}`.trim() || pid,
+        name: dict?.n || defaultName,
         position: pos,
-        team: dict?.t || item.team || 'FA',
+        team: dict?.t || item.team || (pos === 'DEF' ? pid : 'FA'),
         pts,
         opp,
         inj,
@@ -7261,6 +7445,7 @@ function tcProcessWeeklyProjections(projData, scoring) {
     });
   }
 
+  // Ensure all FantasyCalc players and active NFL DEF/K are present even on BYE
   tcState.fcAllPlayers.forEach(fc => {
     if (fc.sleeperId && !tcState.weeklyProjById[fc.sleeperId]) {
       const dict = tcState.playersMap[fc.sleeperId];
@@ -7279,9 +7464,123 @@ function tcProcessWeeklyProjections(projData, scoring) {
     }
   });
 
+  // Also add all 32 NFL DEF teams from dictionary if missing (e.g., teams on BYE this week)
+  for (const [pid, dict] of Object.entries(tcState.playersMap)) {
+    if (dict.p === 'DEF' && /^[A-Z]{2,3}$/.test(pid) && !tcState.weeklyProjById[pid]) {
+      const entry = {
+        sleeperId: pid,
+        name: dict.n || `${pid} Defense`,
+        position: 'DEF',
+        team: pid,
+        pts: 0,
+        opp: 'BYE / Sem Jogo',
+        inj: null,
+        isBye: true
+      };
+      tcState.weeklyProjById[pid] = entry;
+      tcState.weeklyAllPlayers.push(entry);
+    }
+  }
+
   tcState.weeklyAllPlayers.sort((a, b) => b.pts - a.pts);
   const posCounters = {};
   tcState.weeklyAllPlayers.forEach((item, idx) => {
+    item.overallRank = idx + 1;
+    posCounters[item.position] = (posCounters[item.position] || 0) + 1;
+    item.positionRank = posCounters[item.position];
+  });
+}
+
+/**
+ * Builds unified Rest of Season (ROS) Rankings including K and DEF:
+ * - QB, RB, WR, TE use their adjusted FantasyCalc ROS value
+ * - K and DEF get a calibrated ROS Ranking Score derived from Sleeper's remaining-season / weekly projections
+ *   (used strictly for ROS Rankings & Power Rankings, while Trade Value stays 0 in the Trade Calculator)
+ */
+function tcBuildRosRankingsWithKDef(rosKdData, weeklyProjData, scoring, activeWeek) {
+  tcState.rosRankingPlayers = [];
+  tcState.rosScoreById = {};
+
+  // 1. Add QB, RB, WR, TE from FantasyCalc
+  tcState.fcAllPlayers.forEach(fc => {
+    const copy = { ...fc, rosScore: fc.value };
+    tcState.rosRankingPlayers.push(copy);
+    if (fc.sleeperId) {
+      tcState.rosScoreById[fc.sleeperId] = fc.value;
+    }
+  });
+
+  // 2. Collect K and DEF ROS projections (season remaining or weekly * remaining weeks)
+  const remainingWeeks = Math.max(1, 18 - activeWeek);
+  const kdRawPts = {}; // pid -> avg weekly pts
+
+  if (Array.isArray(rosKdData) && rosKdData.length > 0) {
+    rosKdData.forEach(item => {
+      const pid = String(item.player_id || '');
+      const dict = tcState.playersMap[pid];
+      const pos = dict?.p || item.player?.position || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : null);
+      if (!pid || !['K', 'DEF'].includes(pos)) return;
+      const totalSeasonPts = tcCalculateLeagueCustomPoints(item.stats, scoring);
+      if (totalSeasonPts > 0) {
+        kdRawPts[pid] = totalSeasonPts / 17;
+      }
+    });
+  }
+
+  // Supplement with weekly projections for any K/DEF not in season endpoint (or on BYE)
+  for (const [pid, dict] of Object.entries(tcState.playersMap)) {
+    if (!['K', 'DEF'].includes(dict.p)) continue;
+    if (dict.p === 'DEF' && !/^[A-Z]{2,3}$/.test(pid)) continue;
+    if (!kdRawPts[pid]) {
+      const wk = tcState.weeklyProjById[pid];
+      kdRawPts[pid] = wk && wk.pts > 0 ? wk.pts : (dict.p === 'K' ? 6.5 : 6.0);
+    }
+  }
+
+  // Calibrate K and DEF ROS scores to fit realistically on the FantasyCalc ROS scale
+  // (e.g., top K/DEF ~ 900 - 1,350 pts, average starter ~ 650 - 850 pts, backup ~ 300 - 550 pts)
+  const kList = [];
+  const defList = [];
+  for (const [pid, avgPts] of Object.entries(kdRawPts)) {
+    const dict = tcState.playersMap[pid];
+    if (!dict) continue;
+    if (dict.p === 'K') kList.push({ pid, dict, avgPts });
+    else if (dict.p === 'DEF') defList.push({ pid, dict, avgPts });
+  }
+
+  const scaleGroup = (list, maxTarget) => {
+    if (!list.length) return;
+    list.sort((a, b) => b.avgPts - a.avgPts);
+    const topAvg = Math.max(1, list[0].avgPts);
+    list.forEach(item => {
+      const ratio = Math.max(0, item.avgPts / topAvg);
+      // Exponential curve similar to FantasyCalc positional scarcity
+      const rosScore = Math.round(maxTarget * Math.pow(ratio, 1.45));
+      const wk = tcState.weeklyProjById[item.pid];
+      const entry = {
+        sleeperId: item.pid,
+        name: item.dict.n || (item.dict.p === 'DEF' ? `${item.pid} Defense` : item.pid),
+        position: item.dict.p,
+        team: item.dict.t || (item.dict.p === 'DEF' ? item.pid : 'FA'),
+        value: rosScore,       // Displayed as ROS Score in Rankings tab
+        tradeValue: 0,         // Remains 0 in Trade Calculator
+        trend30Day: 0,
+        overallRank: 999,
+        positionRank: 999,
+        projAvg: Math.round(item.avgPts * 10) / 10
+      };
+      tcState.rosRankingPlayers.push(entry);
+      tcState.rosScoreById[item.pid] = rosScore;
+    });
+  };
+
+  scaleGroup(kList, 1150);
+  scaleGroup(defList, 1250);
+
+  // Sort combined ROS rankings and assign Overall + Positional ranks
+  tcState.rosRankingPlayers.sort((a, b) => b.value - a.value);
+  const posCounters = {};
+  tcState.rosRankingPlayers.forEach((item, idx) => {
     item.overallRank = idx + 1;
     posCounters[item.position] = (posCounters[item.position] || 0) + 1;
     item.positionRank = posCounters[item.position];
@@ -7305,34 +7604,46 @@ function tcBuildLeagueTeams(rosters, users) {
       const fc = tcState.fcValuesById[pid];
       const dict = tcState.playersMap[pid];
       const wk = tcState.weeklyProjById[pid];
+      const pos = fc?.position || dict?.p || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : 'WR');
+      const isKDef = ['K', 'DEF'].includes(pos);
 
-      if (fc || dict) {
+      if (fc || dict || isKDef) {
+        const rosRankObj = tcState.rosRankingPlayers.find(x => x.sleeperId === pid);
         assets.push({
           id: pid,
-          name: fc?.name || dict?.n || pid,
-          position: fc?.position || dict?.p || 'WR',
-          team: dict?.t || fc?.team || 'FA',
-          value: fc?.value || 0,
+          name: fc?.name || dict?.n || (pos === 'DEF' ? `${pid} Defense` : pid),
+          position: pos,
+          team: dict?.t || fc?.team || (pos === 'DEF' ? pid : 'FA'),
+          // Trade value is strictly 0 for K and DEF
+          value: isKDef ? 0 : (fc?.value || 0),
+          // ROS ranking score includes K and DEF for Power Rankings
+          rosRankScore: tcState.rosScoreById[pid] || (fc?.value || 0),
           weekPts: wk?.pts || 0,
           weekOpp: wk?.opp || 'BYE',
           isBye: wk?.isBye ?? true,
           inj: dict?.inj || wk?.inj || null,
           trend30Day: fc?.trend30Day || 0,
-          overallRank: fc?.overallRank || null,
-          positionRank: fc?.positionRank || null
+          overallRank: rosRankObj?.overallRank || fc?.overallRank || null,
+          positionRank: rosRankObj?.positionRank || fc?.positionRank || null
         });
       }
     });
 
-    assets.sort((a, b) => b.value - a.value);
+    assets.sort((a, b) => b.value - a.value || b.rosRankScore - a.rosRankScore);
 
-    const rosLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'value');
+    // 1. Optimal Starters by ROS Score (includes K and DEF slots for Power Rankings)
+    const rosLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'rosRankScore');
     assets.forEach(a => { a.isOptimalStarter = rosLineup.starterIds.has(a.id); });
 
-    const totalValue = assets.reduce((sum, a) => sum + a.value, 0);
-    const benchValue = Math.max(0, totalValue - rosLineup.totalScore);
-    const topPlayerRos = assets.length > 0 ? assets[0] : null;
+    const totalRosScore = assets.reduce((sum, a) => sum + a.rosRankScore, 0);
+    const benchRosScore = Math.max(0, totalRosScore - rosLineup.totalScore);
+    const topPlayerRos = [...assets].sort((a, b) => b.rosRankScore - a.rosRankScore)[0] || null;
 
+    // Trade-only totals (excluding K & DEF, which have value 0) for the Trade Calculator headers
+    const tradeStartersVal = assets.filter(a => a.isOptimalStarter).reduce((sum, a) => sum + a.value, 0);
+    const tradeTotalVal = assets.reduce((sum, a) => sum + a.value, 0);
+
+    // 2. Optimal Starters by Current Week Projected Points (includes K and DEF slots)
     const weekLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'weekPts');
     const totalWeekPts = Math.round(assets.reduce((sum, a) => sum + a.weekPts, 0) * 10) / 10;
     const startersWeekPts = Math.round(weekLineup.totalScore * 10) / 10;
@@ -7351,9 +7662,11 @@ function tcBuildLeagueTeams(rosters, users) {
       avatarUrl,
       record,
       assets,
+      tradeStartersVal,
+      tradeTotalVal,
       startersValue: rosLineup.totalScore,
-      benchValue,
-      totalValue,
+      benchValue: benchRosScore,
+      totalValue: totalRosScore,
       topPlayerRos,
       startersWeekPts,
       benchWeekPts,
@@ -7372,12 +7685,12 @@ function tcComputeOptimalStarters(assets, rosterPositions, metricKey) {
   const starters = [];
 
   const starterSlots = rosterPositions.filter(slot =>
-    ['QB', 'RB', 'WR', 'TE', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
+    ['QB', 'RB', 'WR', 'TE', 'K', 'DEF', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
   );
 
   const orderedSlots = [
-    ...starterSlots.filter(s => ['QB', 'RB', 'WR', 'TE'].includes(s)),
-    ...starterSlots.filter(s => !['QB', 'RB', 'WR', 'TE'].includes(s))
+    ...starterSlots.filter(s => ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(s)),
+    ...starterSlots.filter(s => !['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(s))
   ];
 
   orderedSlots.forEach(slot => {
@@ -7387,6 +7700,8 @@ function tcComputeOptimalStarters(assets, rosterPositions, metricKey) {
       if (slot === 'RB') return p.position === 'RB';
       if (slot === 'WR') return p.position === 'WR';
       if (slot === 'TE') return p.position === 'TE';
+      if (slot === 'K') return p.position === 'K';
+      if (slot === 'DEF') return p.position === 'DEF';
       if (slot === 'FLEX') return ['RB', 'WR', 'TE'].includes(p.position);
       if (slot === 'WRRB_FLEX') return ['RB', 'WR'].includes(p.position);
       if (slot === 'REC_FLEX') return ['WR', 'TE'].includes(p.position);
@@ -7429,16 +7744,20 @@ function tcPopulateTeamSelectors() {
   const selB = document.getElementById('tcSelectTeamB');
   if (!selA || !selB) return;
 
-  const optionsHtml = tcState.teams.map(t =>
-    `<option value="${t.rosterId}">${t.teamName} (${t.ownerName}) — Titulares: ${t.startersValue.toLocaleString('pt-BR')}</option>`
+  const alphabeticalTeams = [...tcState.teams].sort((a, b) =>
+    a.teamName.localeCompare(b.teamName, 'pt-BR', { sensitivity: 'base' })
+  );
+
+  const optionsHtml = alphabeticalTeams.map(t =>
+    `<option value="${t.rosterId}">${t.teamName}</option>`
   ).join('');
 
   selA.innerHTML = optionsHtml;
   selB.innerHTML = optionsHtml;
 
-  if (tcState.teams.length >= 2) {
-    tcState.selectedTeamA = tcState.teams[0].rosterId;
-    tcState.selectedTeamB = tcState.teams[1].rosterId;
+  if (alphabeticalTeams.length >= 2) {
+    tcState.selectedTeamA = alphabeticalTeams[0].rosterId;
+    tcState.selectedTeamB = alphabeticalTeams[1].rosterId;
     selA.value = tcState.selectedTeamA;
     selB.value = tcState.selectedTeamB;
   }
@@ -7508,14 +7827,16 @@ function tcRenderTeamPanel(side) {
   }
 
   document.getElementById(`tcMetaRecord${side}`).textContent = `Campanha: ${team.record}`;
-  document.getElementById(`tcMetaStarterVal${side}`).textContent = `⭐ Titulares: ${team.startersValue.toLocaleString('pt-BR')}`;
-  document.getElementById(`tcMetaTotalVal${side}`).textContent = `📦 Total: ${team.totalValue.toLocaleString('pt-BR')}`;
+  document.getElementById(`tcMetaStarterVal${side}`).textContent = `⭐ Titulares: ${team.tradeStartersVal.toLocaleString('pt-BR')}`;
+  document.getElementById(`tcMetaTotalVal${side}`).textContent = `📦 Total: ${team.tradeTotalVal.toLocaleString('pt-BR')}`;
 
   const filter = side === 'A' ? tcState.filterPosA : tcState.filterPosB;
   const selectedOffers = side === 'A' ? tcState.offerFromA : tcState.offerFromB;
   const selectedIds = new Set(selectedOffers.map(o => o.id));
 
-  const filteredAssets = team.assets.filter(a => filter === 'ALL' || a.position === filter);
+  // Show QB, RB, WR, TE, K, DEF (K and DEF have 0 trade value, but impact starter lineup consolidation)
+  const selectableAssets = team.assets.filter(a => ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(a.position));
+  const filteredAssets = selectableAssets.filter(a => filter === 'ALL' || a.position === filter);
   const listEl = document.getElementById(`tcRosterList${side}`);
 
   listEl.innerHTML = filteredAssets.map(asset => {
@@ -7592,6 +7913,35 @@ function tcComputeConsolidationBonus(smallerSideAssets, largerSideAssets) {
   return { bonus, pct: Math.round(pct * 1000) / 10 };
 }
 
+function tcEvaluateConsolidatedRoster(baseAssets, sentAssets, receivedAssets) {
+  const sentIds = new Set(sentAssets.map(a => a.id));
+  const remaining = baseAssets.filter(a => !sentIds.has(a.id));
+  const consolidated = [...remaining, ...receivedAssets];
+  const lineup = tcComputeOptimalStarters(consolidated, tcState.rosterPositions, 'rosRankScore');
+  const startersScore = lineup.totalScore;
+  const totalScore = consolidated.reduce((sum, a) => sum + (a.rosRankScore || 0), 0);
+  return {
+    count: consolidated.length,
+    startersScore,
+    totalScore
+  };
+}
+
+function tcFormatDelta(beforeVal, afterVal) {
+  const diff = afterVal - beforeVal;
+  const pct = beforeVal > 0 ? (diff / beforeVal) * 100 : 0;
+  const sign = diff > 0 ? '+' : '';
+  const pctSign = pct > 0 ? '+' : '';
+  const cls = diff > 0 ? 'tc-delta-pos' : (diff < 0 ? 'tc-delta-neg' : 'tc-delta-neu');
+  const arrow = diff > 0 ? '▲' : (diff < 0 ? '▼' : '—');
+  return {
+    text: `${arrow} ${sign}${diff.toLocaleString('pt-BR')} pts (${pctSign}${pct.toFixed(1)}%)`,
+    cls,
+    diff,
+    pct
+  };
+}
+
 function tcRecalculateTrade() {
   const teamA = tcState.teams.find(t => t.rosterId === tcState.selectedTeamA);
   const teamB = tcState.teams.find(t => t.rosterId === tcState.selectedTeamB);
@@ -7604,8 +7954,13 @@ function tcRecalculateTrade() {
   document.getElementById('tcSummaryTeamBName').textContent = `${nameB} Recebe`;
   document.getElementById('tcSummaryTeamBSub').textContent = `Enviados por ${nameA}`;
 
-  const receivedByA = tcState.offerFromB;
-  const receivedByB = tcState.offerFromA;
+  document.getElementById('tcImpactTitleA').textContent = `Impacto no Power Ranking — ${nameA}`;
+  document.getElementById('tcImpactTitleB').textContent = `Impacto no Power Ranking — ${nameB}`;
+
+  const sentByA = tcState.offerFromA;
+  const sentByB = tcState.offerFromB;
+  const receivedByA = sentByB;
+  const receivedByB = sentByA;
 
   tcRenderSelectedChips('tcSelectedListA', receivedByA, 'B', `Selecione jogadores no elenco de ${nameB} abaixo...`);
   tcRenderSelectedChips('tcSelectedListB', receivedByB, 'A', `Selecione jogadores no elenco de ${nameA} abaixo...`);
@@ -7632,6 +7987,48 @@ function tcRecalculateTrade() {
   document.getElementById('tcTotalValB').textContent = adjB.toLocaleString('pt-BR');
   document.getElementById('tcBonusTagA').textContent = bonusTextA;
   document.getElementById('tcBonusTagB').textContent = bonusTextB;
+
+  // Compute Before & After Power Ranking for Both Teams (Starters + Full Roster)
+  if (teamA && teamB) {
+    const beforeStarterA = teamA.startersValue;
+    const beforeTotalA = teamA.totalValue;
+    const afterA = tcEvaluateConsolidatedRoster(teamA.assets, sentByA, receivedByA);
+
+    const beforeStarterB = teamB.startersValue;
+    const beforeTotalB = teamB.totalValue;
+    const afterB = tcEvaluateConsolidatedRoster(teamB.assets, sentByB, receivedByB);
+
+    document.getElementById('tcRosterSizeTagA').textContent = `Jogadores: ${teamA.assets.length} ➔ ${afterA.count}`;
+    document.getElementById('tcRosterSizeTagB').textContent = `Jogadores: ${teamB.assets.length} ➔ ${afterB.count}`;
+
+    document.getElementById('tcBeforeStarterA').textContent = beforeStarterA.toLocaleString('pt-BR');
+    document.getElementById('tcAfterStarterA').textContent = afterA.startersScore.toLocaleString('pt-BR');
+    const dStarterA = tcFormatDelta(beforeStarterA, afterA.startersScore);
+    const elStarterA = document.getElementById('tcDeltaStarterA');
+    elStarterA.textContent = dStarterA.text;
+    elStarterA.className = `tc-pr-delta ${dStarterA.cls}`;
+
+    document.getElementById('tcBeforeTotalA').textContent = beforeTotalA.toLocaleString('pt-BR');
+    document.getElementById('tcAfterTotalA').textContent = afterA.totalScore.toLocaleString('pt-BR');
+    const dTotalA = tcFormatDelta(beforeTotalA, afterA.totalScore);
+    const elTotalA = document.getElementById('tcDeltaTotalA');
+    elTotalA.textContent = dTotalA.text;
+    elTotalA.className = `tc-pr-delta ${dTotalA.cls}`;
+
+    document.getElementById('tcBeforeStarterB').textContent = beforeStarterB.toLocaleString('pt-BR');
+    document.getElementById('tcAfterStarterB').textContent = afterB.startersScore.toLocaleString('pt-BR');
+    const dStarterB = tcFormatDelta(beforeStarterB, afterB.startersScore);
+    const elStarterB = document.getElementById('tcDeltaStarterB');
+    elStarterB.textContent = dStarterB.text;
+    elStarterB.className = `tc-pr-delta ${dStarterB.cls}`;
+
+    document.getElementById('tcBeforeTotalB').textContent = beforeTotalB.toLocaleString('pt-BR');
+    document.getElementById('tcAfterTotalB').textContent = afterB.totalScore.toLocaleString('pt-BR');
+    const dTotalB = tcFormatDelta(beforeTotalB, afterB.totalScore);
+    const elTotalB = document.getElementById('tcDeltaTotalB');
+    elTotalB.textContent = dTotalB.text;
+    elTotalB.className = `tc-pr-delta ${dTotalB.cls}`;
+  }
 
   const total = adjA + adjB;
   const badge = document.getElementById('tcVerdictBadge');
@@ -7688,9 +8085,34 @@ function tcRenderSelectedChips(containerId, items, originSide, emptyHint) {
 
 function tcSetPowerSort(mode) {
   tcState.powerSort = mode;
+  tcState.teamRankSortCol = mode === 'total' ? 'total' : 'starters';
+  tcState.teamRankSortDir = 'desc';
   document.getElementById('tcSortStartersBtn').classList.toggle('active', mode === 'starters');
   document.getElementById('tcSortTotalBtn').classList.toggle('active', mode === 'total');
   tcRenderTeamRankings();
+}
+
+function tcSortTeamRankings(col) {
+  if (tcState.teamRankSortCol === col) {
+    tcState.teamRankSortDir = tcState.teamRankSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    tcState.teamRankSortCol = col;
+    tcState.teamRankSortDir = (col === 'team') ? 'asc' : 'desc';
+  }
+  if (col === 'starters' || col === 'total') {
+    tcState.powerSort = col;
+    document.getElementById('tcSortStartersBtn').classList.toggle('active', col === 'starters');
+    document.getElementById('tcSortTotalBtn').classList.toggle('active', col === 'total');
+  }
+  tcRenderTeamRankings();
+}
+
+function tcParseRecordWins(recStr) {
+  const parts = String(recStr || '0-0').split('-');
+  const w = parseFloat(parts[0]) || 0;
+  const l = parseFloat(parts[1]) || 0;
+  const t = parseFloat(parts[2]) || 0;
+  return w + 0.5 * t - 0.001 * l;
 }
 
 function tcRenderTeamRankings() {
@@ -7698,33 +8120,46 @@ function tcRenderTeamRankings() {
   const wk = tcState.nflState.week;
 
   const starterSlots = tcState.rosterPositions.filter(slot =>
-    ['QB', 'RB', 'WR', 'TE', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
+    ['QB', 'RB', 'WR', 'TE', 'K', 'DEF', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
   );
   document.getElementById('tcRosterSlotsSummary').textContent = `Slots Titulares (${starterSlots.length}): ${starterSlots.join(', ')}`;
 
   document.getElementById('tcTeamRankingsHeaderTitle').textContent = isRos
-    ? 'Power Ranking (Rest of Season) — Time Titular vs. Elenco Completo'
-    : `Power Ranking (Semana ${wk}) — Projeção Titular vs. Elenco Completo`;
+    ? 'Power Ranking (Rest of Season) — Time Titular vs. Elenco Consolidado'
+    : `Power Ranking (Semana ${wk}) — Projeção Titular vs. Elenco Consolidado`;
 
   document.getElementById('tcTeamRankingsHeaderSub').textContent = isRos
-    ? 'A força do time titular considera automaticamente os melhores valores ROS elegíveis para cada slot oficial da liga.'
-    : `Projeção de pontos para a Semana ${wk} usando as regras da liga (jogadores em Bye Week ou Out/IR valem 0 pts).`;
+    ? 'Clique em qualquer cabeçalho de coluna para ordenar. Inclui QB, RB, WR, TE, K e DEF nos slots titulares.'
+    : `Clique em qualquer cabeçalho de coluna para ordenar. Projeção da Semana ${wk} incluindo K e DEF (BYE e Out/IR = 0 pts).`;
 
-  document.getElementById('tcThStartersCol').textContent = isRos ? '⭐ Time Titular (ROS)' : `⭐ Titulares (Sem ${wk})`;
-  document.getElementById('tcThBenchCol').textContent = isRos ? '🪑 Banco (ROS)' : `🪑 Banco (Sem ${wk})`;
-  document.getElementById('tcThTotalCol').textContent = isRos ? '📦 Elenco Completo (ROS)' : `📦 Total Elenco (Sem ${wk})`;
-  document.getElementById('tcThMvpCol').textContent = isRos ? 'Craque do Elenco (ROS)' : `Maior Projeção (Sem ${wk})`;
+  document.getElementById('tcThStartersCol').textContent = isRos ? '⭐ Time Titular (ROS) ↕' : `⭐ Titulares (Sem ${wk}) ↕`;
+  document.getElementById('tcThBenchCol').textContent = isRos ? '🪑 Banco (ROS) ↕' : `🪑 Banco (Sem ${wk}) ↕`;
+  document.getElementById('tcThTotalCol').textContent = isRos ? '📦 Elenco Consolidado (ROS) ↕' : `📦 Elenco Consolidado (Sem ${wk}) ↕`;
+  document.getElementById('tcThMvpCol').textContent = isRos ? 'Craque do Elenco (ROS) ↕' : `Maior Projeção (Sem ${wk}) ↕`;
+
+  const dirMultiplier = tcState.teamRankSortDir === 'asc' ? 1 : -1;
+  const col = tcState.teamRankSortCol || 'starters';
+
+  const getTeamMetric = (t, key) => {
+    if (key === 'team') return t.teamName.toLowerCase();
+    if (key === 'record') return tcParseRecordWins(t.record);
+    if (key === 'starters') return isRos ? t.startersValue : t.startersWeekPts;
+    if (key === 'bench') return isRos ? t.benchValue : t.benchWeekPts;
+    if (key === 'total') return isRos ? t.totalValue : t.totalWeekPts;
+    if (key === 'mvp') {
+      const m = isRos ? t.topPlayerRos : t.topPlayerWeek;
+      return m ? (isRos ? m.rosRankScore : m.weekPts) : 0;
+    }
+    return isRos ? t.startersValue : t.startersWeekPts;
+  };
 
   const sortedTeams = [...tcState.teams].sort((a, b) => {
-    if (isRos) {
-      return tcState.powerSort === 'starters'
-        ? b.startersValue - a.startersValue
-        : b.totalValue - a.totalValue;
-    } else {
-      return tcState.powerSort === 'starters'
-        ? b.startersWeekPts - a.startersWeekPts
-        : b.totalWeekPts - a.totalWeekPts;
+    const valA = getTeamMetric(a, col);
+    const valB = getTeamMetric(b, col);
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      return valA.localeCompare(valB, 'pt-BR') * dirMultiplier;
     }
+    return (valA - valB) * dirMultiplier;
   });
 
   const formatVal = (val) => isRos
@@ -7743,7 +8178,7 @@ function tcRenderTeamRankings() {
     const benchScore = isRos ? t.benchValue : t.benchWeekPts;
     const totalScore = isRos ? t.totalValue : t.totalWeekPts;
     const mvp = isRos ? t.topPlayerRos : t.topPlayerWeek;
-    const mvpMetric = mvp ? (isRos ? `${mvp.value.toLocaleString('pt-BR')} pts` : `${mvp.weekPts.toFixed(1)} pts (${mvp.weekOpp})`) : '';
+    const mvpMetric = mvp ? (isRos ? `${mvp.rosRankScore.toLocaleString('pt-BR')} pts` : `${mvp.weekPts.toFixed(1)} pts (${mvp.weekOpp})`) : '';
 
     const mvpHtml = mvp
       ? `<div style="display:flex;align-items:center;gap:8px;">
@@ -7805,8 +8240,8 @@ function tcRenderPlayerRankings() {
   const wk = tcState.nflState.week;
   const search = (document.getElementById('tcPlayerSearchInput')?.value || '').toLowerCase().trim();
 
-  document.getElementById('tcThPlayerExtraCol').textContent = isRos ? 'Tendência (30d)' : `Confronto (Sem ${wk})`;
-  document.getElementById('tcThPlayerValCol').textContent = isRos ? 'Trade Value (ROS)' : `Projeção (Sem ${wk})`;
+  document.getElementById('tcThPlayerExtraCol').textContent = isRos ? 'Tendência / Média' : `Confronto (Sem ${wk})`;
+  document.getElementById('tcThPlayerValCol').textContent = isRos ? 'Score ROS' : `Projeção (Sem ${wk})`;
 
   const ownerByPlayerId = {};
   tcState.teams.forEach(t => {
@@ -7815,7 +8250,7 @@ function tcRenderPlayerRankings() {
     });
   });
 
-  const sourceList = isRos ? tcState.fcAllPlayers : tcState.weeklyAllPlayers;
+  const sourceList = isRos ? tcState.rosRankingPlayers : tcState.weeklyAllPlayers;
 
   const filtered = sourceList.filter(p => {
     const owner = p.sleeperId ? ownerByPlayerId[p.sleeperId] : null;
@@ -7826,11 +8261,11 @@ function tcRenderPlayerRankings() {
     }
 
     if (search) {
-      const hay = `${p.name} ${p.team} ${owner || 'free agent'}`.toLowerCase();
+      const hay = `${p.name} ${p.team} ${p.position} ${owner || 'free agent'}`.toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
-  }).slice(0, 150);
+  }).slice(0, 180);
 
   const tbody = document.getElementById('tcPlayerRankingsBody');
   tbody.innerHTML = filtered.map(p => {
@@ -7840,11 +8275,15 @@ function tcRenderPlayerRankings() {
     let valColHtml = '';
 
     if (isRos) {
-      extraColHtml = p.trend30Day > 0
-        ? `<span class="tc-trend tc-trend-up">▲ +${p.trend30Day}</span>`
-        : p.trend30Day < 0
-        ? `<span class="tc-trend tc-trend-down">▼ ${p.trend30Day}</span>`
-        : `<span class="tc-trend tc-trend-flat">—</span>`;
+      if (['K', 'DEF'].includes(p.position)) {
+        extraColHtml = `<span style="font-size:11.5px;color:var(--text-muted);font-weight:600;">Média Proj: ${p.projAvg ? p.projAvg.toFixed(1) + ' pts/j' : '—'}</span>`;
+      } else {
+        extraColHtml = p.trend30Day > 0
+          ? `<span class="tc-trend tc-trend-up">▲ +${p.trend30Day}</span>`
+          : p.trend30Day < 0
+          ? `<span class="tc-trend tc-trend-down">▼ ${p.trend30Day}</span>`
+          : `<span class="tc-trend tc-trend-flat">—</span>`;
+      }
       valColHtml = `<strong style="color:#fff;font-size:14px;">${p.value.toLocaleString('pt-BR')}</strong>`;
     } else {
       const statusTag = p.inj
