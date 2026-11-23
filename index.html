@@ -1976,7 +1976,7 @@
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <span class="badge-tag">36 Jogadores Históricos</span>
       <span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">Dados 100% Consolidados</span>
-      <span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">🕒 Atualizado: 23/11/2026 (Semana 10)</span>
+      <span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">🕒 Atualizado: 22/11/2026 (Semana 10)</span>
     </div>
   </header>
 
@@ -2520,10 +2520,10 @@
       <div class="tc-rankings-bar">
         <div class="tc-subtab-group">
           <button class="tc-subtab-btn active" id="tcSubtabTeamsBtn" onclick="tcSwitchRankingsTab('teams')">
-            🏟️ Power Ranking dos Times
+            🏟️ Times
           </button>
           <button class="tc-subtab-btn" id="tcSubtabPlayersBtn" onclick="tcSwitchRankingsTab('players')">
-            🏃 Ranking de Jogadores
+            🏃 Jogadores
           </button>
         </div>
 
@@ -2564,6 +2564,7 @@
                 <th id="tcThBenchCol" style="cursor:pointer;" onclick="tcSortTeamRankings('bench')">🪑 Banco (ROS) ↕</th>
                 <th id="tcThTotalCol" style="cursor:pointer;" onclick="tcSortTeamRankings('total')">📦 Elenco Consolidado (ROS) ↕</th>
                 <th id="tcThMvpCol" style="cursor:pointer;" onclick="tcSortTeamRankings('mvp')">Craque do Elenco (MVP) ↕</th>
+                <th style="text-align: center;">Ação</th>
               </tr>
             </thead>
             <tbody id="tcTeamRankingsBody"></tbody>
@@ -2584,23 +2585,33 @@
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('DEF', this)">DEF</button>
             <button class="tc-pos-btn" onclick="tcSetPlayerRankPos('FA', this)">🟢 Free Agents</button>
           </div>
-          <input type="text" id="tcPlayerSearchInput" placeholder="Buscar jogador, time NFL ou manager..." oninput="tcRenderPlayerRankings()" style="width: 260px;" />
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="tcPlayerSearchInput" placeholder="Buscar jogador, time NFL ou manager..." oninput="tcRenderPlayerRankings()" style="width: 250px;" />
+          </div>
         </div>
-        <div class="table-wrapper">
+        <div class="table-wrapper" id="tcPlayerRankScrollWrapper">
           <table>
             <thead>
               <tr>
-                <th style="width: 70px;">OVR</th>
-                <th style="width: 80px;">Pos Rank</th>
-                <th>Jogador</th>
-                <th>Time NFL</th>
-                <th>Status na Liga</th>
-                <th id="tcThPlayerExtraCol">Tendência (30d)</th>
-                <th id="tcThPlayerValCol" style="text-align: right;">Trade Value (ROS)</th>
+                <th style="width: 75px; cursor:pointer;" onclick="tcSortPlayerRankings('overallRank')">OVR ↕</th>
+                <th style="width: 90px; cursor:pointer;" onclick="tcSortPlayerRankings('positionRank')">Pos Rank ↕</th>
+                <th style="cursor:pointer;" onclick="tcSortPlayerRankings('name')">Jogador ↕</th>
+                <th style="cursor:pointer;" onclick="tcSortPlayerRankings('team')">Time NFL ↕</th>
+                <th style="cursor:pointer;" onclick="tcSortPlayerRankings('owner')">Status na Liga ↕</th>
+                <th id="tcThPlayerExtraCol" style="cursor:pointer;" onclick="tcSortPlayerRankings('extra')">Tendência (30d) ↕</th>
+                <th id="tcThPlayerValCol" style="text-align: right; cursor:pointer;" onclick="tcSortPlayerRankings('metric')">Score ROS ↕</th>
+                <th style="text-align: center;">Ação</th>
               </tr>
             </thead>
             <tbody id="tcPlayerRankingsBody"></tbody>
           </table>
+        </div>
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 12.5px; color: var(--text-muted);">
+          <span id="tcPlayerRankCountFooter">Exibindo 0 jogadores</span>
+          <div style="display:flex; gap:8px;">
+            <button class="tc-btn" id="tcLoadMorePlayersBtn" onclick="tcLoadMorePlayers()" style="display:none;">⬇️ Mostrar mais jogadores</button>
+            <button class="tc-btn" id="tcShowTop500Btn" onclick="tcShowAllUpTo500()" style="display:none;">📋 Ver Top 500</button>
+          </div>
         </div>
       </div>
 
@@ -6549,6 +6560,72 @@ refreshAllViews();
   .tc-delta-pos { color: #34d399; }
   .tc-delta-neg { color: #f87171; }
   .tc-delta-neu { color: var(--text-muted); }
+
+  /* Sticky columns in Rankings tables */
+  #tc-rankings-teams-view table th:nth-child(2),
+  #tc-rankings-teams-view table td:nth-child(2) {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--bg-card) !important;
+    z-index: 10 !important;
+    border-right: 1px solid var(--border-color) !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.35);
+  }
+  #tc-rankings-teams-view table th:nth-child(2) {
+    background-color: rgba(15, 23, 42, 0.96) !important;
+    z-index: 11 !important;
+  }
+  #tc-rankings-teams-view table tbody tr:hover td:nth-child(2) {
+    background-color: var(--bg-card-hover) !important;
+  }
+
+  #tc-rankings-players-view .table-wrapper {
+    max-height: 640px;
+    overflow: auto;
+  }
+  #tc-rankings-players-view table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    background-color: #0f172a;
+  }
+  #tc-rankings-players-view table th:nth-child(3),
+  #tc-rankings-players-view table td:nth-child(3) {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--bg-card) !important;
+    z-index: 10 !important;
+    border-right: 1px solid var(--border-color) !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.35);
+  }
+  #tc-rankings-players-view table th:nth-child(3) {
+    background-color: #0f172a !important;
+    z-index: 14 !important;
+  }
+  #tc-rankings-players-view table tbody tr:hover td:nth-child(3) {
+    background-color: var(--bg-card-hover) !important;
+  }
+
+  .tc-propose-btn {
+    background: rgba(59, 130, 246, 0.16);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tc-propose-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
 </style>
 
 </head>
@@ -7138,7 +7215,10 @@ const tcState = {
   powerSort: 'starters',
   teamRankSortCol: 'starters',
   teamRankSortDir: 'desc',
-  playerRankPos: 'ALL'
+  playerRankPos: 'ALL',
+  playerRankSortCol: 'metric',
+  playerRankSortDir: 'desc',
+  playerRankLimit: 200
 };
 
 const TC_NFL_PLAYERS_CACHE_KEY = 'bt_nfl_players_v3';
@@ -7245,7 +7325,7 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     tcRenderPlayerRankings();
 
     tcState.loaded = true;
-    tcSetStatus('ok', `Sincronizado! ${tcState.teams.length} times carregados (ROS + Semana ${activeWeek}, com K e DEF nos Rankings).`);
+    tcSetStatus('ok', `Sincronizado! ${tcState.teams.length} times carregados (ROS + Semana ${activeWeek}).`);
   } catch (err) {
     console.error(err);
     tcSetStatus('error', `Erro: ${err.message}`);
@@ -7314,6 +7394,13 @@ function tcRenderRulesPills(rules, week) {
   });
 }
 
+function tcHasOfficialNflTeam(teamVal, pos = null) {
+  if (pos === 'DEF') {
+    return Boolean(teamVal && /^[A-Z]{2,3}$/.test(String(teamVal).trim()) && String(teamVal).trim() !== 'FA');
+  }
+  return Boolean(teamVal && String(teamVal).trim() !== '' && String(teamVal).trim().toUpperCase() !== 'FA');
+}
+
 async function tcGetNflPlayersDictionary(forceRefresh) {
   if (!forceRefresh) {
     try {
@@ -7338,7 +7425,7 @@ async function tcGetNflPlayersDictionary(forceRefresh) {
       compact[id] = {
         n: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || id,
         p: p.position,
-        t: p.team || id,
+        t: p.team || null,
         inj: p.injury_status || null
       };
     }
@@ -7364,16 +7451,19 @@ function tcProcessFantasyCalcData(fcData) {
 
     // Trade values apply only to QB, RB, WR, TE (K and DEF remain 0 in Trade Calculator)
     const isTradePos = ['QB', 'RB', 'WR', 'TE'].includes(pos);
+    const resolvedTeam = p.maybeTeam || p.team || null;
+    const hasNflTeam = tcHasOfficialNflTeam(resolvedTeam, pos);
     const posMult = mult[pos] || 1;
-    const adjustedValue = isTradePos ? Math.round((item.value || 0) * posMult) : 0;
+    const adjustedValue = (isTradePos && hasNflTeam) ? Math.round((item.value || 0) * posMult) : 0;
 
     const entry = {
       sleeperId: p.sleeperId ? String(p.sleeperId) : null,
       name: p.name,
       position: pos,
-      team: p.maybeTeam || p.team || 'FA',
+      team: hasNflTeam ? resolvedTeam : 'FA',
+      hasNflTeam,
       value: adjustedValue,
-      trend30Day: item.trend30Day || 0,
+      trend30Day: hasNflTeam ? (item.trend30Day || 0) : 0,
       overallRank: item.overallRank || 999,
       positionRank: item.positionRank || 999
     };
@@ -7422,22 +7512,25 @@ function tcProcessWeeklyProjections(projData, scoring) {
       const pos = dict?.p || pInfo.position || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : null);
       if (!pid || !['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(pos)) return;
 
+      const resolvedTeam = dict?.t || item.team || (pos === 'DEF' ? pid : null);
+      const hasNflTeam = tcHasOfficialNflTeam(resolvedTeam, pos);
       const inj = dict?.inj || pInfo.injury_status || null;
       const isOut = ['Out', 'IR', 'PUP', 'Sus'].includes(inj);
-      const pts = isOut ? 0 : tcCalculateLeagueCustomPoints(item.stats, scoring);
+      const pts = (!hasNflTeam || isOut) ? 0 : tcCalculateLeagueCustomPoints(item.stats, scoring);
 
-      const opp = item.opponent ? `vs ${item.opponent}` : 'BYE';
+      const opp = !hasNflTeam ? 'SEM TIME NFL' : (item.opponent ? `vs ${item.opponent}` : 'BYE');
       const defaultName = pos === 'DEF' ? `${pid} Defense` : (`${pInfo.first_name || ''} ${pInfo.last_name || ''}`.trim() || pid);
 
       const entry = {
         sleeperId: pid,
         name: dict?.n || defaultName,
         position: pos,
-        team: dict?.t || item.team || (pos === 'DEF' ? pid : 'FA'),
+        team: hasNflTeam ? resolvedTeam : 'FA',
+        hasNflTeam,
         pts,
         opp,
         inj,
-        isBye: !item.opponent
+        isBye: !hasNflTeam || !item.opponent
       };
 
       tcState.weeklyProjById[pid] = entry;
@@ -7501,12 +7594,16 @@ function tcBuildRosRankingsWithKDef(rosKdData, weeklyProjData, scoring, activeWe
   tcState.rosRankingPlayers = [];
   tcState.rosScoreById = {};
 
-  // 1. Add QB, RB, WR, TE from FantasyCalc
+  // 1. Add QB, RB, WR, TE from FantasyCalc (players without official NFL team = 0)
   tcState.fcAllPlayers.forEach(fc => {
-    const copy = { ...fc, rosScore: fc.value };
+    const dict = fc.sleeperId ? tcState.playersMap[fc.sleeperId] : null;
+    const teamCheck = dict?.t || fc.team;
+    const hasTeam = fc.hasNflTeam !== undefined ? fc.hasNflTeam : tcHasOfficialNflTeam(teamCheck, fc.position);
+    const finalVal = hasTeam ? fc.value : 0;
+    const copy = { ...fc, team: hasTeam ? teamCheck : 'FA', value: finalVal, rosScore: finalVal };
     tcState.rosRankingPlayers.push(copy);
     if (fc.sleeperId) {
-      tcState.rosScoreById[fc.sleeperId] = fc.value;
+      tcState.rosScoreById[fc.sleeperId] = finalVal;
     }
   });
 
@@ -7544,6 +7641,23 @@ function tcBuildRosRankingsWithKDef(rosKdData, weeklyProjData, scoring, activeWe
   for (const [pid, avgPts] of Object.entries(kdRawPts)) {
     const dict = tcState.playersMap[pid];
     if (!dict) continue;
+    if (!tcHasOfficialNflTeam(dict.t, dict.p)) {
+      tcState.rosScoreById[pid] = 0;
+      tcState.rosRankingPlayers.push({
+        sleeperId: pid,
+        name: dict.n || pid,
+        position: dict.p,
+        team: 'FA',
+        value: 0,
+        rosScore: 0,
+        tradeValue: 0,
+        trend30Day: 0,
+        overallRank: 999,
+        positionRank: 999,
+        projAvg: 0
+      });
+      continue;
+    }
     if (dict.p === 'K') kList.push({ pid, dict, avgPts });
     else if (dict.p === 'DEF') defList.push({ pid, dict, avgPts });
   }
@@ -7595,7 +7709,10 @@ function tcBuildLeagueTeams(rosters, users) {
     const user = userMap[r.owner_id] || {};
     const teamName = user.metadata?.team_name || user.display_name || `Time #${r.roster_id}`;
     const ownerName = user.display_name || 'Manager';
-    const avatarUrl = user.avatar ? `https://sleepercdn.com/avatars/thumbs/${user.avatar}` : null;
+    const rawTeamAvatar = r.metadata?.avatar || user.metadata?.avatar || null;
+    const avatarUrl = rawTeamAvatar
+      ? (rawTeamAvatar.startsWith('http') ? rawTeamAvatar : `https://sleepercdn.com/avatars/thumbs/${rawTeamAvatar}`)
+      : (user.avatar ? `https://sleepercdn.com/avatars/thumbs/${user.avatar}` : null);
 
     const playerIds = r.players || [];
     const assets = [];
@@ -7608,21 +7725,24 @@ function tcBuildLeagueTeams(rosters, users) {
       const isKDef = ['K', 'DEF'].includes(pos);
 
       if (fc || dict || isKDef) {
+        const rawTeam = dict?.t || fc?.team || (pos === 'DEF' ? pid : null);
+        const hasTeam = tcHasOfficialNflTeam(rawTeam, pos);
         const rosRankObj = tcState.rosRankingPlayers.find(x => x.sleeperId === pid);
+        const computedVal = (!hasTeam || isKDef) ? 0 : (fc?.value || 0);
+        const computedRos = !hasTeam ? 0 : (tcState.rosScoreById[pid] || (fc?.value || 0));
+        const computedWkPts = !hasTeam ? 0 : (wk?.pts || 0);
         assets.push({
           id: pid,
           name: fc?.name || dict?.n || (pos === 'DEF' ? `${pid} Defense` : pid),
           position: pos,
-          team: dict?.t || fc?.team || (pos === 'DEF' ? pid : 'FA'),
-          // Trade value is strictly 0 for K and DEF
-          value: isKDef ? 0 : (fc?.value || 0),
-          // ROS ranking score includes K and DEF for Power Rankings
-          rosRankScore: tcState.rosScoreById[pid] || (fc?.value || 0),
-          weekPts: wk?.pts || 0,
-          weekOpp: wk?.opp || 'BYE',
-          isBye: wk?.isBye ?? true,
+          team: hasTeam ? rawTeam : 'FA',
+          value: computedVal,
+          rosRankScore: computedRos,
+          weekPts: computedWkPts,
+          weekOpp: !hasTeam ? 'SEM TIME NFL' : (wk?.opp || 'BYE'),
+          isBye: !hasTeam || (wk?.isBye ?? true),
           inj: dict?.inj || wk?.inj || null,
-          trend30Day: fc?.trend30Day || 0,
+          trend30Day: hasTeam ? (fc?.trend30Day || 0) : 0,
           overallRank: rosRankObj?.overallRank || fc?.overallRank || null,
           positionRank: rosRankObj?.positionRank || fc?.positionRank || null
         });
@@ -7717,6 +7837,45 @@ function tcComputeOptimalStarters(assets, rosterPositions, metricKey) {
 
   const totalScore = starters.reduce((sum, p) => sum + (p[metricKey] || 0), 0);
   return { starters, starterIds: usedIds, totalScore };
+}
+
+function tcProposeTradeFromRanking(targetRosterId, targetPlayerId = null) {
+  const rId = parseInt(targetRosterId, 10);
+  const targetTeam = tcState.teams.find(t => t.rosterId === rId);
+  if (!targetTeam) return;
+
+  // Set target team in Slot 2 (Time B)
+  tcState.selectedTeamB = rId;
+  tcState.offerFromB = [];
+
+  // Ensure Slot 1 (Time A) is a different team if it was pointing to the same one
+  if (tcState.selectedTeamA === rId) {
+    const otherTeam = tcState.teams.find(t => t.rosterId !== rId);
+    if (otherTeam) {
+      tcState.selectedTeamA = otherTeam.rosterId;
+      tcState.offerFromA = [];
+    }
+  }
+
+  // If a specific player was clicked, add them to Slot 2's offer (which goes to Team A)
+  if (targetPlayerId) {
+    const asset = targetTeam.assets.find(a => a.id === String(targetPlayerId));
+    if (asset) {
+      tcState.offerFromB.push(asset);
+    }
+  }
+
+  const selA = document.getElementById('tcSelectTeamA');
+  const selB = document.getElementById('tcSelectTeamB');
+  if (selA) selA.value = tcState.selectedTeamA;
+  if (selB) selB.value = tcState.selectedTeamB;
+
+  tcRenderTeamPanel('A');
+  tcRenderTeamPanel('B');
+  tcRecalculateTrade();
+
+  switchSeasonSubpage('calculadora');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function tcSwitchRankingsTab(tab) {
@@ -8223,6 +8382,11 @@ function tcRenderTeamRankings() {
           </div>
         </td>
         <td>${mvpHtml}</td>
+        <td style="text-align: center;">
+          <button class="tc-propose-btn" onclick="tcProposeTradeFromRanking(${t.rosterId}, null)" title="Abrir Calculadora com ${t.teamName} no Slot 2">
+            ⚖️ Propor Trade
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
@@ -8230,8 +8394,29 @@ function tcRenderTeamRankings() {
 
 function tcSetPlayerRankPos(pos, btn) {
   tcState.playerRankPos = pos;
+  tcState.playerRankLimit = 200;
   document.querySelectorAll('#tcPlayerRankPosFilters .tc-pos-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  tcRenderPlayerRankings();
+}
+
+function tcSortPlayerRankings(col) {
+  if (tcState.playerRankSortCol === col) {
+    tcState.playerRankSortDir = tcState.playerRankSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    tcState.playerRankSortCol = col;
+    tcState.playerRankSortDir = ['overallRank', 'positionRank', 'name', 'team', 'owner'].includes(col) ? 'asc' : 'desc';
+  }
+  tcRenderPlayerRankings();
+}
+
+function tcLoadMorePlayers() {
+  tcState.playerRankLimit += 150;
+  tcRenderPlayerRankings();
+}
+
+function tcShowAllUpTo500() {
+  tcState.playerRankLimit = Math.max(500, tcState.playerRankLimit + 300);
   tcRenderPlayerRankings();
 }
 
@@ -8240,36 +8425,83 @@ function tcRenderPlayerRankings() {
   const wk = tcState.nflState.week;
   const search = (document.getElementById('tcPlayerSearchInput')?.value || '').toLowerCase().trim();
 
-  document.getElementById('tcThPlayerExtraCol').textContent = isRos ? 'Tendência / Média' : `Confronto (Sem ${wk})`;
-  document.getElementById('tcThPlayerValCol').textContent = isRos ? 'Score ROS' : `Projeção (Sem ${wk})`;
+  document.getElementById('tcThPlayerExtraCol').textContent = isRos ? 'Tendência (30d) / Média ↕' : `Confronto (Sem ${wk}) ↕`;
+  document.getElementById('tcThPlayerValCol').textContent = isRos ? 'Score ROS ↕' : `Projeção (Sem ${wk}) ↕`;
 
-  const ownerByPlayerId = {};
+  const ownerInfoByPlayerId = {};
   tcState.teams.forEach(t => {
     t.assets.forEach(a => {
-      ownerByPlayerId[a.id] = t.teamName;
+      ownerInfoByPlayerId[a.id] = { teamName: t.teamName, rosterId: t.rosterId };
     });
   });
 
   const sourceList = isRos ? tcState.rosRankingPlayers : tcState.weeklyAllPlayers;
 
-  const filtered = sourceList.filter(p => {
-    const owner = p.sleeperId ? ownerByPlayerId[p.sleeperId] : null;
+  const filteredAll = sourceList.filter(p => {
+    const ownerObj = p.sleeperId ? ownerInfoByPlayerId[p.sleeperId] : null;
     if (tcState.playerRankPos === 'FA') {
-      if (owner) return false;
+      if (ownerObj) return false;
     } else if (tcState.playerRankPos !== 'ALL') {
       if (p.position !== tcState.playerRankPos) return false;
     }
 
     if (search) {
-      const hay = `${p.name} ${p.team} ${p.position} ${owner || 'free agent'}`.toLowerCase();
+      const hay = `${p.name} ${p.team} ${p.position} ${ownerObj ? ownerObj.teamName : 'free agent'}`.toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
-  }).slice(0, 180);
+  });
+
+  const dirMultiplier = tcState.playerRankSortDir === 'asc' ? 1 : -1;
+  const sortCol = tcState.playerRankSortCol || 'metric';
+
+  const getPlayerSortVal = (p) => {
+    const ownerObj = p.sleeperId ? ownerInfoByPlayerId[p.sleeperId] : null;
+    if (sortCol === 'overallRank') return p.overallRank || 9999;
+    if (sortCol === 'positionRank') {
+      const posOrder = { QB: 1, RB: 2, WR: 3, TE: 4, K: 5, DEF: 6 };
+      return (posOrder[p.position] || 9) * 10000 + (p.positionRank || 9999);
+    }
+    if (sortCol === 'name') return (p.name || '').toLowerCase();
+    if (sortCol === 'team') return (p.team || 'ZZZ').toLowerCase();
+    if (sortCol === 'owner') return ownerObj ? ownerObj.teamName.toLowerCase() : 'zzz_free_agent';
+    if (sortCol === 'extra') {
+      if (isRos) {
+        return ['K', 'DEF'].includes(p.position) ? (p.projAvg || 0) : (p.trend30Day || 0);
+      }
+      return (p.opp || 'ZZZ').toLowerCase();
+    }
+    return isRos ? (p.value || 0) : (p.pts || 0);
+  };
+
+  filteredAll.sort((a, b) => {
+    const valA = getPlayerSortVal(a);
+    const valB = getPlayerSortVal(b);
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      return valA.localeCompare(valB, 'pt-BR') * dirMultiplier;
+    }
+    return (valA - valB) * dirMultiplier;
+  });
+
+  const limit = tcState.playerRankLimit || 200;
+  const displayed = filteredAll.slice(0, limit);
+
+  const footerEl = document.getElementById('tcPlayerRankCountFooter');
+  const loadMoreBtn = document.getElementById('tcLoadMorePlayersBtn');
+  const top500Btn = document.getElementById('tcShowTop500Btn');
+  if (footerEl) {
+    footerEl.textContent = `Exibindo ${displayed.length} de ${filteredAll.length} jogadores ranqueados`;
+  }
+  if (loadMoreBtn) {
+    loadMoreBtn.style.display = displayed.length < filteredAll.length ? 'inline-flex' : 'none';
+  }
+  if (top500Btn) {
+    top500Btn.style.display = (displayed.length < 500 && filteredAll.length > displayed.length) ? 'inline-flex' : 'none';
+  }
 
   const tbody = document.getElementById('tcPlayerRankingsBody');
-  tbody.innerHTML = filtered.map(p => {
-    const owner = p.sleeperId ? ownerByPlayerId[p.sleeperId] : null;
+  tbody.innerHTML = displayed.map(p => {
+    const ownerObj = p.sleeperId ? ownerInfoByPlayerId[p.sleeperId] : null;
 
     let extraColHtml = '';
     let valColHtml = '';
@@ -8295,6 +8527,10 @@ function tcRenderPlayerRankings() {
       valColHtml = `<strong style="font-size:14px;color:${p.pts > 0 ? '#34d399' : 'var(--text-muted)'};">${p.pts.toFixed(1)} pts</strong>`;
     }
 
+    const actionHtml = ownerObj
+      ? `<button class="tc-propose-btn" onclick="tcProposeTradeFromRanking(${ownerObj.rosterId}, '${p.sleeperId}')" title="Propor trade por ${p.name} (${ownerObj.teamName}) no Slot 2">⚖️ Propor Trade</button>`
+      : `<span style="font-size:11px;color:var(--text-muted);">Waiver / FA</span>`;
+
     return `
       <tr>
         <td><strong>#${p.overallRank}</strong></td>
@@ -8302,12 +8538,13 @@ function tcRenderPlayerRankings() {
         <td><strong style="color:#fff;">${p.name}</strong></td>
         <td>${p.team}</td>
         <td>
-          ${owner
-            ? `<span class="tc-owner-pill">${owner}</span>`
+          ${ownerObj
+            ? `<span class="tc-owner-pill">${ownerObj.teamName}</span>`
             : `<span class="tc-owner-pill fa">Free Agent</span>`}
         </td>
         <td>${extraColHtml}</td>
         <td style="text-align: right;">${valColHtml}</td>
+        <td style="text-align: center;">${actionHtml}</td>
       </tr>
     `;
   }).join('');
