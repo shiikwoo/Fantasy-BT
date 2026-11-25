@@ -1989,6 +1989,129 @@
     display: block;
   }
 </style>
+
+<style id="dash2026-mobile-fixes">
+  .dash2026-two-col-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+    gap: 20px;
+  }
+
+  /* Coluna fixa do Nome do Jogador na tabela Eficiência, Sorte & Playoff Odds */
+  #dash2026LeagueTable {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  #dash2026LeagueTable th:nth-child(2),
+  #dash2026LeagueTable td:nth-child(2) {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--bg-card) !important;
+    z-index: 10 !important;
+    border-right: 1px solid var(--border-color) !important;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.35);
+  }
+  #dash2026LeagueTable th:nth-child(2) {
+    background-color: rgba(15, 23, 42, 0.96) !important;
+    z-index: 11 !important;
+  }
+  #dash2026LeagueTable tbody tr:hover td:nth-child(2) {
+    background-color: var(--bg-card-hover) !important;
+  }
+
+  @media (max-width: 1024px) {
+    #season-sub-dashboard,
+    #dash2026-league-view,
+    #dash2026-team-view {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+
+    .dash2026-two-col-grid {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    #season-sub-dashboard .table-card,
+    #season-sub-dashboard .filter-bar,
+    #season-sub-dashboard .season-subnav-bar,
+    #dash2026TeamHeaderCard {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    #season-sub-dashboard .table-wrapper,
+    #dash2026AvgChart,
+    #dash2026DivChart,
+    #dash2026RangeChart,
+    #dash2026TeamTrendChart {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #dash2026TeamSelect,
+    #dash2026LeagueSearch {
+      min-width: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    #dash2026TeamHeaderCard {
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+      padding: 18px 14px !important;
+    }
+    #dash2026TeamHeaderCard > div:last-child {
+      text-align: center !important;
+      width: 100%;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    #dash2026LeagueKpis,
+    #dash2026TeamKpis {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #dash2026LeagueKpis .kpi-card,
+    #dash2026TeamKpis .kpi-card {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      padding: 12px !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    #dash2026LeagueKpis .kpi-val,
+    #dash2026TeamKpis .kpi-val {
+      font-size: 16px !important;
+      margin: 4px 0 2px 0 !important;
+    }
+    #dash2026LeagueKpis .kpi-sub,
+    #dash2026TeamKpis .kpi-sub {
+      margin-left: 0 !important;
+      font-size: 11px !important;
+      white-space: normal !important;
+    }
+  }
+</style>
+
 </head>
 
 <body>
@@ -2702,7 +2825,7 @@
       <div id="dash2026-league-view">
         <div class="kpi-grid" id="dash2026LeagueKpis"></div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="dash2026-two-col-grid" style="margin-bottom: 24px;">
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div>
@@ -2779,7 +2902,7 @@
         <div id="dash2026TeamHeaderCard" class="franchise-hero" style="margin-bottom: 20px;"></div>
         <div class="kpi-grid" id="dash2026TeamKpis"></div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="dash2026-two-col-grid" style="margin-bottom: 24px;">
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div>
@@ -2815,7 +2938,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 20px;">
+        <div class="dash2026-two-col-grid">
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div class="table-title">🗓️ Histórico de Jogos em 2026</div>
@@ -7773,6 +7896,69 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 // ==================== TRADE CALCULATOR & RANKINGS (TEMPORADA ATUAL) ====================
+
+const SLEEPER_TO_PLAYER = {
+  "sHiikwOo": "Francisco",
+  "JaimeOliveira": "Jaime",
+  "Ginmin": "Eduardo",
+  "douglasguarda": "Douglas",
+  "W4nster": "Wanster",
+  "Alceudispor": "Alvin",
+  "parah": "Parah",
+  "Ricardofmf": "Ricardo",
+  "ArionKamitani": "Arion",
+  "VitorCorreia": "Vitor",
+  "Lubigo7": "Lubigo",
+  "Esch85": "Esch",
+  "nrjrbr": "Niltomar",
+  "poglerr": "Pogliesi",
+  "MayeVascaino": "Elivelton",
+  "enxurrada": "Arthur",
+  "TRCO": "Luprimo",
+  "silluis": "Luis Fernando",
+  "dsetina": "Daniel",
+  "pedrocestaro": "Pedro"
+};
+
+const SLEEPER_TO_PLAYER_LOWER = Object.fromEntries(
+  Object.entries(SLEEPER_TO_PLAYER).map(([k, v]) => [k.toLowerCase(), v])
+);
+
+function resolveCanonicalPlayerFromSleeper(userObj, rosterObj = null) {
+  const displayName = String(userObj?.display_name || '').trim();
+  const username = String(userObj?.username || '').trim();
+  const teamName = String(userObj?.metadata?.team_name || rosterObj?.metadata?.team_name || '').trim();
+
+  if (displayName && SLEEPER_TO_PLAYER_LOWER[displayName.toLowerCase()]) {
+    return SLEEPER_TO_PLAYER_LOWER[displayName.toLowerCase()];
+  }
+  if (username && SLEEPER_TO_PLAYER_LOWER[username.toLowerCase()]) {
+    return SLEEPER_TO_PLAYER_LOWER[username.toLowerCase()];
+  }
+
+  // Match against 2026 RAW_DATA team names
+  const season2026 = RAW_DATA.filter(r => r[0] === 2026);
+  const teamToCanonical = {};
+  season2026.forEach(r => {
+    if (r[3] && r[2]) teamToCanonical[String(r[3]).trim().toLowerCase()] = r[2];
+    if (r[6] && r[5]) teamToCanonical[String(r[6]).trim().toLowerCase()] = r[5];
+  });
+  if (teamName && teamToCanonical[teamName.toLowerCase()]) {
+    return teamToCanonical[teamName.toLowerCase()];
+  }
+
+  // Direct match against canonical player names
+  const canonicalNames = Object.values(SLEEPER_TO_PLAYER);
+  const candidates = [displayName, username, teamName].filter(Boolean).map(s => s.toLowerCase());
+  for (const cname of canonicalNames) {
+    if (candidates.some(c => c === cname.toLowerCase() || c.includes(cname.toLowerCase()))) {
+      return cname;
+    }
+  }
+
+  return displayName || username || (rosterObj ? `Roster ${rosterObj.roster_id}` : 'Manager');
+}
+
 const tcState = {
   leagueId: '1398124193773527040',
   loaded: false,
@@ -7986,6 +8172,9 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     tcApplyModifiersAndRefresh();
 
     tcState.loaded = true;
+    if (typeof renderDashboard2026 === 'function') {
+      renderDashboard2026();
+    }
     const sourceLabel = isFantasyCalcSource
       ? 'Fonte ROS: FantasyCalc'
       : 'Fonte ROS: Fallback (Projeções Sleeper)';
@@ -8459,6 +8648,7 @@ function tcBuildLeagueTeams(rosters, users) {
     const user = userMap[r.owner_id] || {};
     const teamName = user.metadata?.team_name || user.display_name || `Time #${r.roster_id}`;
     const ownerName = user.display_name || 'Manager';
+    const canonicalPlayer = resolveCanonicalPlayerFromSleeper(user, r);
     const rawTeamAvatar = r.metadata?.avatar || user.metadata?.avatar || null;
     const avatarUrl = rawTeamAvatar
       ? (rawTeamAvatar.startsWith('http') ? rawTeamAvatar : `https://sleepercdn.com/avatars/thumbs/${rawTeamAvatar}`)
@@ -8529,6 +8719,7 @@ function tcBuildLeagueTeams(rosters, users) {
       rosterId: r.roster_id,
       teamName,
       ownerName,
+      canonicalPlayer,
       avatarUrl,
       record,
       assets,
@@ -9649,24 +9840,7 @@ function sortDash2026League(col) {
 
 function dash2026ResolveSleeperPlayerName(roster, usersById) {
   const u = usersById[roster.owner_id] || {};
-  const candidates = [
-    u.display_name,
-    u.metadata?.team_name,
-    roster.metadata?.team_name
-  ].filter(Boolean).map(s => String(s).toLowerCase());
-
-  const knownPlayers = Object.keys(dash2026GetBaseContext().playerToDiv);
-  for (const p of knownPlayers) {
-    const low = p.toLowerCase();
-    if (candidates.some(c => c.includes(low))) return p;
-  }
-  // Fallback mappings for known variations
-  if (candidates.some(c => c.includes('pedrocestaro') || c.includes('pedro'))) return 'Pedro';
-  if (candidates.some(c => c.includes('silluis') || c.includes('luis'))) return 'Luis Fernando';
-  if (candidates.some(c => c.includes('ricardofmf') || c.includes('ricardo'))) return 'Ricardo';
-  if (candidates.some(c => c.includes('mayevascaino') || c.includes('elivelton'))) return 'Elivelton';
-  if (candidates.some(c => c.includes('esch85') || c.includes('esch'))) return 'Esch';
-  return u.display_name || `Roster ${roster.roster_id}`;
+  return resolveCanonicalPlayerFromSleeper(u, roster);
 }
 
 async function dash2026FetchUpcomingAndSimulate(force = false) {
@@ -9674,10 +9848,10 @@ async function dash2026FetchUpcomingAndSimulate(force = false) {
   const leagueId = document.getElementById('tcLeagueIdInputCalc')?.value?.trim() || tcState.leagueId || '1398124193773527040';
   const ctx = dash2026GetBaseContext();
   const playedWeeks = new Set(ctx.seasonGames.map(r => r[1]));
-  const maxPlayedWeek = playedWeeks.size > 0 ? Math.max(...playedWeeks) : 10;
+  const maxPlayedWeek = playedWeeks.size > 0 ? Math.max(...playedWeeks) : 11;
 
   if (statusEl) {
-    statusEl.innerHTML = `<span>🎲 Buscando jogos futuros no Sleeper (a partir da Semana ${maxPlayedWeek + 1})...</span>`;
+    statusEl.innerHTML = `<span>🎲 Buscando jogos futuros no Sleeper (Sem ${maxPlayedWeek + 1} em diante)...</span>`;
   }
 
   try {
@@ -9702,6 +9876,7 @@ async function dash2026FetchUpcomingAndSimulate(force = false) {
     });
 
     const upcoming = [];
+    const weeksFetched = [];
     for (let w = maxPlayedWeek + 1; w <= lastRegWeek; w++) {
       const mRes = await fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${w}`).catch(() => null);
       if (!mRes || !mRes.ok) continue;
@@ -9710,29 +9885,33 @@ async function dash2026FetchUpcomingAndSimulate(force = false) {
 
       const byMatchupId = {};
       mData.forEach(entry => {
-        if (!entry || !entry.matchup_id) return;
+        if (!entry || entry.matchup_id === null || entry.matchup_id === undefined) return;
         if (!byMatchupId[entry.matchup_id]) byMatchupId[entry.matchup_id] = [];
         byMatchupId[entry.matchup_id].push(entry);
       });
 
+      let weekPairs = 0;
       Object.values(byMatchupId).forEach(pair => {
         if (pair.length >= 2) {
           const pA = rosterToPlayer[pair[0].roster_id];
           const pB = rosterToPlayer[pair[1].roster_id];
-          if (pA && pB && pA !== pB) {
-            const isDiv = ctx.playerToDiv[pA] && ctx.playerToDiv[pA] === ctx.playerToDiv[pB];
+          if (pA && pB && pA !== pB && ctx.playerToDiv[pA] && ctx.playerToDiv[pB]) {
+            const isDiv = ctx.playerToDiv[pA] === ctx.playerToDiv[pB];
             upcoming.push({ week: w, p1: pA, p2: pB, isDiv });
+            weekPairs++;
           }
         }
       });
+      if (weekPairs > 0) weeksFetched.push(`S${w} (${weekPairs})`);
     }
 
     dash2026State.upcomingGames = upcoming;
     dash2026RunMonteCarlo(ctx, upcoming);
 
+    const weeksInfo = weeksFetched.length > 0 ? weeksFetched.join(', ') : 'nenhuma semana futura aberta';
     if (statusEl) {
       statusEl.innerHTML = `
-        <span style="color:#34d399;font-weight:700;">🎲 ${dash2026State.simCount.toLocaleString('pt-BR')} sims • ${upcoming.length} jogos futuros (Sleeper)</span>
+        <span style="color:#34d399;font-weight:700;">🎲 ${dash2026State.simCount.toLocaleString('pt-BR')} sims • ${upcoming.length} jogos (${weeksInfo})</span>
         <button class="tc-btn" onclick="dash2026FetchUpcomingAndSimulate(true)" style="padding: 5px 10px; font-size: 11.5px;">🔄 Recalcular</button>
       `;
     }
@@ -9748,16 +9927,16 @@ async function dash2026FetchUpcomingAndSimulate(force = false) {
 }
 
 function dash2026RunMonteCarlo(ctx, upcomingGames) {
-  const N_SIMS = 2500;
+  const N_SIMS = 5000;
   const { divisions, playerToDiv, teams } = ctx;
   const leagueAvgPf = teams.length > 0 ? teams.reduce((a, t) => a + t.avgPf, 0) / teams.length : 100;
 
-  // Estimate expected points & volatility for each team
+  // Estimate expected points & realistic weekly volatility for each team
   const teamModel = {};
   teams.forEach(t => {
-    // Blend 2026 scoring average with league average
-    const expPts = t.games > 0 ? (0.75 * t.avgPf + 0.25 * leagueAvgPf) : leagueAvgPf;
-    const sigma = t.stdDev > 6 ? t.stdDev : 20;
+    // Regress 35% toward league mean so future games aren't overly deterministic
+    const expPts = t.games > 0 ? (0.65 * t.avgPf + 0.35 * leagueAvgPf) : leagueAvgPf;
+    const sigma = Math.max(16, t.stdDev || 22);
     teamModel[t.name] = { expPts, sigma };
   });
 
@@ -9766,17 +9945,15 @@ function dash2026RunMonteCarlo(ctx, upcomingGames) {
   const getWinProb = (aName, bName) => {
     const key = `${aName}___${bName}`;
     if (winProbCache[key] !== undefined) return winProbCache[key];
-    const mA = teamModel[aName] || { expPts: leagueAvgPf, sigma: 20 };
-    const mB = teamModel[bName] || { expPts: leagueAvgPf, sigma: 20 };
+    const mA = teamModel[aName] || { expPts: leagueAvgPf, sigma: 22 };
+    const mB = teamModel[bName] || { expPts: leagueAvgPf, sigma: 22 };
     const diff = mA.expPts - mB.expPts;
-    const combinedSigma = Math.sqrt(mA.sigma * mA.sigma + mB.sigma * mB.sigma) || 28;
-    // Logistic approximation to normal CDF difference
+    const combinedSigma = Math.sqrt(mA.sigma * mA.sigma + mB.sigma * mB.sigma) || 31;
     const prob = 1 / (1 + Math.exp(-1.702 * (diff / combinedSigma)));
-    winProbCache[key] = Math.max(0.05, Math.min(0.95, prob));
+    winProbCache[key] = Math.max(0.08, Math.min(0.92, prob));
     return winProbCache[key];
   };
 
-  // Attach win probabilities to upcoming games for UI display
   upcomingGames.forEach(g => {
     g.proj1 = teamModel[g.p1]?.expPts ?? leagueAvgPf;
     g.proj2 = teamModel[g.p2]?.expPts ?? leagueAvgPf;
@@ -9784,11 +9961,20 @@ function dash2026RunMonteCarlo(ctx, upcomingGames) {
     g.winProb2 = 1 - g.winProb1;
   });
 
+  // Box-Muller normal random helper for realistic PF/PA tiebreakers
+  const randNormal = () => {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  };
+
   const playoffHits = {};
   Object.keys(playerToDiv).forEach(p => { playoffHits[p] = 0; });
 
   for (let s = 0; s < N_SIMS; s++) {
     const simState = {};
+    const h2hWins = {};
     teams.forEach(t => {
       simState[t.name] = {
         name: t.name,
@@ -9796,9 +9982,12 @@ function dash2026RunMonteCarlo(ctx, upcomingGames) {
         wins: t.wins,
         divWins: t.divWins,
         pf: t.pf,
-        pa: t.pa,
-        history: t.history
+        pa: t.pa
       };
+      h2hWins[t.name] = {};
+      (t.history || []).forEach(h => {
+        if (h.won) h2hWins[t.name][h.opp] = (h2hWins[t.name][h.opp] || 0) + 1;
+      });
     });
 
     for (let i = 0; i < upcomingGames.length; i++) {
@@ -9806,26 +9995,38 @@ function dash2026RunMonteCarlo(ctx, upcomingGames) {
       const a = simState[g.p1];
       const b = simState[g.p2];
       if (!a || !b) continue;
-      const pAWin = getWinProb(g.p1, g.p2);
-      const p1Won = Math.random() < pAWin;
-      const ptsA = (teamModel[g.p1]?.expPts || leagueAvgPf) + (p1Won ? 6 : -6);
-      const ptsB = (teamModel[g.p2]?.expPts || leagueAvgPf) + (p1Won ? -6 : 6);
+
+      const mA = teamModel[g.p1];
+      const mB = teamModel[g.p2];
+      let ptsA = Math.max(30, mA.expPts + randNormal() * mA.sigma);
+      let ptsB = Math.max(30, mB.expPts + randNormal() * mB.sigma);
+      if (Math.abs(ptsA - ptsB) < 0.05) ptsA += 0.1;
+
       a.pf += ptsA; a.pa += ptsB;
       b.pf += ptsB; b.pa += ptsA;
-      if (p1Won) {
+
+      if (ptsA > ptsB) {
         a.wins++;
+        h2hWins[g.p1][g.p2] = (h2hWins[g.p1][g.p2] || 0) + 1;
         if (g.isDiv) a.divWins++;
       } else {
         b.wins++;
+        h2hWins[g.p2][g.p1] = (h2hWins[g.p2][g.p1] || 0) + 1;
         if (g.isDiv) b.divWins++;
       }
     }
 
-    // Rank each division: Top 2 advance to Playoffs
+    // Rank each division using official league tiebreakers: Top 2 advance to Playoffs
     Object.entries(divisions).forEach(([divName, members]) => {
       const divList = members.map(m => simState[m]).filter(Boolean);
       divList.sort((x, y) => {
         if (y.wins !== x.wins) return y.wins - x.wins;
+        const tiedCount = divList.filter(t => t.wins === x.wins).length;
+        if (tiedCount === 2) {
+          const xOverY = h2hWins[x.name]?.[y.name] || 0;
+          const yOverX = h2hWins[y.name]?.[x.name] || 0;
+          if (yOverX !== xOverY) return yOverX - xOverY;
+        }
         if (y.divWins !== x.divWins) return y.divWins - x.divWins;
         if (Math.abs(y.pf - x.pf) > 0.01) return y.pf - x.pf;
         return x.pa - y.pa;
@@ -10100,6 +10301,7 @@ function renderDashboard2026TeamView(providedCtx = null) {
   const quickActionEl = document.getElementById('dash2026TeamQuickAction');
 
   const sleeperTeam = tcState.teams.find(st =>
+    st.canonicalPlayer?.toLowerCase() === team.name.toLowerCase() ||
     st.ownerName?.toLowerCase() === team.name.toLowerCase() ||
     st.teamName?.toLowerCase().includes(team.name.toLowerCase())
   );
@@ -10260,7 +10462,10 @@ function renderDashboard2026TeamView(providedCtx = null) {
   const rosterBody = document.getElementById('dash2026TeamRosterBody');
   if (rosterBody) {
     if (!sleeperTeam || !sleeperTeam.assets || sleeperTeam.assets.length === 0) {
-      rosterBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:18px;">Sincronize os elencos na aba Calculadora/Rankings para ver o elenco completo.</td></tr>`;
+      const msg = tcState.loaded
+        ? `Elenco de ${team.name} não localizado no Sleeper.`
+        : `⏳ Carregando elenco atual e valores ROS do Sleeper/FantasyCalc...`;
+      rosterBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:18px;">${msg}</td></tr>`;
     } else {
       const sortedAssets = [...sleeperTeam.assets].sort((a, b) => (b.isOptimalStarter ? 1 : 0) - (a.isOptimalStarter ? 1 : 0) || b.value - a.value || b.weekPts - a.weekPts);
       rosterBody.innerHTML = sortedAssets.map(a => `
