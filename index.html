@@ -2908,15 +2908,62 @@
         <div id="dash2026TeamHeaderCard" class="franchise-hero" style="margin-bottom: 20px;"></div>
         <div class="kpi-grid" id="dash2026TeamKpis"></div>
 
+        <!-- Linha 1: Gráfico de Power Ranking Posicional | Elenco Atual (ROS vs. Semana Atual) -->
         <div class="dash2026-two-col-grid" style="margin-bottom: 24px;">
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div>
-                <div class="table-title">📈 Trajetória Semana a Semana (2026)</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Pontuação por rodada (verde = vitória, vermelho = derrota)</div>
+                <div class="table-title">🎯 Power Ranking Posicional (vs. Liga)</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Posição no ranking da liga (1º = mais forte) e pontuação por setor</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <div class="pill-group" id="dash2026PosModePills">
+                  <button class="pill-btn active" id="dashPosModeRosBtn" onclick="setDash2026PosMode('ros', this)">ROS</button>
+                  <button class="pill-btn" id="dashPosModeWkBtn" onclick="setDash2026PosMode('week', this)">Semana</button>
+                </div>
+                <div class="pill-group" id="dash2026PosScopePills">
+                  <button class="pill-btn active" id="dashPosScopeStartersBtn" onclick="setDash2026PosScope('starters', this)">Titulares</button>
+                  <button class="pill-btn" id="dashPosScopeRosterBtn" onclick="setDash2026PosScope('roster', this)">Elenco</button>
+                </div>
               </div>
             </div>
-            <div id="dash2026TeamTrendChart" style="padding: 16px; overflow-x: auto;"></div>
+            <div id="dash2026PosChart" style="padding: 16px;"></div>
+          </div>
+
+          <div class="table-card" style="margin-bottom: 0;">
+            <div class="table-header-bar">
+              <div>
+                <div class="table-title">🏈 Elenco Atual (ROS vs. Semana Atual)</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Melhor escalação semanal e projeções no Sleeper</div>
+              </div>
+            </div>
+            <div class="table-wrapper" style="max-height: 410px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pos</th>
+                    <th>Jogador</th>
+                    <th style="text-align:center;">Lineup</th>
+                    <th style="text-align:right;">ROS</th>
+                    <th style="text-align:right;">Proj. Sem.</th>
+                  </tr>
+                </thead>
+                <tbody id="dash2026TeamRosterBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Linha 2: Start-Sit Accuracy | Próximas Partidas & Chance de Vitória -->
+        <div class="dash2026-two-col-grid" style="margin-bottom: 24px;">
+          <div class="table-card" style="margin-bottom: 0;">
+            <div class="table-header-bar">
+              <div>
+                <div class="table-title">🧠 Start-Sit Accuracy (2026)</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Eficiência de escalação real vs. escalação ótima possível na semana</div>
+              </div>
+            </div>
+            <div id="dash2026StartSitBox" style="padding: 16px;"></div>
           </div>
 
           <div class="table-card" style="margin-bottom: 0;">
@@ -2944,7 +2991,18 @@
           </div>
         </div>
 
+        <!-- Linha 3: Trajetória Semana a Semana | Histórico de Jogos em 2026 -->
         <div class="dash2026-two-col-grid">
+          <div class="table-card" style="margin-bottom: 0;">
+            <div class="table-header-bar">
+              <div>
+                <div class="table-title">📈 Trajetória Semana a Semana (2026)</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Pontuação por rodada (verde = vitória, vermelho = derrota)</div>
+              </div>
+            </div>
+            <div id="dash2026TeamTrendChart" style="padding: 16px; overflow-x: auto;"></div>
+          </div>
+
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div class="table-title">🗓️ Histórico de Jogos em 2026</div>
@@ -2961,29 +3019,6 @@
                   </tr>
                 </thead>
                 <tbody id="dash2026TeamGamesBody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="table-card" style="margin-bottom: 0;">
-            <div class="table-header-bar">
-              <div>
-                <div class="table-title">🏈 Elenco Atual (ROS vs. Semana Atual)</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Titulares ótimos e projeções no Sleeper</div>
-              </div>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Pos</th>
-                    <th>Jogador</th>
-                    <th style="text-align:center;">Lineup</th>
-                    <th style="text-align:right;">ROS</th>
-                    <th style="text-align:right;">Proj. Sem.</th>
-                  </tr>
-                </thead>
-                <tbody id="dash2026TeamRosterBody"></tbody>
               </table>
             </div>
           </div>
@@ -8141,7 +8176,8 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
       return [];
     };
 
-    const [fcRawData, playersDict, projRes, rosKdRes, multiWeekResults] = await Promise.all([
+    const played2026Weeks = Array.from(new Set(RAW_DATA.filter(r => r[0] === 2026).map(r => r[1]))).sort((a, b) => a - b);
+    const [fcRawData, playersDict, projRes, rosKdRes, multiWeekResults, playedMatchupResults] = await Promise.all([
       fetchJsonWithFallback([fcUrl, fcUrlFallback12]),
       tcGetNflPlayersDictionary(forceRefresh),
       fetch(projUrl).catch(() => null),
@@ -8153,8 +8189,34 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
             .then(data => ({ week: w, data: Array.isArray(data) ? data : [] }))
             .catch(() => ({ week: w, data: [] }))
         )
-      )
+      ),
+      (async () => {
+        const fetchWeekMatchups = async (w) => {
+          const u = `https://api.sleeper.app/v1/league/${tcState.leagueId}/matchups/${w}`;
+          const candidates = [u, `https://corsproxy.io/?${encodeURIComponent(u)}`];
+          for (const endpoint of candidates) {
+            try {
+              const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+              const timer = ctrl ? setTimeout(() => ctrl.abort(), 7000) : null;
+              const r = await fetch(endpoint, ctrl ? { signal: ctrl.signal } : {});
+              if (timer) clearTimeout(timer);
+              if (r && r.ok) {
+                const data = await r.json();
+                if (Array.isArray(data) && data.length > 0) return { week: w, data };
+              }
+            } catch (e) {}
+          }
+          return { week: w, data: [] };
+        };
+        return Promise.all(played2026Weeks.map(w => fetchWeekMatchups(w)));
+      })()
     ]);
+    const matchupsByWeek = {};
+    (playedMatchupResults || []).forEach(entry => {
+      if (entry && entry.week && Array.isArray(entry.data) && entry.data.length > 0) {
+        matchupsByWeek[entry.week] = entry.data;
+      }
+    });
     const projData = (projRes && projRes.ok) ? await projRes.json() : [];
     const rosKdData = (rosKdRes && rosKdRes.ok) ? await rosKdRes.json() : [];
     const projDataByWeek = {};
@@ -8219,6 +8281,7 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
       isFantasyCalcSource,
       projData,
       projDataByWeek,
+      matchupsByWeek,
       rosKdData,
       activeWeek,
       rules
@@ -8863,6 +8926,273 @@ function tcBuildLeagueTeams(rosters, users) {
       totalWeekPts,
       topPlayerWeek,
       optimalWeekPtsByWeek
+    };
+  });
+
+  // Compute positional breakdown & league rank per position (QB, RB, WR, TE, FLEX, K, DEF)
+  // For Titulares: uses exact assigned starter slots (1 QB, 1 RB, 2 WR, 1 TE, 2 FLEX, 1 K, 1 DEF) with zero double-counting!
+  // For Elenco: sums all roster players in each position (and remaining non-core RB/WR/TE depth for FLEX).
+  const positionsList = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'DEF'];
+  teams.forEach(t => {
+    const rosOpt = tcComputeOptimalStarters(t.assets, tcState.rosterPositions, 'rosRankScore');
+    const wkOpt = tcComputeOptimalStarters(t.assets, tcState.rosterPositions, 'weekPts');
+
+    const mapSlotBucket = (slot) => {
+      if (['FLEX', 'WRRB_FLEX', 'REC_FLEX', 'SUPER_FLEX'].includes(slot)) return 'FLEX';
+      return slot;
+    };
+
+    const rosStartersPos = { QB: 0, RB: 0, WR: 0, TE: 0, FLEX: 0, K: 0, DEF: 0 };
+    const wkStartersPos = { QB: 0, RB: 0, WR: 0, TE: 0, FLEX: 0, K: 0, DEF: 0 };
+
+    rosOpt.starters.forEach(st => {
+      const b = mapSlotBucket(st.slot);
+      if (rosStartersPos[b] !== undefined) {
+        rosStartersPos[b] += (st.rosRankScore || 0);
+      }
+    });
+
+    wkOpt.starters.forEach(st => {
+      const b = mapSlotBucket(st.slot);
+      if (wkStartersPos[b] !== undefined) {
+        wkStartersPos[b] = Math.round((wkStartersPos[b] + (st.weekPts || 0)) * 10) / 10;
+      }
+    });
+
+    const rosRosterPos = {};
+    const wkRosterPos = {};
+    positionsList.forEach(pos => {
+      if (pos === 'FLEX') {
+        // FantasyPros-style FLEX depth: top flex-eligible (RB/WR/TE) players beyond core starters (1 RB, 2 WR, 1 TE)
+        const flexSlotCount = Math.max(2, tcState.rosterPositions.filter(s => ['FLEX', 'WRRB_FLEX', 'REC_FLEX', 'SUPER_FLEX'].includes(s)).length);
+
+        const rosFlexCandidates = [...t.assets]
+          .filter(a => ['RB', 'WR', 'TE'].includes(a.position) && !rosOpt.starterIds.has(a.id))
+          .sort((a, b) => (b.rosRankScore || 0) - (a.rosRankScore || 0));
+        rosRosterPos[pos] = rosFlexCandidates
+          .slice(0, flexSlotCount)
+          .reduce((s, a) => s + (a.rosRankScore || 0), 0);
+
+        const wkFlexCandidates = [...t.assets]
+          .filter(a => ['RB', 'WR', 'TE'].includes(a.position) && !wkOpt.starterIds.has(a.id))
+          .sort((a, b) => (b.weekPts || 0) - (a.weekPts || 0));
+        wkRosterPos[pos] = Math.round(
+          wkFlexCandidates.slice(0, flexSlotCount).reduce((s, a) => s + (a.weekPts || 0), 0) * 10
+        ) / 10;
+      } else {
+        const rosterPool = t.assets.filter(a => a.position === pos);
+        rosRosterPos[pos] = rosterPool.reduce((s, a) => s + (a.rosRankScore || 0), 0);
+        wkRosterPos[pos] = Math.round(rosterPool.reduce((s, a) => s + (a.weekPts || 0), 0) * 10) / 10;
+      }
+    });
+
+    t.rosPosTotals = rosStartersPos;
+    t.wkPosTotals = wkStartersPos;
+    t.rosRosterPosTotals = rosRosterPos;
+    t.wkRosterPosTotals = wkRosterPos;
+
+    t.posRanksRosStarters = {};
+    t.posRanksWkStarters = {};
+    t.posRanksRosRoster = {};
+    t.posRanksWkRoster = {};
+    t.posRanksRos = t.posRanksRosStarters;
+    t.posRanksWk = t.posRanksWkStarters;
+  });
+
+  positionsList.forEach(pos => {
+    const rankMetric = (arr, targetProp, scoreProp) => {
+      const sorted = [...arr].sort((a, b) => (b[scoreProp][pos] || 0) - (a[scoreProp][pos] || 0));
+      sorted.forEach((tm, i) => {
+        tm[targetProp][pos] = { rank: i + 1, totalTeams: sorted.length, score: tm[scoreProp][pos] || 0 };
+      });
+    };
+    rankMetric(teams, 'posRanksRosStarters', 'rosPosTotals');
+    rankMetric(teams, 'posRanksWkStarters', 'wkPosTotals');
+    rankMetric(teams, 'posRanksRosRoster', 'rosRosterPosTotals');
+    rankMetric(teams, 'posRanksWkRoster', 'wkRosterPosTotals');
+  });
+
+  // Compute Start-Sit Accuracy from Sleeper weekly matchups (actual starters vs optimal starters)
+  const scoring = tcState.rawSyncCache?.league?.scoring_settings || {};
+  const matchupsByWeek = tcState.rawSyncCache?.matchupsByWeek || {};
+
+  teams.forEach(t => {
+    const weekEntries = [];
+    Object.entries(matchupsByWeek).forEach(([wkStr, mArr]) => {
+      const wkNum = Number(wkStr);
+      const rosterMatch = mArr.find(m => Number(m.roster_id) === Number(t.rosterId));
+      if (!rosterMatch) return;
+
+      const starterIds = Array.isArray(rosterMatch.starters) ? rosterMatch.starters.map(String) : [];
+      const playerPtsMap = rosterMatch.players_points || {};
+      const allRosterPlayerIds = Array.isArray(rosterMatch.players) ? rosterMatch.players.map(String) : Object.keys(playerPtsMap);
+
+      let actualPts = 0;
+      const candidatePool = [];
+      const seenPool = new Set();
+
+      const buildItem = (pid, isActualStarter) => {
+        const dict = tcState.playersMap[pid];
+        const pos = dict?.p || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : 'WR');
+        const pts = typeof playerPtsMap[pid] === 'number'
+          ? playerPtsMap[pid]
+          : (typeof rosterMatch.starters_points?.[starterIds.indexOf(pid)] === 'number' ? rosterMatch.starters_points[starterIds.indexOf(pid)] : 0);
+        return {
+          id: pid,
+          name: dict?.n || pid,
+          position: pos,
+          actualPts: Number(pts) || 0,
+          isActualStarter
+        };
+      };
+
+      starterIds.forEach(pid => {
+        if (!pid || pid === '0') return;
+        const item = buildItem(pid, true);
+        actualPts += item.actualPts;
+        candidatePool.push(item);
+        seenPool.add(pid);
+      });
+
+      allRosterPlayerIds.forEach(pid => {
+        if (!pid || seenPool.has(pid)) return;
+        candidatePool.push(buildItem(pid, false));
+        seenPool.add(pid);
+      });
+
+      const optLineup = tcComputeOptimalStarters(candidatePool, tcState.rosterPositions, 'actualPts');
+      const rawOptimalPts = optLineup.totalScore;
+      const optimalPts = Math.max(actualPts, rawOptimalPts);
+      const optIds = optLineup.starterIds;
+      const actualStarterIdSet = new Set(starterIds.filter(id => id && id !== '0'));
+      const matchedSlots = Array.from(optIds).filter(id => actualStarterIdSet.has(id)).length;
+      const totalSlots = Math.max(1, optIds.size);
+      const decisionAcc = (matchedSlots / totalSlots) * 100;
+      const pointsEff = optimalPts > 0 ? Math.min(100, (actualPts / optimalPts) * 100) : 100;
+      const leftOnBench = Math.max(0, Math.round((optimalPts - actualPts) * 10) / 10);
+
+      // Compute ALL swaps needed to transform the actual lineup into the exact optimal lineup
+      const starterSlotsList = tcState.rosterPositions.filter(slot =>
+        ['QB', 'RB', 'WR', 'TE', 'K', 'DEF', 'FLEX', 'SUPER_FLEX', 'REC_FLEX', 'WRRB_FLEX'].includes(slot)
+      );
+      const isEligibleForSlot = (pos, slot) => {
+        if (slot === 'QB') return pos === 'QB';
+        if (slot === 'RB') return pos === 'RB';
+        if (slot === 'WR') return pos === 'WR';
+        if (slot === 'TE') return pos === 'TE';
+        if (slot === 'K') return pos === 'K';
+        if (slot === 'DEF') return pos === 'DEF';
+        if (slot === 'FLEX') return ['RB', 'WR', 'TE'].includes(pos);
+        if (slot === 'WRRB_FLEX') return ['RB', 'WR'].includes(pos);
+        if (slot === 'REC_FLEX') return ['WR', 'TE'].includes(pos);
+        if (slot === 'SUPER_FLEX') return ['QB', 'RB', 'WR', 'TE'].includes(pos);
+        return false;
+      };
+
+      const startedWithSlot = starterIds
+        .map((pid, idx) => {
+          if (!pid || pid === '0') return null;
+          const item = candidatePool.find(c => c.id === pid);
+          if (!item) return null;
+          return { ...item, slot: starterSlotsList[idx] || item.position };
+        })
+        .filter(Boolean);
+
+      // Optimal starters that were left on the bench vs. actual starters that should have been benched
+      const shouldHaveStarted = optLineup.starters
+        .filter(s => !actualStarterIdSet.has(s.id))
+        .sort((a, b) => b.actualPts - a.actualPts);
+
+      const shouldHaveBenched = startedWithSlot
+        .filter(s => !optIds.has(s.id))
+        .sort((a, b) => a.actualPts - b.actualPts);
+
+      const usedBenchOut = new Set();
+      const missedSwaps = [];
+
+      shouldHaveStarted.forEach(inPlayer => {
+        // Prefer matching by same slot first, then by slot eligibility, picking the lowest-scoring replaced starter
+        let outIdx = shouldHaveBenched.findIndex((outP, idx) =>
+          !usedBenchOut.has(idx) && outP.slot === inPlayer.slot && isEligibleForSlot(inPlayer.position, outP.slot)
+        );
+        if (outIdx === -1) {
+          outIdx = shouldHaveBenched.findIndex((outP, idx) =>
+            !usedBenchOut.has(idx) && isEligibleForSlot(inPlayer.position, outP.slot)
+          );
+        }
+        if (outIdx === -1) {
+          outIdx = shouldHaveBenched.findIndex((outP, idx) =>
+            !usedBenchOut.has(idx) && (outP.position === inPlayer.position || isEligibleForSlot(outP.position, inPlayer.slot))
+          );
+        }
+
+        if (outIdx !== -1) {
+          usedBenchOut.add(outIdx);
+          const outPlayer = shouldHaveBenched[outIdx];
+          const diff = Math.round((inPlayer.actualPts - outPlayer.actualPts) * 10) / 10;
+          if (diff > 0.05) {
+            missedSwaps.push({
+              benched: inPlayer.name,
+              benchedPos: inPlayer.position,
+              benchedPts: inPlayer.actualPts,
+              started: outPlayer.name,
+              startedPos: outPlayer.position,
+              startedPts: outPlayer.actualPts,
+              slot: outPlayer.slot,
+              diff
+            });
+          }
+        }
+      });
+
+      // Handle any empty starter slots ('0') if an eligible bench player could have filled them
+      const emptySlotCount = starterIds.filter(pid => !pid || pid === '0').length;
+      if (emptySlotCount > 0) {
+        shouldHaveStarted.forEach(inPlayer => {
+          const alreadyListed = missedSwaps.some(ms => ms.benched === inPlayer.name);
+          if (!alreadyListed && inPlayer.actualPts > 0.05) {
+            missedSwaps.push({
+              benched: inPlayer.name,
+              benchedPos: inPlayer.position,
+              benchedPts: inPlayer.actualPts,
+              started: 'Slot vazio',
+              startedPos: inPlayer.slot,
+              startedPts: 0,
+              slot: inPlayer.slot,
+              diff: Math.round(inPlayer.actualPts * 10) / 10
+            });
+          }
+        });
+      }
+
+      missedSwaps.sort((a, b) => b.diff - a.diff);
+
+      weekEntries.push({
+        week: wkNum,
+        actualPts: Math.round(actualPts * 10) / 10,
+        optimalPts: Math.round(optimalPts * 10) / 10,
+        leftOnBench,
+        decisionAcc: Math.round(decisionAcc * 10) / 10,
+        pointsEff: Math.round(pointsEff * 10) / 10,
+        missedSwap: missedSwaps[0] || null,
+        missedSwaps
+      });
+    });
+
+    weekEntries.sort((a, b) => b.week - a.week);
+    const weeksCount = weekEntries.length;
+    const avgDecisionAcc = weeksCount > 0 ? Math.round((weekEntries.reduce((s, w) => s + w.decisionAcc, 0) / weeksCount) * 10) / 10 : null;
+    const avgPointsEff = weeksCount > 0 ? Math.round((weekEntries.reduce((s, w) => s + w.pointsEff, 0) / weeksCount) * 10) / 10 : null;
+    const totalLeftOnBench = Math.round(weekEntries.reduce((s, w) => s + w.leftOnBench, 0) * 10) / 10;
+    const avgLeftOnBench = weeksCount > 0 ? Math.round((totalLeftOnBench / weeksCount) * 10) / 10 : 0;
+
+    t.startSitStats = {
+      weeksCount,
+      avgDecisionAcc,
+      avgPointsEff,
+      totalLeftOnBench,
+      avgLeftOnBench,
+      weeks: weekEntries
     };
   });
 
@@ -9612,8 +9942,8 @@ function tcRenderTeamRankings() {
               ${t.avatarUrl ? `<img src="${t.avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : t.teamName.substring(0, 2).toUpperCase()}
             </div>
             <div>
-              <div style="font-weight:700;color:#fff;">${t.teamName}</div>
-              <div style="font-size:11.5px;color:var(--text-muted);">${t.ownerName}</div>
+              <div style="font-weight:700;color:#fff;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(96,165,250,0.45);" onclick="openDashboard2026ForPlayer('${(t.canonicalPlayer || t.ownerName || t.teamName).replace(/'/g, "\\'")}')" title="Abrir Análise por Time no Dashboard 2026">${t.teamName}</div>
+              <div style="font-size:11.5px;color:var(--text-muted);">${t.canonicalPlayer || t.ownerName}</div>
             </div>
           </div>
         </td>
@@ -10458,6 +10788,198 @@ function renderDashboard2026LeagueTable(providedCtx = null) {
   }).join('');
 }
 
+
+let dash2026PosMode = 'ros';
+let dash2026PosScope = 'starters';
+
+function setDash2026PosMode(mode, btn) {
+  dash2026PosMode = mode;
+  document.getElementById('dashPosModeRosBtn')?.classList.toggle('active', mode === 'ros');
+  document.getElementById('dashPosModeWkBtn')?.classList.toggle('active', mode === 'week');
+  renderDashboard2026TeamView();
+}
+
+function setDash2026PosScope(scope, btn) {
+  dash2026PosScope = scope;
+  document.getElementById('dashPosScopeStartersBtn')?.classList.toggle('active', scope === 'starters');
+  document.getElementById('dashPosScopeRosterBtn')?.classList.toggle('active', scope === 'roster');
+  renderDashboard2026TeamView();
+}
+
+function renderDashboard2026PositionalChart(team, sleeperTeam) {
+  const el = document.getElementById('dash2026PosChart');
+  if (!el) return;
+
+  if (!sleeperTeam || !sleeperTeam.posRanksRosStarters) {
+    el.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:18px;text-align:center;">⏳ Carregando ranking posicional da liga no Sleeper...</div>`;
+    return;
+  }
+
+  const axes = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'DEF'];
+  const isWk = dash2026PosMode === 'week';
+  const isStarters = dash2026PosScope === 'starters';
+
+  const rankMap = isWk
+    ? (isStarters ? sleeperTeam.posRanksWkStarters : sleeperTeam.posRanksWkRoster)
+    : (isStarters ? sleeperTeam.posRanksRosStarters : sleeperTeam.posRanksRosRoster);
+
+  const nTeams = rankMap?.QB?.totalTeams || 20;
+  const avgRank = axes.reduce((acc, ax) => acc + (rankMap?.[ax]?.rank || nTeams), 0) / axes.length;
+  const avgScore = axes.reduce((acc, ax) => acc + (rankMap?.[ax]?.score || 0), 0);
+
+  const cx = 155, cy = 145, maxR = 98;
+  const levels = [0.25, 0.5, 0.75, 1.0];
+
+  const getPoint = (idx, ratio) => {
+    const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / axes.length;
+    return {
+      x: cx + Math.cos(angle) * maxR * ratio,
+      y: cy + Math.sin(angle) * maxR * ratio
+    };
+  };
+
+  const gridPolygons = levels.map(lvl => {
+    const pts = axes.map((_, i) => {
+      const p = getPoint(i, lvl);
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    }).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="rgba(148,163,184,0.18)" stroke-width="1"></polygon>`;
+  }).join('');
+
+  const axisLines = axes.map((_, i) => {
+    const p = getPoint(i, 1);
+    return `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="rgba(148,163,184,0.16)" stroke-width="1"></line>`;
+  }).join('');
+
+  const dataPts = axes.map((ax, i) => {
+    const r = rankMap?.[ax]?.rank || nTeams;
+    const strengthRatio = Math.max(0.18, 1 - ((r - 1) / Math.max(1, nTeams - 1)) * 0.82);
+    return getPoint(i, strengthRatio);
+  });
+
+  const dataPolygon = `<polygon points="${dataPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}" fill="rgba(59,130,246,0.28)" stroke="#38bdf8" stroke-width="2.2"></polygon>`;
+  const dataDots = dataPts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.8" fill="#60a5fa" stroke="#0f172a" stroke-width="1.2"></circle>`).join('');
+
+  const labelsSvg = axes.map((ax, i) => {
+    const p = getPoint(i, 1.24);
+    const rObj = rankMap?.[ax] || { rank: nTeams, score: 0 };
+    const rColor = rObj.rank <= 4 ? '#34d399' : (rObj.rank <= 10 ? '#60a5fa' : '#f87171');
+    return `
+      <text x="${p.x.toFixed(1)}" y="${(p.y - 4).toFixed(1)}" text-anchor="middle" fill="#f1f5f9" font-size="11" font-weight="800">${ax}</text>
+      <text x="${p.x.toFixed(1)}" y="${(p.y + 9).toFixed(1)}" text-anchor="middle" fill="${rColor}" font-size="10.5" font-weight="700">${rObj.rank}º/${rObj.totalTeams}</text>
+    `;
+  }).join('');
+
+  const breakdownRows = axes.map(ax => {
+    const info = rankMap?.[ax] || { rank: nTeams, totalTeams: nTeams, score: 0 };
+    const scoreStr = isWk
+      ? `${info.score.toFixed(1)} pts`
+      : Math.round(info.score).toLocaleString('pt-BR');
+    const badgeColor = info.rank <= 4 ? '#34d399' : (info.rank <= 10 ? '#60a5fa' : '#f87171');
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:7px;background:rgba(15,23,42,0.55);border:1px solid var(--border-color);font-size:12px;">
+        <span class="tc-pos-badge tc-pos-${ax}" style="width:44px;">${ax}</span>
+        <strong style="color:${badgeColor};">${info.rank}º de ${info.totalTeams}</strong>
+        <span style="color:var(--text-muted);font-weight:600;">${scoreStr}</span>
+      </div>
+    `;
+  }).join('');
+
+  const scopeLabel = isStarters ? 'TITULARES' : 'ELENCO';
+  const totalSummaryStr = isWk
+    ? `Soma (${scopeLabel}): <b>${avgScore.toFixed(1)} pts</b>`
+    : `Soma (${scopeLabel}): <b>${Math.round(avgScore).toLocaleString('pt-BR')}</b>`;
+
+  el.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;">
+      <svg viewBox="0 0 310 290" style="width:100%;max-width:300px;height:auto;flex:1 1 240px;margin:0 auto;display:block;">
+        ${gridPolygons}
+        ${axisLines}
+        ${dataPolygon}
+        ${dataDots}
+        ${labelsSvg}
+        <text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900">${Math.round(avgRank)}º</text>
+        <text x="${cx}" y="${cy + 19}" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="700">MÉDIA POS.</text>
+      </svg>
+      <div style="flex:1 1 180px;display:flex;flex-direction:column;gap:6px;">
+        ${breakdownRows}
+        <div style="font-size:11px;color:var(--text-muted);text-align:right;padding-top:2px;">${totalSummaryStr}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDashboard2026StartSitBox(team, sleeperTeam) {
+  const el = document.getElementById('dash2026StartSitBox');
+  if (!el) return;
+
+  const ss = sleeperTeam?.startSitStats;
+  if (!ss || !ss.weeks || ss.weeks.length === 0) {
+    el.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:18px;text-align:center;">${tcState.loaded ? 'Sem dados de matchups individuais no Sleeper para calcular o Start-Sit.' : '⏳ Sincronizando escalações reais do Sleeper (S1 a S11)...'}</div>`;
+    return;
+  }
+
+  const accColor = ss.avgDecisionAcc >= 85 ? '#34d399' : (ss.avgDecisionAcc >= 75 ? '#fbbf24' : '#f87171');
+  const effColor = ss.avgPointsEff >= 92 ? '#34d399' : (ss.avgPointsEff >= 84 ? '#fbbf24' : '#f87171');
+
+  const recentWeeksHtml = ss.weeks.map(w => {
+    const swaps = Array.isArray(w.missedSwaps) && w.missedSwaps.length > 0
+      ? w.missedSwaps
+      : (w.missedSwap ? [w.missedSwap] : []);
+
+    const swapTxt = swaps.length > 0
+      ? `<div style="display:flex;flex-direction:column;gap:3px;white-space:normal;line-height:1.35;">` +
+        swaps.map(sw => {
+          const posTag = sw.benchedPos ? `<span style="opacity:0.75;">[${sw.benchedPos}]</span> ` : '';
+          return `<span style="color:#f87171;font-size:11px;">• ${posTag}<b>${sw.benched}</b> (${sw.benchedPts.toFixed(1)}) no lugar de ${sw.started} (${sw.startedPts.toFixed(1)}) <span style="color:#fbbf24;font-weight:700;">(+${sw.diff.toFixed(1)})</span></span>`;
+        }).join('') +
+        `</div>`
+      : `<span style="color:#34d399;font-size:11px;">✓ Escalação ótima aplicada</span>`;
+    return `
+      <tr>
+        <td style="vertical-align:top;"><strong>S${w.week}</strong></td>
+        <td style="text-align:center;font-weight:700;vertical-align:top;color:${w.decisionAcc >= 80 ? '#34d399' : '#fbbf24'};">${w.decisionAcc.toFixed(0)}%</td>
+        <td style="text-align:right;font-weight:700;vertical-align:top;">${w.actualPts.toFixed(1)} <span style="color:var(--text-muted);font-size:11px;">/ ${w.optimalPts.toFixed(1)}</span></td>
+        <td style="vertical-align:top;">${swapTxt}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const avgBenchVal = typeof ss.avgLeftOnBench === 'number'
+    ? ss.avgLeftOnBench
+    : (ss.weeks.length > 0 ? Math.round((ss.totalLeftOnBench / ss.weeks.length) * 10) / 10 : 0);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border-color);border-radius:10px;padding:10px 12px;text-align:center;" title="Percentual de vagas titulares (QB, RB, WR, TE, FLEX, K, DEF) ocupadas pelo jogador ótimo daquela vaga">
+        <div style="font-size:10.5px;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Decisão de Slots</div>
+        <div style="font-size:20px;font-weight:900;color:${accColor};margin-top:2px;">${ss.avgDecisionAcc.toFixed(1)}%</div>
+      </div>
+      <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border-color);border-radius:10px;padding:10px 12px;text-align:center;" title="Pontos escalados dividido pelos pontos ótimos possíveis na semana">
+        <div style="font-size:10.5px;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Eficiência Pts</div>
+        <div style="font-size:20px;font-weight:900;color:${effColor};margin-top:2px;">${ss.avgPointsEff.toFixed(1)}%</div>
+      </div>
+      <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border-color);border-radius:10px;padding:10px 12px;text-align:center;" title="Média de pontos deixados no banco por partida (diferença entre ótimo e escalado dividida pelo número de semanas)">
+        <div style="font-size:10.5px;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Média no Banco</div>
+        <div style="font-size:20px;font-weight:900;color:#f87171;margin-top:2px;">${avgBenchVal.toFixed(1)} <span style="font-size:11px;font-weight:600;color:var(--text-muted);">pts/j</span></div>
+      </div>
+    </div>
+    <div class="table-wrapper" style="max-height: 250px; overflow-y: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Sem</th>
+            <th style="text-align:center;">Acertos</th>
+            <th style="text-align:right;">Real / Ótimo</th>
+            <th>Detalhe</th>
+          </tr>
+        </thead>
+        <tbody>${recentWeeksHtml}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderDashboard2026TeamView(providedCtx = null) {
   const ctx = providedCtx || dash2026GetBaseContext();
   const playerName = dash2026State.selectedPlayer || (ctx.teams[0]?.name || 'Francisco');
@@ -10626,6 +11148,9 @@ function renderDashboard2026TeamView(providedCtx = null) {
       `;
     }).join('');
   }
+
+  renderDashboard2026PositionalChart(team, sleeperTeam);
+  renderDashboard2026StartSitBox(team, sleeperTeam);
 
   // Current Sleeper roster for this team
   const rosterBody = document.getElementById('dash2026TeamRosterBody');
