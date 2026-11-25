@@ -2134,7 +2134,13 @@
   </aside><main class="main-content"><!-- Header -->
   <header>
     <div class="header-titles">
-      <h1>🏈 Brasil Team Fantasy Football</h1>
+      <h1>
+        <span id="headerLeagueAvatarWrap" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;overflow:hidden;background:rgba(59,130,246,0.18);border:1px solid rgba(59,130,246,0.35);flex-shrink:0;">
+          <img id="headerLeagueAvatarImg" alt="Brasil Team" style="width:100%;height:100%;object-fit:cover;display:none;" />
+          <span id="headerLeagueAvatarFallback" style="font-size:22px;line-height:1;">🏈</span>
+        </span>
+        <span>Brasil Team Fantasy Football</span>
+      </h1>
       <p>Histórico Completo &amp; Central de Estatísticas • 11 Temporadas (2016 – 2026) • 1.706 Confrontos</p>
     </div>
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
@@ -2340,7 +2346,7 @@
           🏆 Rankings
         </button>
         <button class="season-subtab-btn" data-subpage="dashboard" onclick="switchSeasonSubpage('dashboard', this)">
-          📊 Dashboard (2026)
+          📈 Dashboard (2026)
         </button>
       </div>
     </div>
@@ -7959,6 +7965,38 @@ function resolveCanonicalPlayerFromSleeper(userObj, rosterObj = null) {
   return displayName || username || (rosterObj ? `Roster ${rosterObj.roster_id}` : 'Manager');
 }
 
+
+function updateHeaderLeagueAvatar(leagueObj) {
+  const imgEl = document.getElementById('headerLeagueAvatarImg');
+  const fbEl = document.getElementById('headerLeagueAvatarFallback');
+  if (!imgEl || !fbEl) return;
+  const av = leagueObj?.avatar;
+  if (av) {
+    const url = String(av).startsWith('http') ? av : `https://sleepercdn.com/avatars/thumbs/${av}`;
+    imgEl.onload = () => {
+      imgEl.style.display = 'block';
+      fbEl.style.display = 'none';
+    };
+    imgEl.onerror = () => {
+      imgEl.style.display = 'none';
+      fbEl.style.display = 'inline';
+    };
+    imgEl.src = url;
+  } else {
+    imgEl.style.display = 'none';
+    fbEl.style.display = 'inline';
+  }
+}
+
+// Fetch league metadata immediately on page load so header avatar is always up to date
+(function preloadSleeperLeagueAvatar() {
+  const lid = '1398124193773527040';
+  fetch(`https://api.sleeper.app/v1/league/${lid}`)
+    .then(r => r.ok ? r.json() : null)
+    .then(lg => { if (lg) updateHeaderLeagueAvatar(lg); })
+    .catch(() => {});
+})();
+
 const tcState = {
   leagueId: '1398124193773527040',
   loaded: false,
@@ -7971,6 +8009,7 @@ const tcState = {
   rosRankingPlayers: [],   // Full ROS rankings including K and DEF
   rosScoreById: {},        // sleeperId -> ROS score for rankings/power rankings
   weeklyProjById: {},      // sleeperId -> { pts, opp, inj, isBye }
+  multiWeekProjByWeek: {}, // week -> { sleeperId -> { pts, opp, inj, isBye } }
   weeklyAllPlayers: [],    // Full weekly rankings including K and DEF
   rosterPositions: [],
   customMultipliers: { QB: 1, RB: 1, WR: 1, TE: 1, K: 1, DEF: 1, notes: [] },
@@ -8061,6 +8100,7 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     tcState.nflState = { season: activeSeason, week: activeWeek };
     tcState.leagueInfo = league;
     tcState.rosterPositions = league.roster_positions || [];
+    updateHeaderLeagueAvatar(league);
 
     const wkBtn = document.getElementById('tcHorizonWeekBtn');
     const wkCallout = document.getElementById('tcCalloutWeekLabel');
@@ -8073,6 +8113,12 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     const fcNumTeams = rules.numTeams >= 16 ? 16 : ([8, 10, 12, 14].includes(rules.numTeams) ? rules.numTeams : 14);
     const fcUrl = `https://api.fantasycalc.com/values/current?isDynasty=${rules.isDynasty}&numQbs=${rules.numQbs}&numTeams=${fcNumTeams}&ppr=${rules.ppr}`;
     const fcUrlFallback12 = `https://api.fantasycalc.com/values/current?isDynasty=${rules.isDynasty}&numQbs=${rules.numQbs}&numTeams=12&ppr=${rules.ppr}`;
+    const playoffStart = league.settings?.playoff_week_start || 15;
+    const lastRegWeek = Math.max(activeWeek, playoffStart - 1);
+    const futureWeeks = [];
+    for (let w = activeWeek; w <= lastRegWeek; w++) {
+      futureWeeks.push(w);
+    }
     const projUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}/${activeWeek}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`;
     const rosProjUrl = `https://api.sleeper.app/projections/nfl/${activeSeason}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`;
 
@@ -8095,14 +8141,31 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
       return [];
     };
 
-    const [fcRawData, playersDict, projRes, rosKdRes] = await Promise.all([
+    const [fcRawData, playersDict, projRes, rosKdRes, multiWeekResults] = await Promise.all([
       fetchJsonWithFallback([fcUrl, fcUrlFallback12]),
       tcGetNflPlayersDictionary(forceRefresh),
       fetch(projUrl).catch(() => null),
-      fetch(rosProjUrl).catch(() => null)
+      fetch(rosProjUrl).catch(() => null),
+      Promise.all(
+        futureWeeks.map(w =>
+          fetch(`https://api.sleeper.app/projections/nfl/${activeSeason}/${w}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF`)
+            .then(r => (r && r.ok ? r.json() : []))
+            .then(data => ({ week: w, data: Array.isArray(data) ? data : [] }))
+            .catch(() => ({ week: w, data: [] }))
+        )
+      )
     ]);
     const projData = (projRes && projRes.ok) ? await projRes.json() : [];
     const rosKdData = (rosKdRes && rosKdRes.ok) ? await rosKdRes.json() : [];
+    const projDataByWeek = {};
+    (multiWeekResults || []).forEach(entry => {
+      if (entry && entry.week && Array.isArray(entry.data) && entry.data.length > 0) {
+        projDataByWeek[entry.week] = entry.data;
+      }
+    });
+    if (Array.isArray(projData) && projData.length > 0) {
+      projDataByWeek[activeWeek] = projData;
+    }
 
     // Fallback: se o FantasyCalc ainda retornar vazio (bloqueio de rede), gera valores ROS calibrados a partir das projeções oficiais do Sleeper
     let fcData = fcRawData;
@@ -8155,6 +8218,7 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
       fcData,
       isFantasyCalcSource,
       projData,
+      projDataByWeek,
       rosKdData,
       activeWeek,
       rules
@@ -8172,6 +8236,9 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     tcApplyModifiersAndRefresh();
 
     tcState.loaded = true;
+    if (typeof dash2026GetBaseContext === 'function' && typeof dash2026RunMonteCarlo === 'function' && Array.isArray(dash2026State?.upcomingGames) && dash2026State.upcomingGames.length > 0) {
+      dash2026RunMonteCarlo(dash2026GetBaseContext(), dash2026State.upcomingGames);
+    }
     if (typeof renderDashboard2026 === 'function') {
       renderDashboard2026();
     }
@@ -8421,9 +8488,47 @@ function tcCalculateLeagueCustomPoints(stats, scoring) {
   return Math.round(total * 10) / 10;
 }
 
+function tcBuildProjMapFromArray(projData, scoring) {
+  const map = {};
+  if (!Array.isArray(projData)) return map;
+  projData.forEach(item => {
+    const pid = String(item.player_id || '');
+    const dict = tcState.playersMap[pid];
+    const pInfo = item.player || {};
+    const pos = dict?.p || pInfo.position || (/^[A-Z]{2,3}$/.test(pid) ? 'DEF' : null);
+    if (!pid || !['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(pos)) return;
+
+    const resolvedTeam = dict?.t || item.team || (pos === 'DEF' ? pid : null);
+    const hasNflTeam = tcHasOfficialNflTeam(resolvedTeam, pos);
+    const inj = dict?.inj || pInfo.injury_status || null;
+    const isOut = ['Out', 'IR', 'PUP', 'Sus'].includes(inj);
+    const pts = (!hasNflTeam || isOut) ? 0 : tcCalculateLeagueCustomPoints(item.stats, scoring);
+
+    const opp = !hasNflTeam ? 'SEM TIME NFL' : (item.opponent ? `vs ${item.opponent}` : 'BYE');
+    map[pid] = {
+      sleeperId: pid,
+      pts,
+      opp,
+      inj,
+      isBye: !hasNflTeam || !item.opponent
+    };
+  });
+  return map;
+}
+
 function tcProcessWeeklyProjections(projData, scoring) {
   tcState.weeklyProjById = {};
   tcState.weeklyAllPlayers = [];
+  tcState.multiWeekProjByWeek = {};
+
+  const rawByWeek = tcState.rawSyncCache?.projDataByWeek || {};
+  Object.entries(rawByWeek).forEach(([wkStr, arr]) => {
+    const wkNum = Number(wkStr);
+    const wMap = tcBuildProjMapFromArray(arr, scoring);
+    if (Object.keys(wMap).length > 0) {
+      tcState.multiWeekProjByWeek[wkNum] = wMap;
+    }
+  });
 
   if (Array.isArray(projData)) {
     projData.forEach(item => {
@@ -8705,10 +8810,34 @@ function tcBuildLeagueTeams(rosters, users) {
 
     // 2. Optimal Starters by Current Week Projected Points (includes K and DEF slots)
     const weekLineup = tcComputeOptimalStarters(assets, tcState.rosterPositions, 'weekPts');
+    assets.forEach(a => { a.isWeekOptimalStarter = weekLineup.starterIds.has(a.id); });
     const totalWeekPts = Math.round(assets.reduce((sum, a) => sum + a.weekPts, 0) * 10) / 10;
     const startersWeekPts = Math.round(weekLineup.totalScore * 10) / 10;
     const benchWeekPts = Math.max(0, Math.round((totalWeekPts - startersWeekPts) * 10) / 10);
     const topPlayerWeek = [...assets].sort((a, b) => b.weekPts - a.weekPts)[0] || null;
+
+    // 3. Optimal Starters for all future weeks with Sleeper projections available
+    const optimalWeekPtsByWeek = {};
+    const activeWk = Number(tcState.rawSyncCache?.activeWeek || tcState.nflState?.week || 0);
+    if (activeWk && startersWeekPts > 0) {
+      optimalWeekPtsByWeek[activeWk] = startersWeekPts;
+    }
+    Object.entries(tcState.multiWeekProjByWeek || {}).forEach(([wkStr, wProjMap]) => {
+      const wkNum = Number(wkStr);
+      const wkAssets = assets.map(a => {
+        const hasTeam = a.team && a.team !== 'FA';
+        const wp = wProjMap[a.id];
+        return {
+          ...a,
+          tempWkPts: (!hasTeam || !wp) ? 0 : (wp.pts || 0)
+        };
+      });
+      const optW = tcComputeOptimalStarters(wkAssets, tcState.rosterPositions, 'tempWkPts');
+      const scoreW = Math.round(optW.totalScore * 10) / 10;
+      if (scoreW > 0) {
+        optimalWeekPtsByWeek[wkNum] = scoreW;
+      }
+    });
 
     const wins = r.settings?.wins ?? 0;
     const losses = r.settings?.losses ?? 0;
@@ -8732,7 +8861,8 @@ function tcBuildLeagueTeams(rosters, users) {
       startersWeekPts,
       benchWeekPts,
       totalWeekPts,
-      topPlayerWeek
+      topPlayerWeek,
+      optimalWeekPtsByWeek
     };
   });
 
@@ -9926,39 +10056,79 @@ async function dash2026FetchUpcomingAndSimulate(force = false) {
   }
 }
 
+function dash2026GetSleeperWeeklyProjectionsMap() {
+  const projByWeekAndPlayer = {};
+  if (!tcState.loaded || !Array.isArray(tcState.teams) || tcState.teams.length === 0) {
+    return projByWeekAndPlayer;
+  }
+
+  tcState.teams.forEach(st => {
+    const pName = st.canonicalPlayer;
+    if (!pName) return;
+    const byWk = st.optimalWeekPtsByWeek || {};
+    Object.entries(byWk).forEach(([wkStr, pts]) => {
+      const wkNum = Number(wkStr);
+      if (typeof pts === 'number' && pts > 0) {
+        if (!projByWeekAndPlayer[wkNum]) projByWeekAndPlayer[wkNum] = {};
+        projByWeekAndPlayer[wkNum][pName] = pts;
+      }
+    });
+  });
+
+  return projByWeekAndPlayer;
+}
+
 function dash2026RunMonteCarlo(ctx, upcomingGames) {
   const N_SIMS = 5000;
   const { divisions, playerToDiv, teams } = ctx;
   const leagueAvgPf = teams.length > 0 ? teams.reduce((a, t) => a + t.avgPf, 0) / teams.length : 100;
+  const sleeperWeeklyMap = dash2026GetSleeperWeeklyProjectionsMap();
 
-  // Estimate expected points & realistic weekly volatility for each team
+  // Estimate expected points & realistic weekly volatility for each team (statistical fallback)
   const teamModel = {};
   teams.forEach(t => {
-    // Regress 35% toward league mean so future games aren't overly deterministic
     const expPts = t.games > 0 ? (0.65 * t.avgPf + 0.35 * leagueAvgPf) : leagueAvgPf;
     const sigma = Math.max(16, t.stdDev || 22);
     teamModel[t.name] = { expPts, sigma };
   });
 
-  // Precompute pairwise win probabilities
-  const winProbCache = {};
-  const getWinProb = (aName, bName) => {
-    const key = `${aName}___${bName}`;
-    if (winProbCache[key] !== undefined) return winProbCache[key];
-    const mA = teamModel[aName] || { expPts: leagueAvgPf, sigma: 22 };
-    const mB = teamModel[bName] || { expPts: leagueAvgPf, sigma: 22 };
-    const diff = mA.expPts - mB.expPts;
+  const getGameProjection = (week, p1Name, p2Name) => {
+    const weekProjs = sleeperWeeklyMap[week];
+    const hasSleeperP1 = weekProjs && typeof weekProjs[p1Name] === 'number' && weekProjs[p1Name] > 0;
+    const hasSleeperP2 = weekProjs && typeof weekProjs[p2Name] === 'number' && weekProjs[p2Name] > 0;
+
+    const mA = teamModel[p1Name] || { expPts: leagueAvgPf, sigma: 22 };
+    const mB = teamModel[p2Name] || { expPts: leagueAvgPf, sigma: 22 };
+
+    const proj1 = hasSleeperP1 ? weekProjs[p1Name] : mA.expPts;
+    const proj2 = hasSleeperP2 ? weekProjs[p2Name] : mB.expPts;
+    const isSleeper = Boolean(hasSleeperP1 && hasSleeperP2);
+
+    const diff = proj1 - proj2;
     const combinedSigma = Math.sqrt(mA.sigma * mA.sigma + mB.sigma * mB.sigma) || 31;
-    const prob = 1 / (1 + Math.exp(-1.702 * (diff / combinedSigma)));
-    winProbCache[key] = Math.max(0.08, Math.min(0.92, prob));
-    return winProbCache[key];
+    const rawProb = 1 / (1 + Math.exp(-1.702 * (diff / combinedSigma)));
+    const winProb1 = Math.max(0.05, Math.min(0.95, rawProb));
+
+    return {
+      proj1,
+      proj2,
+      sigma1: mA.sigma,
+      sigma2: mB.sigma,
+      winProb1,
+      winProb2: 1 - winProb1,
+      source: isSleeper ? 'sleeper' : 'model'
+    };
   };
 
   upcomingGames.forEach(g => {
-    g.proj1 = teamModel[g.p1]?.expPts ?? leagueAvgPf;
-    g.proj2 = teamModel[g.p2]?.expPts ?? leagueAvgPf;
-    g.winProb1 = getWinProb(g.p1, g.p2);
-    g.winProb2 = 1 - g.winProb1;
+    const gp = getGameProjection(g.week, g.p1, g.p2);
+    g.proj1 = gp.proj1;
+    g.proj2 = gp.proj2;
+    g.sigma1 = gp.sigma1;
+    g.sigma2 = gp.sigma2;
+    g.winProb1 = gp.winProb1;
+    g.winProb2 = gp.winProb2;
+    g.projSource = gp.source;
   });
 
   // Box-Muller normal random helper for realistic PF/PA tiebreakers
@@ -9996,10 +10166,8 @@ function dash2026RunMonteCarlo(ctx, upcomingGames) {
       const b = simState[g.p2];
       if (!a || !b) continue;
 
-      const mA = teamModel[g.p1];
-      const mB = teamModel[g.p2];
-      let ptsA = Math.max(30, mA.expPts + randNormal() * mA.sigma);
-      let ptsB = Math.max(30, mB.expPts + randNormal() * mB.sigma);
+      let ptsA = Math.max(30, g.proj1 + randNormal() * g.sigma1);
+      let ptsB = Math.max(30, g.proj2 + randNormal() * g.sigma2);
       if (Math.abs(ptsA - ptsB) < 0.05) ptsA += 0.1;
 
       a.pf += ptsA; a.pa += ptsB;
@@ -10417,6 +10585,7 @@ function renderDashboard2026TeamView(providedCtx = null) {
           isDiv: g.isDiv,
           myProj: isP1 ? g.proj1 : g.proj2,
           oppProj: isP1 ? g.proj2 : g.proj1,
+          projSource: g.projSource || 'model',
           winProb: (isP1 ? g.winProb1 : g.winProb2) * 100
         };
       });
@@ -10429,7 +10598,7 @@ function renderDashboard2026TeamView(providedCtx = null) {
           <td><strong>Sem ${u.week}</strong></td>
           <td><strong style="color:#fff;cursor:pointer;" onclick="openDashboard2026ForPlayer('${u.opp}')">${u.opp}</strong></td>
           <td style="text-align:center;">${u.isDiv ? '<span class="badge-tag" style="background:rgba(59,130,246,0.2);color:#60a5fa;">Divisão</span>' : '<span class="badge-tag">Interdiv.</span>'}</td>
-          <td style="text-align:right;font-weight:700;">${u.myProj.toFixed(1)}</td>
+          <td style="text-align:right;font-weight:700;" title="${u.projSource === 'sleeper' ? 'Projeção oficial Sleeper (titulares ótimos da semana)' : 'Projeção estatística histórica (2026)'}">${u.myProj.toFixed(1)}${u.projSource === 'sleeper' ? ' <span style="font-size:10px;color:#38bdf8;">⚡</span>' : ''}</td>
           <td style="text-align:right;color:var(--text-muted);">${u.oppProj.toFixed(1)}</td>
           <td style="text-align:right;font-weight:800;color:${u.winProb >= 55 ? '#34d399' : u.winProb <= 45 ? '#f87171' : '#fbbf24'};">${u.winProb.toFixed(1)}%</td>
         </tr>
@@ -10467,12 +10636,12 @@ function renderDashboard2026TeamView(providedCtx = null) {
         : `⏳ Carregando elenco atual e valores ROS do Sleeper/FantasyCalc...`;
       rosterBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:18px;">${msg}</td></tr>`;
     } else {
-      const sortedAssets = [...sleeperTeam.assets].sort((a, b) => (b.isOptimalStarter ? 1 : 0) - (a.isOptimalStarter ? 1 : 0) || b.value - a.value || b.weekPts - a.weekPts);
+      const sortedAssets = [...sleeperTeam.assets].sort((a, b) => (b.isWeekOptimalStarter ? 1 : 0) - (a.isWeekOptimalStarter ? 1 : 0) || b.weekPts - a.weekPts || b.value - a.value);
       rosterBody.innerHTML = sortedAssets.map(a => `
         <tr>
           <td><span class="tc-pos-badge tc-pos-${a.position}">${a.position}</span></td>
-          <td><strong style="color:#fff;">${a.name}</strong> <span style="font-size:11px;color:var(--text-muted);">(${a.team})</span></td>
-          <td style="text-align:center;">${a.isOptimalStarter ? '<span class="tc-starter-tag">TITULAR</span>' : '<span style="font-size:11px;color:var(--text-muted);">Banco</span>'}</td>
+          <td><strong style="color:#fff;">${a.name}</strong> <span style="font-size:11px;color:var(--text-muted);">(${a.team})</span>${a.isBye ? '<span class="tc-bye-pill">BYE</span>' : ''}</td>
+          <td style="text-align:center;">${a.isWeekOptimalStarter ? '<span class="tc-starter-tag" title="Melhor escalação ótima projetada para a semana">TITULAR SEM.</span>' : '<span style="font-size:11px;color:var(--text-muted);">Banco</span>'}</td>
           <td style="text-align:right;font-weight:700;">${a.value > 0 ? a.value.toLocaleString('pt-BR') : '—'}</td>
           <td style="text-align:right;font-weight:700;color:${a.weekPts > 0 ? '#34d399' : 'var(--text-muted)'};">${a.weekPts.toFixed(1)}</td>
         </tr>
