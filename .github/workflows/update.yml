@@ -2,10 +2,14 @@ name: Atualizar Fantasy Dashboard
 
 on:
   schedule:
-    # Executa todos os dias às 10:27 UTC (11:27 CET / 07:27 BRT)
-    # Minuto quebrado para evitar fila e descarte no GitHub Actions
-    - cron: '27 10 * * *'
-  workflow_dispatch: # Permite rodar manualmente clicando em um botão a qualquer momento
+    # Executa toda terca-feira as 10:00 UTC (07:00 horario de Brasilia)
+    - cron: '0 10 * * 2'
+  workflow_dispatch:
+    inputs:
+      league_id:
+        description: 'Opcional: informe o novo League ID do Sleeper (ex.: na virada de temporada)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -13,8 +17,10 @@ permissions:
 jobs:
   sync-sleeper:
     runs-on: ubuntu-latest
+    env:
+      SLEEPER_LEAGUE_ID: ${{ github.event.inputs.league_id || vars.SLEEPER_LEAGUE_ID || '' }}
     steps:
-      - name: Baixar repositório
+      - name: Baixar repositorio
         uses: actions/checkout@v4
 
       - name: Instalar Python
@@ -25,9 +31,9 @@ jobs:
       - name: Executar script do Sleeper
         run: python update_sleeper.py
 
-      - name: Salvar alterações no GitHub Pages
+      - name: Salvar alteracoes no GitHub Pages
         run: |
           git config --global user.name "Sleeper Bot"
           git config --global user.email "bot@github.com"
           git add index.html
-          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: sincronizacao automatica com Sleeper" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: sincronizacao automatica do snapshot da temporada" && git push)
