@@ -2146,7 +2146,7 @@
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <span class="badge-tag">36 Jogadores Históricos</span>
       <span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">Dados 100% Consolidados</span>
-      <span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">🕒 Atualizado: 26/11/2026 (Semana 11)</span>
+      <span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">🕒 Atualizado: 25/11/2026 (Semana 11)</span>
     </div>
   </header>
 
@@ -10861,6 +10861,10 @@ function renderDashboard2026LeagueView(ctx) {
       divChartEl.innerHTML = divSummaries.map((d, idx) => {
         const pct = Math.min(100, Math.round((d.avgPf / maxDivAvg) * 100));
         const rankBadge = idx === 0 ? '👑' : `#${idx + 1}`;
+        const dTeams = (divisions[d.divName] || []).map(m => teams.find(t => t.name === m)).filter(Boolean);
+        const divApPct = dTeams.length > 0
+          ? (dTeams.reduce((acc, t) => acc + t.apWinRate, 0) / dTeams.length).toFixed(1)
+          : '0.0';
         return `
           <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(38,51,77,0.45);">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;font-size:13px;">
@@ -10874,9 +10878,9 @@ function renderDashboard2026LeagueView(ctx) {
               <div class="win-rate-bar-fill" style="width:${pct}%;"></div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;">
-              <span class="badge-tag" style="background:rgba(251,191,36,0.14);color:#fbbf24;border-color:rgba(251,191,36,0.3);padding:2px 8px;">🏆 ${d.poCount} Playoffs</span>
-              <span class="badge-tag" style="background:rgba(139,92,246,0.14);color:#c4b5fd;border-color:rgba(139,92,246,0.3);padding:2px 8px;">🎖️ ${d.coCount} Consolation</span>
-              <span class="badge-tag" style="background:rgba(239,68,68,0.14);color:#f87171;border-color:rgba(239,68,68,0.3);padding:2px 8px;">❌ ${d.elCount} Fora</span>
+              <span class="badge-tag" style="background:rgba(16,185,129,0.14);color:#34d399;border-color:rgba(16,185,129,0.3);padding:2px 8px;">🌐 Inter-Div: ${d.interW}V-${d.interL}D (${d.interPct}%)</span>
+              <span class="badge-tag" style="background:rgba(59,130,246,0.14);color:#93c5fd;border-color:rgba(59,130,246,0.3);padding:2px 8px;">🎯 All-Play: ${divApPct}%</span>
+              <span class="badge-tag" style="background:rgba(245,158,11,0.14);color:#fbbf24;border-color:rgba(245,158,11,0.3);padding:2px 8px;">🔥 Líder: ${d.topPfTeam ? d.topPfTeam.name : '--'} (${d.topPfTeam ? d.topPfTeam.avgPf.toFixed(1) : '0.0'})</span>
             </div>
           </div>
         `;
@@ -10888,20 +10892,18 @@ function renderDashboard2026LeagueView(ctx) {
             <thead>
               <tr>
                 <th>Divisão</th>
-                <th style="text-align:center;">Intra-Div. (W-L)</th>
-                <th style="text-align:right;">Média Intra</th>
-                <th style="text-align:center;">Inter-Div. %</th>
+                <th style="text-align:center;">W-L Inter-Div.</th>
                 <th style="text-align:right;">Média Inter</th>
+                <th style="text-align:right;">Média Intra</th>
               </tr>
             </thead>
             <tbody>
               ${divSummaries.map(d => `
                 <tr>
                   <td><strong style="color:#fff;">Div. ${d.divName}</strong></td>
-                  <td style="text-align:center;font-weight:700;">${d.intraW}-${d.intraL} <span style="color:var(--text-muted);font-size:11px;">(${d.intraPct}%)</span></td>
-                  <td style="text-align:right;color:#cbd5e1;">${d.intraAvg}</td>
-                  <td style="text-align:center;font-weight:800;color:#34d399;">${d.interPct}%</td>
+                  <td style="text-align:center;font-weight:800;color:#34d399;">${d.interW}-${d.interL} <span style="color:var(--text-muted);font-size:11px;font-weight:600;">(${d.interPct}%)</span></td>
                   <td style="text-align:right;font-weight:700;color:#60a5fa;">${d.interAvg}</td>
+                  <td style="text-align:right;color:#cbd5e1;">${d.intraAvg}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -10941,11 +10943,11 @@ function renderDashboard2026LeagueView(ctx) {
       return b.maxPts - a.maxPts;
     });
 
-    const allMin = Math.min(...teams.map(t => t.minPts || 30));
-    const allMax = Math.max(...teams.map(t => t.maxPts || 160));
-    const domainMin = Math.max(0, Math.floor(allMin / 10) * 10 - 5);
-    const domainMax = Math.ceil(allMax / 10) * 10 + 5;
-    const span = Math.max(20, domainMax - domainMin);
+    const validMins = teams.filter(t => t.games > 0).map(t => t.minPts);
+    const validMaxs = teams.filter(t => t.games > 0).map(t => t.maxPts);
+    const domainMin = validMins.length > 0 ? Math.min(...validMins) : 0;
+    const domainMax = validMaxs.length > 0 ? Math.max(...validMaxs) : 200;
+    const span = Math.max(10, domainMax - domainMin);
 
     rangeChartEl.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text-muted);margin-bottom:12px;">
@@ -10954,7 +10956,7 @@ function renderDashboard2026LeagueView(ctx) {
           <span><b style="color:#fbbf24;">●</b> Média</span>
           <span><b style="color:#34d399;">●</b> Máximo (Teto)</span>
         </div>
-        <span>Escala: <b>${domainMin}</b> a <b>${domainMax} pts</b></span>
+        <span>Escala (Mín/Máx da Liga): <b>${domainMin.toFixed(1)}</b> a <b>${domainMax.toFixed(1)} pts</b></span>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         ${rTeams.map(t => {
@@ -11164,9 +11166,21 @@ function renderDashboard2026PositionalChart(team, sleeperTeam) {
     ? (isStarters ? sleeperTeam.posRanksWkStarters : sleeperTeam.posRanksWkRoster)
     : (isStarters ? sleeperTeam.posRanksRosStarters : sleeperTeam.posRanksRosRoster);
 
-  const nTeams = rankMap?.QB?.totalTeams || 20;
-  const avgRank = axes.reduce((acc, ax) => acc + (rankMap?.[ax]?.rank || nTeams), 0) / axes.length;
-  const avgScore = axes.reduce((acc, ax) => acc + (rankMap?.[ax]?.score || 0), 0);
+  const allSleeperTeams = Array.isArray(tcState.teams) && tcState.teams.length > 0 ? tcState.teams : [sleeperTeam];
+  const nTeams = allSleeperTeams.length || rankMap?.QB?.totalTeams || 20;
+  const getOverallMetric = (st) => {
+    if (isWk) {
+      return isStarters ? (st.startersWeekPts || 0) : (st.totalWeekPts || 0);
+    }
+    return isStarters ? (st.startersValue || 0) : (st.totalValue || 0);
+  };
+  const sortedOverall = [...allSleeperTeams].sort((a, b) => getOverallMetric(b) - getOverallMetric(a));
+  const overallIdx = sortedOverall.findIndex(st =>
+    (st.rosterId && st.rosterId === sleeperTeam.rosterId) ||
+    (st.canonicalPlayer && st.canonicalPlayer === sleeperTeam.canonicalPlayer)
+  );
+  const overallRank = overallIdx !== -1 ? overallIdx + 1 : Math.round(axes.reduce((acc, ax) => acc + (rankMap?.[ax]?.rank || nTeams), 0) / axes.length);
+  const avgScore = getOverallMetric(sleeperTeam);
 
   const cx = 155, cy = 145, maxR = 98;
   const levels = [0.25, 0.5, 0.75, 1.0];
@@ -11226,10 +11240,10 @@ function renderDashboard2026PositionalChart(team, sleeperTeam) {
     `;
   }).join('');
 
-  const scopeLabel = isStarters ? 'TITULARES' : 'ELENCO';
+  const scopeLabel = isStarters ? 'TIME TITULAR' : 'ELENCO CONSOLIDADO';
   const totalSummaryStr = isWk
-    ? `Soma (${scopeLabel}): <b>${avgScore.toFixed(1)} pts</b>`
-    : `Soma (${scopeLabel}): <b>${Math.round(avgScore).toLocaleString('pt-BR')}</b>`;
+    ? `Power Ranking ${scopeLabel}: <b>${avgScore.toFixed(1)} pts</b> (${overallRank}º/${nTeams})`
+    : `Power Ranking ${scopeLabel}: <b>${Math.round(avgScore).toLocaleString('pt-BR')}</b> (${overallRank}º/${nTeams})`;
 
   el.innerHTML = `
     <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;">
@@ -11239,8 +11253,8 @@ function renderDashboard2026PositionalChart(team, sleeperTeam) {
         ${dataPolygon}
         ${dataDots}
         ${labelsSvg}
-        <text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900">${Math.round(avgRank)}º</text>
-        <text x="${cx}" y="${cy + 19}" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="700">MÉDIA POS.</text>
+        <text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="900">${overallRank}º</text>
+        <text x="${cx}" y="${cy + 19}" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="700">POWER RANK</text>
       </svg>
       <div style="flex:1 1 180px;display:flex;flex-direction:column;gap:6px;">
         ${breakdownRows}
