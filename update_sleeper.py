@@ -344,8 +344,7 @@ def main():
         html = f.read()
 
     raw_marker = "const RAW_DATA = ["
-    schema_marker = ";
-// Schema: [0: year"
+    schema_marker = ";\n// Schema: [0: year"
     idx_raw_start = html.find(raw_marker)
     idx_schema = html.find(schema_marker)
     assert idx_raw_start != -1 and idx_schema != -1, "Marcadores RAW_DATA nao encontrados"
@@ -359,23 +358,19 @@ def main():
     if "const DIVISIONS_DATA =" in html:
         html = re.sub(r"const DIVISIONS_DATA = \{.*?\};", f"const DIVISIONS_DATA = {div_json};", html, flags=re.DOTALL)
     else:
-        html = html.replace(raw_marker, f"const DIVISIONS_DATA = {div_json};
-{raw_marker}", 1)
+        html = html.replace(raw_marker, f"const DIVISIONS_DATA = {div_json};\n{raw_marker}", 1)
 
     snap_json = json.dumps(snapshot_season, ensure_ascii=False, separators=(",", ":"))
     if "const SLEEPER_SEASON_SNAPSHOT =" in html:
         html = re.sub(
-            r"const SLEEPER_SEASON_SNAPSHOT = .*?;
-",
-            f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};
-",
+            r"const SLEEPER_SEASON_SNAPSHOT = .*?;\n",
+            f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};\n",
             html,
             count=1,
             flags=re.DOTALL,
         )
     else:
-        html = html.replace(raw_marker, f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};
-{raw_marker}", 1)
+        html = html.replace(raw_marker, f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};\n{raw_marker}", 1)
 
     hoje = datetime.date.today().strftime("%d/%m/%Y")
     total_jogos = f"{len(raw_historico):,}".replace(",", ".")
