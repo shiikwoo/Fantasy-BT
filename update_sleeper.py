@@ -344,12 +344,13 @@ def main():
         html = f.read()
 
     raw_marker = "const RAW_DATA = ["
-    schema_marker = ";\n// Schema: [0: year"
     idx_raw_start = html.find(raw_marker)
-    idx_schema = html.find(schema_marker)
-    assert idx_raw_start != -1 and idx_schema != -1, "Marcadores RAW_DATA nao encontrados"
+    assert idx_raw_start != -1, "Marcador 'const RAW_DATA = [' nao encontrado no index.html"
 
-    raw_list = json.loads(html[idx_raw_start + len(raw_marker):idx_schema])
+    json_start = idx_raw_start + len("const RAW_DATA = ")
+    decoder = json.JSONDecoder()
+    raw_list, _ = decoder.raw_decode(html[json_start:])
+
     raw_historico = [r for r in raw_list if r[0] != ano_corrente]
     raw_historico.extend(novos_jogos_ano)
     raw_historico.sort(key=lambda x: (x[0], x[1]))
@@ -378,9 +379,12 @@ def main():
     html = re.sub(r"Atualizado: [0-9/]+ \(Semana \d+\)", f"Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
     idx_raw_start = html.find(raw_marker)
-    idx_schema = html.find(schema_marker)
+    json_start = idx_raw_start + len("const RAW_DATA = ")
+    _, end_offset = decoder.raw_decode(html[json_start:])
+    json_end = json_start + end_offset
+
     novo_raw_json = json.dumps(raw_historico, ensure_ascii=False)
-    html = html[:idx_raw_start + len(raw_marker)] + novo_raw_json + html[idx_schema:]
+    html = html[:json_start] + novo_raw_json + html[json_end:]
 
     with open(HTML_FILE, "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
