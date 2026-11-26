@@ -198,7 +198,6 @@ def main():
     users = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/users")
     rosters = fetch_json(f"https://api.sleeper.app/v1/league/{LEAGUE_ID}/rosters")
 
-    # Detecta automaticamente o ano da temporada no Sleeper (ex.: 2026, 2027...)
     season_str = league_data.get("season")
     ano_corrente = int(season_str) if season_str else datetime.date.today().year
     print(f"Temporada detectada automaticamente: {ano_corrente}")
@@ -330,7 +329,7 @@ def main():
     snapshot_season = {
         "season": ano_corrente,
         "leagueId": LEAGUE_ID,
-        "updatedAt": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "updatedAt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "maxClosedWeek": max_week_jogada,
         "rosterPositions": league_data.get("roster_positions") or [],
         "scoringSettings": league_data.get("scoring_settings") or {},
@@ -344,10 +343,14 @@ def main():
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
 
-    idx_raw_start = html.find("const RAW_DATA = [")
-    raw_list = json.loads(html[idx_raw_start + len("const RAW_DATA = "):html.find(";
-// Schema: [0: year")])
+    raw_marker = "const RAW_DATA = ["
+    schema_marker = ";
+// Schema: [0: year"
+    idx_raw_start = html.find(raw_marker)
+    idx_schema = html.find(schema_marker)
+    assert idx_raw_start != -1 and idx_schema != -1, "Marcadores RAW_DATA nao encontrados"
 
+    raw_list = json.loads(html[idx_raw_start + len(raw_marker):idx_schema])
     raw_historico = [r for r in raw_list if r[0] != ano_corrente]
     raw_historico.extend(novos_jogos_ano)
     raw_historico.sort(key=lambda x: (x[0], x[1]))
@@ -356,8 +359,8 @@ def main():
     if "const DIVISIONS_DATA =" in html:
         html = re.sub(r"const DIVISIONS_DATA = \{.*?\};", f"const DIVISIONS_DATA = {div_json};", html, flags=re.DOTALL)
     else:
-        html = html.replace("const RAW_DATA = [", f"const DIVISIONS_DATA = {div_json};
-const RAW_DATA = [")
+        html = html.replace(raw_marker, f"const DIVISIONS_DATA = {div_json};
+{raw_marker}", 1)
 
     snap_json = json.dumps(snapshot_season, ensure_ascii=False, separators=(",", ":"))
     if "const SLEEPER_SEASON_SNAPSHOT =" in html:
@@ -371,21 +374,20 @@ const RAW_DATA = [")
             flags=re.DOTALL,
         )
     else:
-        html = html.replace("const RAW_DATA = [", f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};
-const RAW_DATA = [", 1)
+        html = html.replace(raw_marker, f"const SLEEPER_SEASON_SNAPSHOT = {snap_json};
+{raw_marker}", 1)
 
     hoje = datetime.date.today().strftime("%d/%m/%Y")
     total_jogos = f"{len(raw_historico):,}".replace(",", ".")
     html = re.sub(r"[0-9\.]+ Confrontos", f"{total_jogos} Confrontos", html)
     html = re.sub(r"Atualizado: [0-9/]+ \(Semana \d+\)", f"Atualizado: {hoje} (Semana {max_week_jogada})", html)
 
-    idx_raw_start = html.find("const RAW_DATA = [")
+    idx_raw_start = html.find(raw_marker)
+    idx_schema = html.find(schema_marker)
     novo_raw_json = json.dumps(raw_historico, ensure_ascii=False)
-    html = html[:idx_raw_start + len("const RAW_DATA = ")] + novo_raw_json + html[html.find(";
-// Schema: [0: year"):]
+    html = html[:idx_raw_start + len(raw_marker)] + novo_raw_json + html[idx_schema:]
 
-    with open(HTML_FILE, "w", encoding="utf-8", newline="
-") as f:
+    with open(HTML_FILE, "w", encoding="utf-8", newline="\n") as f:
         f.write(html)
 
     print(f"index.html atualizado com sucesso para a temporada {ano_corrente} (ate Semana {max_week_jogada}).")
