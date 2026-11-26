@@ -18,10 +18,13 @@ jobs:
   sync-sleeper:
     runs-on: ubuntu-latest
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
       SLEEPER_LEAGUE_ID: ${{ github.event.inputs.league_id || vars.SLEEPER_LEAGUE_ID || '' }}
     steps:
       - name: Baixar repositorio
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Instalar Python
         uses: actions/setup-python@v5
