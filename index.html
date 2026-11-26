@@ -2831,67 +2831,81 @@
       <div id="dash2026-league-view">
         <div class="kpi-grid" id="dash2026LeagueKpis"></div>
 
+        <!-- 1. TABELA PRINCIPAL NO TOPO COM SUB-ABAS -->
+        <div class="table-card" style="margin-bottom: 24px;">
+          <div class="table-header-bar">
+            <div>
+              <div class="table-title">📋 Panorama Geral da Liga (2026)</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Clique em qualquer time para abrir o dossiê completo na Análise por Time</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <div class="season-subtabs-group" id="dash2026LeagueTableSubtabs">
+                <button class="season-subtab-btn active" id="dashTblTabOddsBtn" onclick="setDash2026LeagueTableTab('odds', this)">🎯 Playoff Odds %</button>
+                <button class="season-subtab-btn" id="dashTblTabMeritBtn" onclick="setDash2026LeagueTableTab('merit', this)">🍀 Mérito &amp; Sorte</button>
+                <button class="season-subtab-btn" id="dashTblTabProfileBtn" onclick="setDash2026LeagueTableTab('profile', this)">📉 Perfil Semanal</button>
+              </div>
+              <input type="text" id="dash2026LeagueSearch" placeholder="🔍 Filtrar time ou manager..." oninput="renderDashboard2026LeagueTable()" style="width: 210px; padding: 6px 12px; font-size: 13px;">
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table id="dash2026LeagueTable">
+              <thead id="dash2026LeagueTableHead"></thead>
+              <tbody id="dash2026LeagueTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. MÉDIA POR TIME (BARRAS HORIZONTAIS LIMpas) & FORÇA DAS DIVISÕES (COM SUB-ABAS) -->
         <div class="dash2026-two-col-grid" style="margin-bottom: 24px;">
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div>
                 <div class="table-title">📊 Pontuação Média por Time (2026)</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Barras comparativas de média PF vs. média da liga</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Ranking horizontal de média PF vs. linha da liga</div>
               </div>
             </div>
-            <div id="dash2026AvgChart" style="padding: 16px; overflow-x: auto;"></div>
+            <div id="dash2026AvgChart" style="padding: 14px 16px;"></div>
           </div>
 
           <div class="table-card" style="margin-bottom: 0;">
             <div class="table-header-bar">
               <div>
                 <div class="table-title">🌐 Força das Divisões em 2026</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Média PF, vitórias e saldo por divisão</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Análise comparativa entre SMT, NE, MG e SP</div>
+              </div>
+              <div class="season-subtabs-group" id="dash2026DivSubtabs">
+                <button class="season-subtab-btn active" id="dashDivTabOverviewBtn" onclick="setDash2026DivTab('overview', this)" style="padding:6px 11px;font-size:12px;">Visão Geral</button>
+                <button class="season-subtab-btn" id="dashDivTabSplitsBtn" onclick="setDash2026DivTab('splits', this)" style="padding:6px 11px;font-size:12px;">Intra vs. Inter</button>
+                <button class="season-subtab-btn" id="dashDivTabLeadersBtn" onclick="setDash2026DivTab('leaders', this)" style="padding:6px 11px;font-size:12px;">Destaques</button>
               </div>
             </div>
             <div id="dash2026DivChart" style="padding: 16px;"></div>
           </div>
         </div>
 
+        <!-- 3. FAIXA DE PONTUAÇÃO (MÍNIMO • MÉDIA • MÁXIMO) COM FILTROS E ORDENAÇÃO -->
         <div class="table-card" style="margin-bottom: 24px;">
           <div class="table-header-bar">
             <div>
               <div class="table-title">📉 Faixa de Pontuação (Mínimo • Média • Máximo) em 2026</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Teto explosivo vs. piso semanal de cada franquia</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Amplitude entre piso e teto semanal de cada franquia</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <div class="pill-group" id="dash2026RangeSortPills">
+                <button class="pill-btn active" id="dashRangeSortMaxBtn" onclick="setDash2026RangeSort('max', this)">Maior Teto</button>
+                <button class="pill-btn" id="dashRangeSortAvgBtn" onclick="setDash2026RangeSort('avg', this)">Maior Média</button>
+                <button class="pill-btn" id="dashRangeSortMinBtn" onclick="setDash2026RangeSort('min', this)">Maior Piso</button>
+              </div>
+              <select id="dash2026RangeDivFilter" onchange="renderDashboard2026()" style="padding:6px 10px;font-size:12px;font-weight:700;">
+                <option value="ALL">Todas as Divisões</option>
+                <option value="SMT">Div. SMT</option>
+                <option value="NE">Div. NE</option>
+                <option value="MG">Div. MG</option>
+                <option value="SP">Div. SP</option>
+              </select>
             </div>
           </div>
-          <div id="dash2026RangeChart" style="padding: 16px; overflow-x: auto;"></div>
-        </div>
-
-        <div class="table-card">
-          <div class="table-header-bar">
-            <div>
-              <div class="table-title">📋 Eficiência, Sorte &amp; Playoff Odds (2026)</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Clique em qualquer time para abrir o dossiê completo na Análise por Time</div>
-            </div>
-            <input type="text" id="dash2026LeagueSearch" placeholder="🔍 Filtrar time ou manager..." oninput="renderDashboard2026LeagueTable()" style="width: 220px; padding: 6px 12px; font-size: 13px;">
-          </div>
-          <div class="table-wrapper">
-            <table id="dash2026LeagueTable">
-              <thead>
-                <tr>
-                  <th onclick="sortDash2026League('rank')">#</th>
-                  <th onclick="sortDash2026League('name')">Time / Manager</th>
-                  <th onclick="sortDash2026League('division')" style="text-align:center;">Div.</th>
-                  <th onclick="sortDash2026League('record')" style="text-align:center;">W-L</th>
-                  <th onclick="sortDash2026League('pf')" style="text-align:right;">PF</th>
-                  <th onclick="sortDash2026League('pa')" style="text-align:right;">PA</th>
-                  <th onclick="sortDash2026League('diff')" style="text-align:right;">Saldo</th>
-                  <th onclick="sortDash2026League('avgPf')" style="text-align:right;">Média</th>
-                  <th onclick="sortDash2026League('stdDev')" style="text-align:right;">Consist. (σ)</th>
-                  <th onclick="sortDash2026League('apWinRate')" style="text-align:right;">All-Play %</th>
-                  <th onclick="sortDash2026League('luck')" style="text-align:right;">Sorte 🍀</th>
-                  <th onclick="sortDash2026League('playoffOdds')" style="text-align:right;">Playoff Odds %</th>
-                </tr>
-              </thead>
-              <tbody id="dash2026LeagueTableBody"></tbody>
-            </table>
-          </div>
+          <div id="dash2026RangeChart" style="padding: 16px;"></div>
         </div>
       </div>
 
@@ -10564,9 +10578,138 @@ function renderDashboard2026() {
   }
 }
 
+dash2026State.tableTab = dash2026State.tableTab || 'odds';
+dash2026State.divTab = dash2026State.divTab || 'overview';
+dash2026State.rangeSort = dash2026State.rangeSort || 'max';
+
+function setDash2026LeagueTableTab(tabName, btn) {
+  dash2026State.tableTab = tabName;
+  document.getElementById('dashTblTabOddsBtn')?.classList.toggle('active', tabName === 'odds');
+  document.getElementById('dashTblTabMeritBtn')?.classList.toggle('active', tabName === 'merit');
+  document.getElementById('dashTblTabProfileBtn')?.classList.toggle('active', tabName === 'profile');
+  if (tabName === 'odds') {
+    dash2026State.sortCol = 'playoffOdds';
+    dash2026State.sortDir = 'desc';
+  } else if (tabName === 'merit') {
+    dash2026State.sortCol = 'apWinRate';
+    dash2026State.sortDir = 'desc';
+  } else {
+    dash2026State.sortCol = 'avgPf';
+    dash2026State.sortDir = 'desc';
+  }
+  renderDashboard2026LeagueTable();
+}
+
+function setDash2026DivTab(tabName, btn) {
+  dash2026State.divTab = tabName;
+  document.getElementById('dashDivTabOverviewBtn')?.classList.toggle('active', tabName === 'overview');
+  document.getElementById('dashDivTabSplitsBtn')?.classList.toggle('active', tabName === 'splits');
+  document.getElementById('dashDivTabLeadersBtn')?.classList.toggle('active', tabName === 'leaders');
+  renderDashboard2026();
+}
+
+function setDash2026RangeSort(sortKey, btn) {
+  dash2026State.rangeSort = sortKey;
+  document.getElementById('dashRangeSortMaxBtn')?.classList.toggle('active', sortKey === 'max');
+  document.getElementById('dashRangeSortAvgBtn')?.classList.toggle('active', sortKey === 'avg');
+  document.getElementById('dashRangeSortMinBtn')?.classList.toggle('active', sortKey === 'min');
+  renderDashboard2026();
+}
+
+// Compute current standing & postseason status (Playoffs / Consolation / Eliminado) per division
+function dash2026ComputePostseasonStatus(ctx) {
+  const { divisions, teams } = ctx;
+  const byName = {};
+  teams.forEach(t => { byName[t.name] = t; });
+
+  const h2hWins = {};
+  teams.forEach(t => {
+    h2hWins[t.name] = {};
+    (t.history || []).forEach(h => {
+      if (h.won) h2hWins[t.name][h.opp] = (h2hWins[t.name][h.opp] || 0) + 1;
+    });
+  });
+
+  const statusMap = {};
+  Object.entries(divisions).forEach(([divName, members]) => {
+    const divList = members.map(m => byName[m]).filter(Boolean);
+    divList.sort((x, y) => {
+      if (y.wins !== x.wins) return y.wins - x.wins;
+      const tiedCount = divList.filter(t => t.wins === x.wins).length;
+      if (tiedCount === 2) {
+        const xOverY = h2hWins[x.name]?.[y.name] || 0;
+        const yOverX = h2hWins[y.name]?.[x.name] || 0;
+        if (yOverX !== xOverY) return yOverX - xOverY;
+      }
+      if (y.divWins !== x.divWins) return y.divWins - x.divWins;
+      if (Math.abs(y.pf - x.pf) > 0.01) return y.pf - x.pf;
+      return x.pa - y.pa;
+    });
+
+    divList.forEach((tm, idx) => {
+      const divPos = idx + 1;
+      let zone = 'Eliminado';
+      let badgeLabel = '❌ Eliminado';
+      let badgeStyle = 'background:rgba(239,68,68,0.16);color:#f87171;border-color:rgba(239,68,68,0.35);';
+      if (divPos <= 2) {
+        zone = 'Playoffs';
+        badgeLabel = `🏆 Playoffs (${divPos}º ${divName})`;
+        badgeStyle = 'background:rgba(251,191,36,0.18);color:#fbbf24;border-color:rgba(251,191,36,0.45);';
+      } else if (divPos <= 4) {
+        zone = 'Consolation';
+        badgeLabel = `🎖️ Consolation (${divPos}º ${divName})`;
+        badgeStyle = 'background:rgba(139,92,246,0.18);color:#c4b5fd;border-color:rgba(139,92,246,0.4);';
+      } else {
+        badgeLabel = `❌ Eliminado (5º ${divName})`;
+      }
+      statusMap[tm.name] = { divPos, zone, badgeLabel, badgeStyle };
+    });
+  });
+
+  return statusMap;
+}
+
+// Compute projected final record (current W + expected remaining wins from upcomingGames)
+function dash2026ComputeProjectedRecords(ctx) {
+  const projMap = {};
+  ctx.teams.forEach(t => {
+    projMap[t.name] = { wins: t.wins, losses: t.losses, totalGames: t.games };
+  });
+
+  (dash2026State.upcomingGames || []).forEach(g => {
+    const p1 = g.p1;
+    const p2 = g.p2;
+    const wp1 = typeof g.winProb1 === 'number' ? g.winProb1 : 0.5;
+    const wp2 = typeof g.winProb2 === 'number' ? g.winProb2 : (1 - wp1);
+    if (projMap[p1]) {
+      projMap[p1].wins += wp1;
+      projMap[p1].losses += wp2;
+      projMap[p1].totalGames += 1;
+    }
+    if (projMap[p2]) {
+      projMap[p2].wins += wp2;
+      projMap[p2].losses += wp1;
+      projMap[p2].totalGames += 1;
+    }
+  });
+
+  const formatted = {};
+  Object.entries(projMap).forEach(([name, st]) => {
+    const wRound = Math.round(st.wins);
+    const lRound = Math.max(0, Math.round(st.losses));
+    formatted[name] = {
+      text: `${wRound}-${lRound}`,
+      exactWins: st.wins
+    };
+  });
+  return formatted;
+}
+
 function renderDashboard2026LeagueView(ctx) {
   const { teams, divisions, seasonGames } = ctx;
   const kpiEl = document.getElementById('dash2026LeagueKpis');
+  const postStatusMap = dash2026ComputePostseasonStatus(ctx);
+  const projRecMap = dash2026ComputeProjectedRecords(ctx);
 
   const totalMatches = seasonGames.length;
   const avgLeagueMatchPts = totalMatches > 0
@@ -10596,7 +10739,50 @@ function renderDashboard2026LeagueView(ctx) {
     const wins = dTeams.reduce((a, t) => a + t.wins, 0);
     const losses = dTeams.reduce((a, t) => a + t.losses, 0);
     const diff = dTeams.reduce((a, t) => a + t.diff, 0);
-    return { divName, avgPf, wins, losses, diff, count: dTeams.length };
+
+    // Intra-division vs Inter-division stats
+    let intraW = 0, intraL = 0, intraPf = 0, intraGames = 0;
+    let interW = 0, interL = 0, interPf = 0, interGames = 0;
+    dTeams.forEach(dt => {
+      (dt.history || []).forEach(h => {
+        const oppDiv = ctx.playerToDiv[h.opp];
+        if (oppDiv === divName) {
+          intraGames++;
+          intraPf += h.pts;
+          if (h.won) intraW++; else if (h.lost) intraL++;
+        } else {
+          interGames++;
+          interPf += h.pts;
+          if (h.won) interW++; else if (h.lost) interL++;
+        }
+      });
+    });
+
+    const intraPct = intraGames > 0 ? ((intraW / intraGames) * 100).toFixed(0) : '—';
+    const interPct = interGames > 0 ? ((interW / interGames) * 100).toFixed(1) : '—';
+    const intraAvg = intraGames > 0 ? (intraPf / intraGames).toFixed(1) : '—';
+    const interAvg = interGames > 0 ? (interPf / interGames).toFixed(1) : '—';
+
+    // Current postseason zone counts inside division
+    const poCount = dTeams.filter(dt => postStatusMap[dt.name]?.zone === 'Playoffs').length;
+    const coCount = dTeams.filter(dt => postStatusMap[dt.name]?.zone === 'Consolation').length;
+    const elCount = dTeams.filter(dt => postStatusMap[dt.name]?.zone === 'Eliminado').length;
+
+    // Leaders & spread inside division
+    const sortedByPf = [...dTeams].sort((a, b) => b.pf - a.pf);
+    const sortedByRec = [...dTeams].sort((a, b) => (b.wins - a.wins) || (b.pf - a.pf));
+    const topPfTeam = sortedByPf[0];
+    const topRecTeam = sortedByRec[0];
+    const lastRecTeam = sortedByRec[sortedByRec.length - 1];
+    const winSpread = topRecTeam && lastRecTeam ? (topRecTeam.wins - lastRecTeam.wins) : 0;
+
+    return {
+      divName, avgPf, wins, losses, diff, count: dTeams.length,
+      intraW, intraL, intraPct, intraAvg,
+      interW, interL, interPct, interAvg,
+      poCount, coCount, elCount,
+      topPfTeam, topRecTeam, lastRecTeam, winSpread
+    };
   }).sort((a, b) => b.avgPf - a.avgPf);
 
   const strongestDiv = divSummaries[0];
@@ -10626,108 +10812,229 @@ function renderDashboard2026LeagueView(ctx) {
     `;
   }
 
-  // SVG Chart 1: Average PF by team
+  // Render Main Table at top first
+  renderDashboard2026LeagueTable(ctx, postStatusMap, projRecMap);
+
+  // 2. Clean Horizontal Bar List for Average PF per Team
   const avgChartEl = document.getElementById('dash2026AvgChart');
   if (avgChartEl) {
     const byAvg = [...teams].sort((a, b) => b.avgPf - a.avgPf);
-    const maxVal = Math.max(...byAvg.map(t => t.avgPf), 120);
-    const rowH = 22;
-    const svgH = byAvg.length * rowH + 10;
-    const svgW = 540;
-    const avgX = (avgLeagueMatchPts / maxVal) * 320;
-
-    const bars = byAvg.map((t, idx) => {
-      const y = idx * rowH + 4;
-      const barW = Math.max(4, (t.avgPf / maxVal) * 320);
-      const aboveAvg = t.avgPf >= avgLeagueMatchPts;
-      const color = aboveAvg ? '#10b981' : '#3b82f6';
-      return `
-        <text x="4" y="${y + 13}" fill="#e2e8f0" font-size="11" font-weight="600">${t.name}</text>
-        <rect x="115" y="${y + 2}" width="${barW}" height="14" rx="4" fill="${color}" opacity="0.9" style="cursor:pointer;" onclick="openDashboard2026ForPlayer('${t.name}')"></rect>
-        <text x="${122 + barW}" y="${y + 13}" fill="#94a3b8" font-size="11" font-weight="700">${t.avgPf.toFixed(1)}</text>
-      `;
-    }).join('');
+    const maxVal = Math.max(...byAvg.map(t => t.avgPf), avgLeagueMatchPts + 10, 100);
+    const leaguePct = Math.min(96, Math.max(4, (avgLeagueMatchPts / maxVal) * 100));
 
     avgChartEl.innerHTML = `
-      <svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%;max-width:600px;height:auto;display:block;">
-        ${bars}
-        <line x1="${115 + avgX}" y1="0" x2="${115 + avgX}" y2="${svgH}" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,3"></line>
-        <text x="${118 + avgX}" y="10" fill="#fbbf24" font-size="10" font-weight="700">Média ${avgLeagueMatchPts.toFixed(1)}</text>
-      </svg>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-muted);margin-bottom:10px;padding:0 2px;">
+        <span>Ordenado por Média PF</span>
+        <span style="color:#fbbf24;font-weight:700;">┆ Linha da Liga: ${avgLeagueMatchPts.toFixed(1)} pts/j</span>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:7px;">
+        <div style="position:absolute;top:0;bottom:0;left:calc(126px + (100% - 182px) * ${leaguePct / 100});border-left:1.5px dashed #fbbf24;pointer-events:none;z-index:2;"></div>
+        ${byAvg.map((t, idx) => {
+          const pct = Math.min(100, Math.max(3, (t.avgPf / maxVal) * 100));
+          const above = t.avgPf >= avgLeagueMatchPts;
+          const barBg = above ? 'linear-gradient(90deg,#059669,#34d399)' : 'linear-gradient(90deg,#2563eb,#60a5fa)';
+          return `
+            <div onclick="openDashboard2026ForPlayer('${t.name}')" style="display:grid;grid-template-columns:120px 1fr 52px;gap:8px;align-items:center;cursor:pointer;padding:2px 4px;border-radius:6px;" title="Abrir análise de ${t.name} (${t.team})">
+              <div style="font-size:12px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <span style="color:var(--text-muted);font-size:11px;margin-right:4px;">${idx + 1}.</span>${t.name}
+                <span style="font-size:10px;color:var(--text-muted);font-weight:600;">(${t.division})</span>
+              </div>
+              <div style="background:rgba(15,23,42,0.75);border-radius:5px;height:14px;overflow:hidden;border:1px solid rgba(38,51,77,0.6);">
+                <div style="width:${pct.toFixed(1)}%;height:100%;background:${barBg};border-radius:4px;"></div>
+              </div>
+              <div style="text-align:right;font-size:12px;font-weight:800;color:${above ? '#34d399' : '#93c5fd'};font-variant-numeric:tabular-nums;">
+                ${t.avgPf.toFixed(1)}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
     `;
   }
 
-  // Division comparison bars
+  // 3. Division Strength with Sub-tabs (overview / splits / leaders)
   const divChartEl = document.getElementById('dash2026DivChart');
   if (divChartEl) {
-    const maxDivAvg = Math.max(...divSummaries.map(d => d.avgPf), 100);
-    divChartEl.innerHTML = divSummaries.map((d, idx) => {
-      const pct = Math.min(100, Math.round((d.avgPf / maxDivAvg) * 100));
-      const rankBadge = idx === 0 ? '👑' : `#${idx + 1}`;
-      return `
-        <div style="margin-bottom: 14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:13px;">
-            <div>
-              <strong style="color:#fff;">${rankBadge} Divisão ${d.divName}</strong>
-              <span style="color:var(--text-muted);font-size:12px;margin-left:8px;">(${d.wins}V - ${d.losses}D • Saldo ${d.diff >= 0 ? '+' : ''}${d.diff.toFixed(1)})</span>
+    const dTab = dash2026State.divTab || 'overview';
+    if (dTab === 'overview') {
+      const maxDivAvg = Math.max(...divSummaries.map(d => d.avgPf), 100);
+      divChartEl.innerHTML = divSummaries.map((d, idx) => {
+        const pct = Math.min(100, Math.round((d.avgPf / maxDivAvg) * 100));
+        const rankBadge = idx === 0 ? '👑' : `#${idx + 1}`;
+        return `
+          <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(38,51,77,0.45);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;font-size:13px;">
+              <div>
+                <strong style="color:#fff;">${rankBadge} Divisão ${d.divName}</strong>
+                <span style="color:var(--text-muted);font-size:12px;margin-left:6px;">${d.wins}V-${d.losses}D • Saldo ${d.diff >= 0 ? '+' : ''}${d.diff.toFixed(1)}</span>
+              </div>
+              <strong style="color:#60a5fa;">${d.avgPf.toFixed(1)} pts/j</strong>
             </div>
-            <strong style="color:#60a5fa;">${d.avgPf.toFixed(1)} pts/j</strong>
+            <div class="win-rate-bar-bg" style="width:100%;height:8px;margin-bottom:6px;">
+              <div class="win-rate-bar-fill" style="width:${pct}%;"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;">
+              <span class="badge-tag" style="background:rgba(251,191,36,0.14);color:#fbbf24;border-color:rgba(251,191,36,0.3);padding:2px 8px;">🏆 ${d.poCount} Playoffs</span>
+              <span class="badge-tag" style="background:rgba(139,92,246,0.14);color:#c4b5fd;border-color:rgba(139,92,246,0.3);padding:2px 8px;">🎖️ ${d.coCount} Consolation</span>
+              <span class="badge-tag" style="background:rgba(239,68,68,0.14);color:#f87171;border-color:rgba(239,68,68,0.3);padding:2px 8px;">❌ ${d.elCount} Fora</span>
+            </div>
           </div>
-          <div class="win-rate-bar-bg" style="width:100%;height:10px;">
-            <div class="win-rate-bar-fill" style="width:${pct}%;"></div>
-          </div>
+        `;
+      }).join('');
+    } else if (dTab === 'splits') {
+      divChartEl.innerHTML = `
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Divisão</th>
+                <th style="text-align:center;">Intra-Div. (W-L)</th>
+                <th style="text-align:right;">Média Intra</th>
+                <th style="text-align:center;">Inter-Div. %</th>
+                <th style="text-align:right;">Média Inter</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${divSummaries.map(d => `
+                <tr>
+                  <td><strong style="color:#fff;">Div. ${d.divName}</strong></td>
+                  <td style="text-align:center;font-weight:700;">${d.intraW}-${d.intraL} <span style="color:var(--text-muted);font-size:11px;">(${d.intraPct}%)</span></td>
+                  <td style="text-align:right;color:#cbd5e1;">${d.intraAvg}</td>
+                  <td style="text-align:center;font-weight:800;color:#34d399;">${d.interPct}%</td>
+                  <td style="text-align:right;font-weight:700;color:#60a5fa;">${d.interAvg}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       `;
-    }).join('');
+    } else {
+      divChartEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${divSummaries.map(d => `
+            <div style="background:rgba(15,23,42,0.55);border:1px solid var(--border-color);border-radius:9px;padding:10px 12px;font-size:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <strong style="color:#fff;font-size:13px;">Divisão ${d.divName}</strong>
+                <span class="badge-tag" style="padding:2px 8px;font-size:11px;">Amplitude: ${d.winSpread}J</span>
+              </div>
+              <div style="color:var(--text-muted);">
+                🚀 Líder em PF: <b style="color:#34d399;">${d.topPfTeam ? d.topPfTeam.name : '--'}</b> (${d.topPfTeam ? d.topPfTeam.pf.toFixed(1) : '0.0'} pts) •
+                👑 Topo da Divisão: <b style="color:#fbbf24;">${d.topRecTeam ? d.topRecTeam.name : '--'}</b> (${d.topRecTeam ? d.topRecTeam.wins + '-' + d.topRecTeam.losses : '0-0'})
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
   }
 
-  // SVG Chart 2: Min - Avg - Max range per team
+  // 4. Clean Range Plot (Min • Avg • Max) with Sort & Division Filter
   const rangeChartEl = document.getElementById('dash2026RangeChart');
   if (rangeChartEl) {
-    const byMax = [...teams].sort((a, b) => b.maxPts - a.maxPts);
-    const minDomain = Math.max(0, Math.floor(Math.min(...teams.map(t => t.minPts || 30)) / 10) * 10 - 10);
-    const maxDomain = Math.ceil(Math.max(...teams.map(t => t.maxPts || 160)) / 10) * 10 + 10;
-    const span = Math.max(20, maxDomain - minDomain);
-    const mapX = (val) => 125 + ((val - minDomain) / span) * 420;
+    const divFilter = document.getElementById('dash2026RangeDivFilter')?.value || 'ALL';
+    const rSort = dash2026State.rangeSort || 'max';
+    let rTeams = divFilter === 'ALL' ? [...teams] : teams.filter(t => t.division === divFilter);
 
-    const rowH = 22;
-    const svgH = byMax.length * rowH + 24;
-    const svgW = 580;
+    rTeams.sort((a, b) => {
+      if (rSort === 'avg') return b.avgPf - a.avgPf;
+      if (rSort === 'min') return b.minPts - a.minPts;
+      return b.maxPts - a.maxPts;
+    });
 
-    const itemsSvg = byMax.map((t, i) => {
-      const y = i * rowH + 14;
-      const xMin = mapX(t.minPts);
-      const xMax = mapX(t.maxPts);
-      const xAvg = mapX(t.avgPf);
-      return `
-        <text x="4" y="${y + 4}" fill="#e2e8f0" font-size="11" font-weight="600">${t.name}</text>
-        <line x1="${xMin}" y1="${y}" x2="${xMax}" y2="${y}" stroke="#475569" stroke-width="3" stroke-linecap="round"></line>
-        <circle cx="${xMin}" cy="${y}" r="4" fill="#ef4444"><title>Mín: ${t.minPts.toFixed(1)}</title></circle>
-        <circle cx="${xMax}" cy="${y}" r="4" fill="#10b981"><title>Máx: ${t.maxPts.toFixed(1)}</title></circle>
-        <circle cx="${xAvg}" cy="${y}" r="4.5" fill="#fbbf24"><title>Média: ${t.avgPf.toFixed(1)}</title></circle>
-        <text x="${xMax + 8}" y="${y + 4}" fill="#94a3b8" font-size="10.5">${t.minPts.toFixed(0)} – ${t.maxPts.toFixed(0)} (Méd ${t.avgPf.toFixed(1)})</text>
-      `;
-    }).join('');
+    const allMin = Math.min(...teams.map(t => t.minPts || 30));
+    const allMax = Math.max(...teams.map(t => t.maxPts || 160));
+    const domainMin = Math.max(0, Math.floor(allMin / 10) * 10 - 5);
+    const domainMax = Math.ceil(allMax / 10) * 10 + 5;
+    const span = Math.max(20, domainMax - domainMin);
 
     rangeChartEl.innerHTML = `
-      <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:8px;display:flex;gap:14px;flex-wrap:wrap;">
-        <span><b style="color:#ef4444;">●</b> Mínimo</span>
-        <span><b style="color:#fbbf24;">●</b> Média</span>
-        <span><b style="color:#10b981;">●</b> Máximo</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <span><b style="color:#f87171;">●</b> Mínimo (Piso)</span>
+          <span><b style="color:#fbbf24;">●</b> Média</span>
+          <span><b style="color:#34d399;">●</b> Máximo (Teto)</span>
+        </div>
+        <span>Escala: <b>${domainMin}</b> a <b>${domainMax} pts</b></span>
       </div>
-      <svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%;max-width:700px;height:auto;display:block;">
-        ${itemsSvg}
-      </svg>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${rTeams.map(t => {
+          const leftPct = Math.max(0, Math.min(98, ((t.minPts - domainMin) / span) * 100));
+          const rightPct = Math.max(leftPct + 2, Math.min(100, ((t.maxPts - domainMin) / span) * 100));
+          const avgPct = Math.max(leftPct, Math.min(rightPct, ((t.avgPf - domainMin) / span) * 100));
+          const widthPct = Math.max(2, rightPct - leftPct);
+
+          return `
+            <div onclick="openDashboard2026ForPlayer('${t.name}')" style="display:grid;grid-template-columns:124px 1fr 118px;gap:10px;align-items:center;cursor:pointer;padding:3px 6px;border-radius:7px;background:rgba(15,23,42,0.45);">
+              <div style="font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${t.name} <span style="font-size:10.5px;color:var(--text-muted);font-weight:600;">${t.division}</span>
+              </div>
+              <div style="position:relative;height:18px;background:rgba(30,41,59,0.55);border-radius:999px;border:1px solid rgba(148,163,184,0.14);">
+                <div style="position:absolute;top:7px;height:4px;left:${leftPct.toFixed(1)}%;width:${widthPct.toFixed(1)}%;background:linear-gradient(90deg,#f87171,#60a5fa,#34d399);border-radius:999px;"></div>
+                <div title="Mínimo: ${t.minPts.toFixed(1)}" style="position:absolute;top:4px;left:calc(${leftPct.toFixed(1)}% - 5px);width:10px;height:10px;border-radius:50%;background:#f87171;border:1.5px solid #0b0f19;"></div>
+                <div title="Média: ${t.avgPf.toFixed(1)}" style="position:absolute;top:3px;left:calc(${avgPct.toFixed(1)}% - 6px);width:12px;height:12px;border-radius:50%;background:#fbbf24;border:1.5px solid #0b0f19;z-index:2;"></div>
+                <div title="Máximo: ${t.maxPts.toFixed(1)}" style="position:absolute;top:4px;left:calc(${rightPct.toFixed(1)}% - 5px);width:10px;height:10px;border-radius:50%;background:#34d399;border:1.5px solid #0b0f19;"></div>
+              </div>
+              <div style="text-align:right;font-size:11.5px;font-weight:700;color:#cbd5e1;font-variant-numeric:tabular-nums;">
+                <span style="color:#f87171;">${t.minPts.toFixed(0)}</span> • <span style="color:#fbbf24;">${t.avgPf.toFixed(1)}</span> • <span style="color:#34d399;">${t.maxPts.toFixed(0)}</span>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
     `;
   }
-
-  renderDashboard2026LeagueTable(ctx);
 }
 
-function renderDashboard2026LeagueTable(providedCtx = null) {
+function renderDashboard2026LeagueTable(providedCtx = null, providedPostMap = null, providedProjMap = null) {
   const ctx = providedCtx || dash2026GetBaseContext();
+  const thead = document.getElementById('dash2026LeagueTableHead');
   const tbody = document.getElementById('dash2026LeagueTableBody');
-  if (!tbody) return;
+  if (!tbody || !thead) return;
+
+  const postStatusMap = providedPostMap || dash2026ComputePostseasonStatus(ctx);
+  const projRecMap = providedProjMap || dash2026ComputeProjectedRecords(ctx);
+  const tTab = dash2026State.tableTab || 'odds';
+
+  if (tTab === 'odds') {
+    thead.innerHTML = `
+      <tr>
+        <th onclick="sortDash2026League('rank')">#</th>
+        <th onclick="sortDash2026League('name')">Time / Manager</th>
+        <th onclick="sortDash2026League('division')" style="text-align:center;">Div.</th>
+        <th onclick="sortDash2026League('record')" style="text-align:center;">Record Atual</th>
+        <th onclick="sortDash2026League('projWins')" style="text-align:center;">Proj. Record</th>
+        <th onclick="sortDash2026League('playoffOdds')" style="text-align:right;">Playoff Odds %</th>
+        <th onclick="sortDash2026League('postZone')" style="text-align:center;">Cenário Pós-Temp.</th>
+      </tr>
+    `;
+  } else if (tTab === 'merit') {
+    thead.innerHTML = `
+      <tr>
+        <th onclick="sortDash2026League('rank')">#</th>
+        <th onclick="sortDash2026League('name')">Time / Manager</th>
+        <th onclick="sortDash2026League('division')" style="text-align:center;">Div.</th>
+        <th onclick="sortDash2026League('record')" style="text-align:center;">Record</th>
+        <th onclick="sortDash2026League('apWinRate')" style="text-align:right;">All-Play %</th>
+        <th onclick="sortDash2026League('expWins')" style="text-align:right;">xW</th>
+        <th onclick="sortDash2026League('luck')" style="text-align:right;">Sorte 🍀</th>
+        <th onclick="sortDash2026League('pf')" style="text-align:right;">PF</th>
+        <th onclick="sortDash2026League('pa')" style="text-align:right;">PA</th>
+        <th onclick="sortDash2026League('diff')" style="text-align:right;">Saldo</th>
+      </tr>
+    `;
+  } else {
+    thead.innerHTML = `
+      <tr>
+        <th onclick="sortDash2026League('rank')">#</th>
+        <th onclick="sortDash2026League('name')">Time / Manager</th>
+        <th onclick="sortDash2026League('division')" style="text-align:center;">Div.</th>
+        <th onclick="sortDash2026League('avgPf')" style="text-align:right;">Média PF</th>
+        <th onclick="sortDash2026League('stdDev')" style="text-align:right;">Consist. (σ)</th>
+        <th onclick="sortDash2026League('minPts')" style="text-align:right;">Mínimo</th>
+        <th onclick="sortDash2026League('maxPts')" style="text-align:right;">Máximo</th>
+      </tr>
+    `;
+  }
 
   const query = (document.getElementById('dash2026LeagueSearch')?.value || '').toLowerCase().trim();
   let list = [...ctx.teams];
@@ -10737,18 +11044,24 @@ function renderDashboard2026LeagueTable(providedCtx = null) {
 
   const col = dash2026State.sortCol || 'playoffOdds';
   const dir = dash2026State.sortDir === 'asc' ? 1 : -1;
+  const zoneWeight = { Playoffs: 3, Consolation: 2, Eliminado: 1 };
 
   const getSortVal = (t) => {
     if (col === 'name') return t.name.toLowerCase();
     if (col === 'division') return t.division.toLowerCase();
     if (col === 'record') return t.wins + 0.5 * t.ties;
+    if (col === 'projWins') return projRecMap[t.name]?.exactWins ?? t.wins;
+    if (col === 'postZone') return zoneWeight[postStatusMap[t.name]?.zone] || 0;
     if (col === 'pf') return t.pf;
     if (col === 'pa') return t.pa;
     if (col === 'diff') return t.diff;
     if (col === 'avgPf') return t.avgPf;
     if (col === 'stdDev') return t.stdDev;
     if (col === 'apWinRate') return t.apWinRate;
+    if (col === 'expWins') return t.expWins;
     if (col === 'luck') return t.luck;
+    if (col === 'minPts') return t.minPts;
+    if (col === 'maxPts') return t.maxPts;
     return t.playoffOdds ?? -1;
   };
 
@@ -10760,34 +11073,62 @@ function renderDashboard2026LeagueTable(providedCtx = null) {
   });
 
   tbody.innerHTML = list.map((t, idx) => {
-    const odds = t.playoffOdds;
-    const oddsHtml = odds === null || odds === undefined
-      ? `<span style="color:var(--text-muted);">—</span>`
-      : `<span class="badge-tag" style="background:${odds >= 65 ? 'rgba(16,185,129,0.18);color:#34d399;border-color:rgba(16,185,129,0.4);' : odds >= 30 ? 'rgba(245,158,11,0.18);color:#fbbf24;border-color:rgba(245,158,11,0.35);' : 'rgba(148,163,184,0.14);color:#cbd5e1;border-color:var(--border-color);'}font-weight:800;">${odds.toFixed(1)}%</span>`;
+    const recStr = `${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''}`;
+    const baseCols = `
+      <td><span class="rank-badge">${idx + 1}</span></td>
+      <td>
+        <strong style="color:#fff;">${t.name}</strong>
+        <div style="font-size:11.5px;color:var(--text-muted);">${t.team}</div>
+      </td>
+      <td style="text-align:center;"><span class="badge-tag">${t.division}</span></td>
+    `;
 
-    const luckColor = t.luck > 0.4 ? '#34d399' : (t.luck < -0.4 ? '#f87171' : '#fbbf24');
+    if (tTab === 'odds') {
+      const odds = t.playoffOdds;
+      const oddsHtml = odds === null || odds === undefined
+        ? `<span style="color:var(--text-muted);">—</span>`
+        : `<span class="badge-tag" style="background:${odds >= 65 ? 'rgba(16,185,129,0.18);color:#34d399;border-color:rgba(16,185,129,0.4);' : odds >= 30 ? 'rgba(245,158,11,0.18);color:#fbbf24;border-color:rgba(245,158,11,0.35);' : 'rgba(148,163,184,0.14);color:#cbd5e1;border-color:var(--border-color);'}font-weight:800;">${odds.toFixed(1)}%</span>`;
+      const pInfo = postStatusMap[t.name] || { badgeLabel: '—', badgeStyle: '' };
+      const projTxt = projRecMap[t.name]?.text || recStr;
+
+      return `
+        <tr style="cursor:pointer;" onclick="openDashboard2026ForPlayer('${t.name}')" title="Clique para ver o dossiê de ${t.name}">
+          ${baseCols}
+          <td style="text-align:center;font-weight:800;">${recStr}</td>
+          <td style="text-align:center;font-weight:700;color:#93c5fd;">${projTxt}</td>
+          <td style="text-align:right;">${oddsHtml}</td>
+          <td style="text-align:center;"><span class="badge-tag" style="${pInfo.badgeStyle}font-weight:700;">${pInfo.badgeLabel}</span></td>
+        </tr>
+      `;
+    }
+
+    if (tTab === 'merit') {
+      const luckColor = t.luck > 0.4 ? '#34d399' : (t.luck < -0.4 ? '#f87171' : '#fbbf24');
+      return `
+        <tr style="cursor:pointer;" onclick="openDashboard2026ForPlayer('${t.name}')" title="Clique para ver o dossiê de ${t.name}">
+          ${baseCols}
+          <td style="text-align:center;font-weight:700;">${recStr}</td>
+          <td style="text-align:right;font-weight:700;color:#60a5fa;">${t.apWinRate.toFixed(1)}%</td>
+          <td style="text-align:right;font-weight:700;">${t.expWins.toFixed(1)}</td>
+          <td style="text-align:right;font-weight:800;color:${luckColor};">${t.luck >= 0 ? '+' : ''}${t.luck.toFixed(1)}</td>
+          <td style="text-align:right;font-weight:700;">${t.pf.toFixed(1)}</td>
+          <td style="text-align:right;color:var(--text-muted);">${t.pa.toFixed(1)}</td>
+          <td style="text-align:right;font-weight:700;color:${t.diff >= 0 ? '#34d399' : '#f87171'};">${t.diff >= 0 ? '+' : ''}${t.diff.toFixed(1)}</td>
+        </tr>
+      `;
+    }
+
     return `
       <tr style="cursor:pointer;" onclick="openDashboard2026ForPlayer('${t.name}')" title="Clique para ver o dossiê de ${t.name}">
-        <td><span class="rank-badge">${idx + 1}</span></td>
-        <td>
-          <strong style="color:#fff;">${t.name}</strong>
-          <div style="font-size:11.5px;color:var(--text-muted);">${t.team}</div>
-        </td>
-        <td style="text-align:center;"><span class="badge-tag">${t.division}</span></td>
-        <td style="text-align:center;font-weight:700;">${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''}</td>
-        <td style="text-align:right;font-weight:700;">${t.pf.toFixed(1)}</td>
-        <td style="text-align:right;color:var(--text-muted);">${t.pa.toFixed(1)}</td>
-        <td style="text-align:right;font-weight:700;color:${t.diff >= 0 ? '#34d399' : '#f87171'};">${t.diff >= 0 ? '+' : ''}${t.diff.toFixed(1)}</td>
-        <td style="text-align:right;font-weight:700;color:#60a5fa;">${t.avgPf.toFixed(1)}</td>
+        ${baseCols}
+        <td style="text-align:right;font-weight:800;color:#60a5fa;">${t.avgPf.toFixed(1)}</td>
         <td style="text-align:right;">${t.stdDev.toFixed(1)}</td>
-        <td style="text-align:right;font-weight:700;">${t.apWinRate.toFixed(1)}%</td>
-        <td style="text-align:right;font-weight:800;color:${luckColor};">${t.luck >= 0 ? '+' : ''}${t.luck.toFixed(1)}</td>
-        <td style="text-align:right;">${oddsHtml}</td>
+        <td style="text-align:right;color:#f87171;font-weight:700;">${t.minPts.toFixed(1)}</td>
+        <td style="text-align:right;color:#34d399;font-weight:700;">${t.maxPts.toFixed(1)}</td>
       </tr>
     `;
   }).join('');
 }
-
 
 let dash2026PosMode = 'ros';
 let dash2026PosScope = 'starters';
