@@ -16,6 +16,8 @@ HTML_FILE = "index.html"
 
 SLEEPER_TO_PLAYER = {
     "sHikwOo": "Francisco",
+    "sHiikwOo": "Francisco",
+    "shiikwoo": "Francisco",
     "JaimeOliveira": "Jaime",
     "Ginmin": "Eduardo",
     "douglasguarda": "Douglas",
@@ -42,6 +44,28 @@ def fetch_json(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=20) as resp:
         return json.loads(resp.read().decode("utf-8"))
+
+
+def get_last_completed_nfl_week(league_data):
+    """Retorna a ultima semana da NFL efetivamente encerrada (nao em andamento)."""
+    try:
+        nfl_state = fetch_json("https://api.sleeper.app/v1/state/nfl")
+    except Exception:
+        nfl_state = {}
+
+    season_type = (nfl_state.get("season_type") or "regular").lower()
+    nfl_week = int(nfl_state.get("week") or nfl_state.get("leg") or 0)
+
+    if season_type == "post":
+        playoff_start = int((league_data.get("settings") or {}).get("playoff_week_start") or 15)
+        return max(17, playoff_start + 2)
+
+    if season_type == "pre" or nfl_week <= 1:
+        return 0
+
+    # Durante a temporada regular, a semana ativa (nfl_week) ainda esta em andamento
+    # (ex.: jogos de quinta a segunda/terca). A ultima semana concluida e nfl_week - 1.
+    return max(0, nfl_week - 1)
 
 
 def compute_playoff_odds_from_games(season_games, divisions_dict, upcoming_games, seed=2026, n_sims=3000):
@@ -202,6 +226,9 @@ def main():
     ano_corrente = int(season_str) if season_str else datetime.date.today().year
     print(f"Temporada detectada automaticamente: {ano_corrente}")
 
+    last_closed_nfl_week = get_last_completed_nfl_week(league_data)
+    print(f"Ultima semana NFL concluida segundo calendario: {last_closed_nfl_week}")
+
     meta = league_data.get("metadata", {})
     division_names = {
         1: meta.get("division_1", "SMT"),
@@ -229,7 +256,7 @@ def main():
 
         info = user_info.get(oid, {"username": f"User_{rid}", "team_name": f"Team {rid}"})
         uname = info["username"]
-        player_name = SLEEPER_TO_PLAYER.get(uname, uname)
+        player_name = SLEEPER_TO_PLAYER.get(uname) or SLEEPER_TO_PLAYER.get(uname.lower(), uname)
 
         roster_map[rid] = {
             "player": player_name,
@@ -263,14 +290,15 @@ def main():
         if not matchups:
             continue
 
-        pontos = [float(m.get("points") or 0.0) for m in matchups]
         duelos = {}
         for m in matchups:
             mid = m.get("matchup_id")
             if mid is not None:
                 duelos.setdefault(mid, []).append(m)
 
-        if sum(pontos) > 0:
+        is_week_closed = (w <= last_closed_nfl_week) if last_closed_nfl_week > 0 else False
+
+        if is_week_closed:
             max_week_jogada = max(max_week_jogada, w)
             compact_week_entries = []
             for m in matchups:
