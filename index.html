@@ -5014,7 +5014,7 @@ function renderFranchiseView() {
   const container = document.getElementById('franchiseContentArea');
   const badgeEl = document.getElementById('franchiseActiveNamesBadge');
   const selEl = document.getElementById('franchisePlayerSelect');
-  
+
   if (selEl && selectedFranchisePlayer) {
     selEl.value = selectedFranchisePlayer;
   }
@@ -5027,37 +5027,48 @@ function renderFranchiseView() {
         <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 14px; padding: 60px 20px; text-align: center;">
           <div style="font-size: 40px; margin-bottom: 12px;">🔬</div>
           <h3 style="font-size: 20px; color: #fff; margin-bottom: 8px;">Nenhuma franquia selecionada</h3>
-          <p style="color: var(--text-muted); font-size: 14px; max-width: 500px; margin: 0 auto;">Selecione um jogador no menu suspenso acima ou clique em qualquer jogador em outra aba para carregar o Raio-X histórico.</p>
+          <p style="color: var(--text-muted); font-size: 14px; max-width: 500px; margin: 0 auto;">Selecione um jogador no menu suspenso acima ou clique em qualquer jogador em outra aba para carregar o Raio-X histórico completo.</p>
         </div>
       `;
     }
     return;
   }
 
+  // Garante que os dados compartilhados da aba Temporada Atual (tcState) sejam carregados uma única vez se ainda não estiverem prontos
+  if (typeof tcState !== 'undefined' && !tcState.loaded && !tcState._loadingFromFranchise && typeof tcLoadLeagueData === 'function') {
+    tcState._loadingFromFranchise = true;
+    Promise.resolve(tcLoadLeagueData(false)).finally(() => {
+      tcState._loadingFromFranchise = false;
+    });
+  }
+
   const player = selectedFranchisePlayer;
   const filteredData = getFilteredData();
 
-  // Estruturas de agregação
+  // Estruturas de agregação histórica (respeitando filtro global)
   const myGames = [];
   const teamNamesSet = new Set();
+  const teamNameYearsMap = {};
   let wins = 0, losses = 0, ties = 0;
   let pf = 0, pa = 0;
-  let maxScore = { pts: 0, year: 0, week: 0, opp: '' };
-  let minScore = { pts: 9999, year: 0, week: 0, opp: '' };
+  let maxScore = { pts: 0, year: 0, week: 0, opp: '', team: '' };
+  let minScore = { pts: 9999, year: 0, week: 0, opp: '', team: '' };
   let biggestWin = { margin: 0, year: 0, week: 0, opp: '', myPts: 0, oppPts: 0 };
   let worstLoss = { margin: 0, year: 0, week: 0, opp: '', myPts: 0, oppPts: 0 };
+  let ugliestWin = { pts: 9999, oppPts: 0, year: 0, week: 0, opp: '' };
+  let worstBadBeat = { pts: 0, oppPts: 0, year: 0, week: 0, opp: '' };
 
   const phaseStats = {
-    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
-    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
-    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] }
+    'Temporada Regular': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    'Playoffs': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    'Consolation': { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
   };
 
   const vsDivisionStats = {
-    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
-    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
-    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] },
-    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0, history: [] }
+    "MG": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "NE": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "SMT": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 },
+    "SP": { games: 0, wins: 0, losses: 0, ties: 0, pf: 0, pa: 0 }
   };
 
   const oppMap = {};
@@ -5073,15 +5084,17 @@ function renderFranchiseView() {
     const oppPts = isP1 ? pts2 : pts1;
     const myTeam = isP1 ? t1 : t2;
     const opp = isP1 ? p2 : p1;
-    const oppTeam = isP1 ? t2 : t1;
     const phase = cat || 'Temporada Regular';
 
     teamNamesSet.add(myTeam);
+    if (!teamNameYearsMap[myTeam]) teamNameYearsMap[myTeam] = new Set();
+    teamNameYearsMap[myTeam].add(year);
+
     pf += myPts;
     pa += oppPts;
-    
+
     const myDiv = getDivisionForPlayer(player, year);
-    if (myDiv && year === 2026) latestDivision = myDiv; // Fetch current division if active
+    if (myDiv && year === 2026) latestDivision = myDiv;
 
     const won = myPts > oppPts;
     const lost = oppPts > myPts;
@@ -5119,10 +5132,12 @@ function renderFranchiseView() {
     else if (lost) oppMap[opp].losses++;
     else oppMap[opp].ties++;
 
-    if (myPts > maxScore.pts) maxScore = { pts: myPts, year, week, opp };
-    if (myPts < minScore.pts) minScore = { pts: myPts, year, week, opp };
+    if (myPts > maxScore.pts) maxScore = { pts: myPts, year, week, opp, team: myTeam };
+    if (myPts < minScore.pts) minScore = { pts: myPts, year, week, opp, team: myTeam };
     if (won && margin > biggestWin.margin) biggestWin = { margin, year, week, opp, myPts, oppPts };
     if (lost && margin > worstLoss.margin) worstLoss = { margin, year, week, opp, myPts, oppPts };
+    if (won && myPts < ugliestWin.pts) ugliestWin = { pts: myPts, oppPts, year, week, opp };
+    if (lost && myPts > worstBadBeat.pts) worstBadBeat = { pts: myPts, oppPts, year, week, opp };
 
     myGames.push({ year, week, myPts, oppPts, opp, won, lost, tied, phase, margin });
   });
@@ -5130,58 +5145,253 @@ function renderFranchiseView() {
   const totalGames = wins + losses + ties;
   const winRate = totalGames > 0 ? ((wins + 0.5 * ties) / totalGames) * 100 : 0;
   const avgPf = totalGames > 0 ? pf / totalGames : 0;
+  const avgPa = totalGames > 0 ? pa / totalGames : 0;
 
-  // Standings & Trophies
+  // Standings & Trophies & Glory Points
   const seasonStandings = STANDINGS_DATA.filter(s => s[2] === player).sort((a, b) => b[0] - a[0]);
-  let golds = 0, silvers = 0, bronzes = 0, consolations = 0;
+  let golds = 0, silvers = 0, bronzes = 0, consolations = 0, gloryPts = 0;
   let bestPos = 99;
   seasonStandings.forEach(s => {
     const pos = s[1];
-    if (pos === 1) golds++;
-    if (pos === 2) silvers++;
-    if (pos === 3) bronzes++;
-    if (pos === 9) consolations++;
+    if (pos === 1) { golds++; gloryPts += 20; }
+    else if (pos === 2) { silvers++; gloryPts += 16; }
+    else if (pos === 3) { bronzes++; gloryPts += 13; }
+    else if (pos === 4) { gloryPts += 10; }
+    else if (pos >= 5 && pos <= 8) { gloryPts += 7; }
+    else if (pos === 9) { consolations++; gloryPts += 5; }
+    else if (pos >= 10 && pos <= 12) { gloryPts += 3; }
+    else if (pos >= 13 && pos <= 16) { gloryPts += 1; }
     if (pos < bestPos) bestPos = pos;
   });
-  
-  const playoffApps = seasonStandings.filter(s => s[1] <= 8).length;
-  const playoffPct = seasonStandings.length > 0 ? (playoffApps / seasonStandings.length * 100).toFixed(0) : 0;
 
-  // Clutch Games (Margin < 5)
+  const playoffApps = seasonStandings.filter(s => s[1] <= 8).length;
+  const playoffAppPct = seasonStandings.length > 0 ? (playoffApps / seasonStandings.length * 100).toFixed(0) : 0;
+
+  // Desempenho em Jogos de Playoffs (mesmo cálculo da tabela Por Fase)
+  const poStats = phaseStats['Playoffs'];
+  const poWinRate = poStats.games > 0 ? ((poStats.wins + 0.5 * poStats.ties) / poStats.games) * 100 : 0;
+
+  // Clutch Games (Margin < 5 e < 2)
   const clutchGames = myGames.filter(g => g.margin < 5.0 && !g.tied);
   const clutchWins = clutchGames.filter(g => g.won).length;
   const clutchLosses = clutchGames.filter(g => g.lost).length;
-  
-  // Personal Streaks
-  let curW = 0, maxW = 0, curL = 0, maxL = 0;
-  myGames.slice().sort((a, b) => a.year - b.year || a.week - b.week).forEach(g => {
-      if (g.won) { curW++; curL = 0; if (curW > maxW) maxW = curW; }
-      else if (g.lost) { curL++; curW = 0; if (curL > maxL) maxL = curL; }
-      else { curW = 0; curL = 0; }
+  const clutchWinPct = clutchGames.length > 0 ? (clutchWins / clutchGames.length) * 100 : 0;
+
+  const nailBiters = myGames.filter(g => g.margin < 2.0 && !g.tied);
+  const nailWins = nailBiters.filter(g => g.won).length;
+  const nailLosses = nailBiters.filter(g => g.lost).length;
+
+  // Sequências Pessoais (incluindo detecção entre temporadas)
+  let curW = 0, maxW = 0, curWStart = null, maxWRange = null;
+  let curL = 0, maxL = 0, curLStart = null, maxLRange = null;
+  const chronoGames = myGames.slice().sort((a, b) => a.year - b.year || a.week - b.week);
+  chronoGames.forEach(g => {
+    if (g.won) {
+      if (curW === 0) curWStart = `${g.year} S${g.week}`;
+      curW++;
+      curL = 0; curLStart = null;
+      if (curW > maxW) { maxW = curW; maxWRange = `${curWStart} ➔ ${g.year} S${g.week}`; }
+    } else if (g.lost) {
+      if (curL === 0) curLStart = `${g.year} S${g.week}`;
+      curL++;
+      curW = 0; curWStart = null;
+      if (curL > maxL) { maxL = curL; maxLRange = `${curLStart} ➔ ${g.year} S${g.week}`; }
+    } else {
+      curW = 0; curL = 0; curWStart = null; curLStart = null;
+    }
   });
 
+  // Estatísticas Avançadas (All-Play, Sorte, Consistência, Mediana)
   const allStatsList = calculatePlayerStats(filteredData);
-  const myPlayerStats = allStatsList.find(s => s.name === player) || { luckDelta: 0 };
+  const myPlayerStats = allStatsList.find(s => s.name === player) || {
+    luckDelta: 0, apWinRate: 0, expWins: 0, stdDev: 0, median: 0
+  };
+  const validStdDevs = allStatsList.map(s => s.stdDev).filter(v => v > 0);
+  const leagueAvgStdDev = validStdDevs.length > 0 ? validStdDevs.reduce((a, b) => a + b, 0) / validStdDevs.length : 22;
+
+  // Freguês Master e Maior Carrasco
+  const oppList = Object.values(oppMap);
+  oppList.forEach(o => {
+    o.diff = o.wins - o.losses;
+    o.wr = o.games > 0 ? ((o.wins + 0.5 * o.ties) / o.games) * 100 : 0;
+  });
+  const topFregues = oppList.filter(o => o.diff > 0).sort((a, b) => b.diff - a.diff || b.wins - a.wins)[0] || null;
+  const topCarrasco = oppList.filter(o => o.diff < 0).sort((a, b) => a.diff - b.diff || b.losses - a.losses)[0] || null;
+
+  // Dossiê 2026 (conectado diretamente aos dados da aba Temporada Atual / tcState)
+  let ctx2026 = null;
+  let team2026 = null;
+  let divRank2026 = null;
+  let nextGame2026 = null;
+  let sleeperTeam2026 = null;
+  let prStarterRank = '—';
+  let prTotalRank = '—';
+
+  if (typeof dash2026GetBaseContext === 'function') {
+    ctx2026 = dash2026GetBaseContext();
+    team2026 = ctx2026.teams.find(t => t.name === player) || null;
+    if (team2026) {
+      const divPeers = ctx2026.teams
+        .filter(t => t.division === team2026.division)
+        .sort((a, b) => b.wins - a.wins || b.divWins - a.divWins || b.pf - a.pf);
+      const rIdx = divPeers.findIndex(t => t.name === player);
+      if (rIdx !== -1) divRank2026 = `${rIdx + 1}º/${divPeers.length}`;
+
+      const upList = (dash2026State?.upcomingGames || (typeof SLEEPER_SEASON_SNAPSHOT !== 'undefined' && SLEEPER_SEASON_SNAPSHOT?.upcomingGames) || [])
+        .filter(g => g.p1 === player || g.p2 === player)
+        .sort((a, b) => a.week - b.week);
+      if (upList.length > 0) {
+        const g = upList[0];
+        const isP1 = g.p1 === player;
+        nextGame2026 = {
+          week: g.week,
+          opp: isP1 ? g.p2 : g.p1,
+          isDiv: g.isDiv,
+          myProj: isP1 ? g.proj1 : g.proj2,
+          oppProj: isP1 ? g.proj2 : g.proj1,
+          winProb: Math.round((isP1 ? g.winProb1 : g.winProb2) * 1000) / 10
+        };
+      }
+    }
+  }
+
+  if (typeof tcState !== 'undefined' && Array.isArray(tcState.teams) && tcState.teams.length > 0) {
+    sleeperTeam2026 = tcState.teams.find(st =>
+      st.canonicalPlayer?.toLowerCase() === player.toLowerCase() ||
+      st.ownerName?.toLowerCase() === player.toLowerCase()
+    ) || null;
+
+    if (sleeperTeam2026) {
+      const byStarters = [...tcState.teams].sort((a, b) => b.startersValue - a.startersValue);
+      const byTotal = [...tcState.teams].sort((a, b) => b.totalValue - a.totalValue);
+      const sIdx = byStarters.findIndex(t => t.rosterId === sleeperTeam2026.rosterId);
+      const tIdx = byTotal.findIndex(t => t.rosterId === sleeperTeam2026.rosterId);
+      if (sIdx !== -1) prStarterRank = `${sIdx + 1}º/${byStarters.length}`;
+      if (tIdx !== -1) prTotalRank = `${tIdx + 1}º/${byTotal.length}`;
+    }
+  }
+
+  // Rótulos / Arquétipos Automáticos de Resenha
+  const archetypes = [];
+  if (golds >= 2) archetypes.push({ label: '👑 Dinastia / Multicampão', color: '#fbbf24', bg: 'rgba(251,191,36,0.16)' });
+  else if (golds === 1) archetypes.push({ label: '🏆 Campeão Oficial', color: '#fbbf24', bg: 'rgba(251,191,36,0.14)' });
+
+  if (myPlayerStats.luckDelta >= 2.5) archetypes.push({ label: '🍀 Pé Quente de Calendário', color: '#34d399', bg: 'rgba(16,185,129,0.15)' });
+  else if (myPlayerStats.luckDelta <= -2.5) archetypes.push({ label: '🌧️ Ímã de Pedrada (Azarado)', color: '#f87171', bg: 'rgba(239,68,68,0.15)' });
+
+  if (myPlayerStats.stdDev > 0 && myPlayerStats.stdDev >= leagueAvgStdDev * 1.12) {
+    archetypes.push({ label: '🎢 Montanha-Russa (8 ou 80)', color: '#f472b6', bg: 'rgba(236,72,153,0.15)' });
+  } else if (myPlayerStats.stdDev > 0 && myPlayerStats.stdDev <= leagueAvgStdDev * 0.90) {
+    archetypes.push({ label: '⏱️ Relógio Suíço (Regular)', color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' });
+  }
+
+  if (clutchGames.length >= 6 && (clutchWins / clutchGames.length) >= 0.62) {
+    archetypes.push({ label: '⚡ Rei do Sufoco (Clutch)', color: '#fbbf24', bg: 'rgba(245,158,11,0.15)' });
+  } else if (clutchGames.length >= 6 && (clutchWins / clutchGames.length) <= 0.38) {
+    archetypes.push({ label: '💔 Pipoca nos Minutos Finais', color: '#f87171', bg: 'rgba(239,68,68,0.15)' });
+  }
+
+  if (teamNamesSet.size >= 5) {
+    archetypes.push({ label: `🎭 Camaleão (${teamNamesSet.size} nomes)`, color: '#a78bfa', bg: 'rgba(139,92,246,0.15)' });
+  } else if (teamNamesSet.size === 1 && seasonStandings.length >= 4) {
+    archetypes.push({ label: '🛡️ Identidade Raiz (Nome Fiel)', color: '#60a5fa', bg: 'rgba(59,130,246,0.15)' });
+  }
+
+  if (topFregues && topFregues.diff >= 5) {
+    archetypes.push({ label: `🩸 Pai do ${topFregues.name}`, color: '#34d399', bg: 'rgba(16,185,129,0.15)' });
+  }
+  if (archetypes.length === 0) {
+    archetypes.push({ label: '⚖️ Competidor Raiz da Liga', color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' });
+  }
+
   const teamNamesArr = Array.from(teamNamesSet);
   if (badgeEl) badgeEl.innerHTML = '';
 
   const luckColor = myPlayerStats.luckDelta > 0.5 ? '#34d399' : (myPlayerStats.luckDelta < -0.5 ? '#f87171' : '#fbbf24');
   const luckIcon = myPlayerStats.luckDelta > 0.5 ? '🍀' : (myPlayerStats.luckDelta < -0.5 ? '🌧️' : '⚖️');
   const avatarUrl = typeof AVATARES_SLEEPER !== 'undefined' ? AVATARES_SLEEPER[player] : null;
-  const avatarHtml = avatarUrl 
-    ? `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.outerHTML='${player.substring(0,2).toUpperCase()}'">` 
+  const avatarHtml = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.outerHTML='${player.substring(0,2).toUpperCase()}'">`
     : player.substring(0,2).toUpperCase();
 
-  // Montagem do HTML
+  // Bloco HTML do Dossiê 2026 (conectado diretamente aos dados da aba Temporada Atual)
+  let dossier2026Html = '';
+  if (team2026 && team2026.games > 0) {
+    const oddsVal = team2026.playoffOdds;
+    const oddsStr = oddsVal !== null && oddsVal !== undefined ? `${oddsVal.toFixed(1)}%` : '—';
+    const oddsColor = oddsVal >= 70 ? '#34d399' : (oddsVal >= 30 ? '#fbbf24' : '#f87171');
+    const ss = sleeperTeam2026?.startSitStats;
+    const avgBenchStr = ss && typeof ss.avgLeftOnBench === 'number'
+      ? `${ss.avgLeftOnBench.toFixed(1)} pts/j`
+      : (ss && ss.weeksCount > 0 ? `${(ss.totalLeftOnBench / ss.weeksCount).toFixed(1)} pts/j` : '—');
+
+    dossier2026Html = `
+      <div class="table-card" style="margin-bottom: 24px; border-left: 4px solid #3b82f6;">
+        <div class="table-header-bar" style="background: rgba(59, 130, 246, 0.06);">
+          <div>
+            <div class="table-title" style="color: #60a5fa;">⚡ Dossiê Temporada 2026 (Ao Vivo)</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Conectado à aba Temporada Atual • Campanha, probabilidades e gestão de elenco</div>
+          </div>
+          <button class="tc-btn tc-btn-primary" onclick="openDashboard2026ForPlayer('${player}')" style="font-size: 12px; padding: 6px 12px;">
+            📈 Abrir Análise Completa (2026)
+          </button>
+        </div>
+        <div style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 12px;">
+          <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Campanha &amp; Divisão</div>
+            <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0 2px;">${team2026.wins}V - ${team2026.losses}D</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Div. <b>${team2026.division}</b> (${divRank2026 || '—'}) • Div: <b>${team2026.divWins}-${team2026.divLosses}</b></div>
+          </div>
+
+          <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Playoff Odds (2026)</div>
+            <div style="font-size: 20px; font-weight: 900; color: ${oddsColor}; margin: 4px 0 2px;">${oddsStr}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Média: <b>${team2026.avgPf.toFixed(1)} pts/j</b></div>
+          </div>
+
+          <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🏟️ Power Ranking (ROS)</div>
+            <div style="font-size: 20px; font-weight: 900; color: #a78bfa; margin: 4px 0 2px;">${prStarterRank}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Elenco Completo: <b>${prTotalRank}</b></div>
+          </div>
+
+          <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🧠 Start-Sit Accuracy</div>
+            <div style="font-size: 20px; font-weight: 900; color: #38bdf8; margin: 4px 0 2px;">${ss ? ss.avgPointsEff.toFixed(1) + '%' : '⏳'}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">${ss ? `Banco: <b>${avgBenchStr}</b>` : 'Carregando dados da liga...'}</div>
+          </div>
+
+          <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">📅 Próximo Confronto</div>
+            ${nextGame2026 ? `
+              <div style="font-size: 16px; font-weight: 800; color: #fff; margin: 4px 0 2px;">Sem ${nextGame2026.week} vs ${nextGame2026.opp}</div>
+              <div style="font-size: 12px; color: ${nextGame2026.winProb >= 50 ? '#34d399' : '#f87171'}; font-weight: 700;">Chance de Vitória: ${nextGame2026.winProb.toFixed(1)}%</div>
+            ` : `<div style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-top: 6px;">Sem jogos pendentes</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Montagem completa do HTML da aba Raio-X
   container.innerHTML = `
     <!-- HERO BANNER -->
     <div class="franchise-hero">
       <div class="franchise-avatar">${avatarHtml}</div>
-      <div style="flex: 1;">
-        <h2 style="font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 2px; letter-spacing: -0.5px;">${player}</h2>
-        <div style="font-size: 14px; color: var(--accent-gold); font-weight: 700; margin-bottom: 8px;">👑 ${latestDivision ? 'Membro da Divisão ' + latestDivision : 'Franquia Histórica'}</div>
-        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
-          🛡️ <b>Nomes utilizados:</b> ${teamNamesArr.join(' • ')}
+      <div style="flex: 1; min-width: 0;">
+        <h2 style="font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.5px;">${player}</h2>
+        <div style="font-size: 14px; color: var(--accent-gold); font-weight: 700; margin-bottom: 8px;">
+          👑 ${latestDivision ? 'Membro da Divisão ' + latestDivision : 'Franquia Histórica'} • ${gloryPts} Glory Points
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+          ${archetypes.map(a => `<span class="badge-tag" style="background:${a.bg}; color:${a.color}; border-color:${a.color}44; font-weight:800; font-size:12px;">${a.label}</span>`).join('')}
+        </div>
+        <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+          🎭 <b>Rebranding (${teamNamesArr.length} ${teamNamesArr.length === 1 ? 'nome' : 'nomes'}):</b>
+          ${teamNamesArr.map(tn => {
+            const yrs = Array.from(teamNameYearsMap[tn] || []).sort();
+            return `<span style="color:#e2e8f0;font-weight:600;">${tn}</span> <span style="font-size:11px;">(${yrs.join(', ')})</span>`;
+          }).join(' • ')}
         </div>
       </div>
       <div class="franchise-trophies">
@@ -5189,54 +5399,150 @@ function renderFranchiseView() {
         ${silvers > 0 ? `<div class="trophy-badge" style="color: #cbd5e1; border-color: rgba(203, 213, 225, 0.4);"><span style="font-size: 16px;">🥈</span> ${silvers} Vice${silvers > 1 ? 's' : ''}</div>` : ''}
         ${bronzes > 0 ? `<div class="trophy-badge" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);"><span style="font-size: 16px;">🥉</span> ${bronzes} Terceiro${bronzes > 1 ? 's' : ''}</div>` : ''}
         ${consolations > 0 ? `<div class="trophy-badge" style="color: #a78bfa; border-color: rgba(139, 92, 246, 0.4);"><span style="font-size: 16px;">🎖️</span> ${consolations} Consolation${consolations > 1 ? 's' : ''}</div>` : ''}
-        ${golds===0 && silvers===0 && bronzes===0 && consolations===0 ? `<div class="trophy-badge" style="color: var(--text-muted);">Nenhum título oficial</div>` : ''}
+        ${golds===0 && silvers===0 && bronzes===0 && consolations===0 ? `<div class="trophy-badge" style="color: var(--text-muted);">Nenhum pódio oficial</div>` : ''}
       </div>
     </div>
 
-    <!-- CARROSSEL DE KPIS (Badge Style) -->
-    <div class="franchise-kpis-wrapper">
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">📈</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Win Rate:</span>
-        <span style="font-weight: 800; color: #34d399;">${winRate.toFixed(1)}%</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🔥</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Média:</span>
-        <span style="font-weight: 800; color: #60a5fa;">${avgPf.toFixed(1)} pts</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">${luckIcon}</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Índice de Sorte:</span>
-        <span style="font-weight: 800; color: ${luckColor};">${myPlayerStats.luckDelta > 0 ? '+' : ''}${myPlayerStats.luckDelta.toFixed(1)}</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🏆</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Playoffs App:</span>
-        <span style="font-weight: 800; color: #fbbf24;">${playoffApps} (${playoffPct}%)</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;" title="Jogos decididos por menos de 5 pontos de diferença">
-        <span style="font-size: 16px;">⚡</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Fator Clutch:</span>
-        <span style="font-weight: 800;"><span style="color:#34d399">${clutchWins}V</span> - <span style="color:#f87171">${clutchLosses}D</span></span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🚀</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Max Streak:</span>
-        <span style="font-weight: 800; color: #34d399;">${maxW}V</span>
-        <span style="color: var(--text-muted);">/</span>
-        <span style="font-weight: 800; color: #f87171;">${maxL}D</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🚀</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Max Pts:</span>
-        <span style="font-weight: 800; color: #34d399;">${maxScore.pts > 0 ? maxScore.pts.toFixed(1) : '--'}</span>
-      </span>
-      <span class="badge-tag" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-        <span style="font-size: 16px;">🥶</span>
-        <span style="color: var(--text-muted); font-weight: 600;">Min Pts:</span>
-        <span style="font-weight: 800; color: #f87171;">${minScore.pts < 9999 ? minScore.pts.toFixed(1) : '--'}</span>
-      </span>
+    ${dossier2026Html}
+
+    <!-- DNA ESTATÍSTICO AVANÇADO -->
+    <div class="table-card" style="margin-bottom: 24px;">
+      <div class="table-header-bar">
+        <div>
+          <div class="table-title">🧬 DNA Estatístico da Franquia</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Métricas avançadas que separam sorte de calendário da força real do time</div>
+        </div>
+      </div>
+      <div style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px;">
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">📈 Campanha &amp; Win %</div>
+          <div style="font-size: 20px; font-weight: 900; color: #34d399; margin: 4px 0 2px;">${winRate.toFixed(1)}%</div>
+          <div style="font-size: 12px; color: var(--text-muted);"><b>${wins}V - ${losses}D</b>${ties > 0 ? ` - ${ties}E` : ''} (${totalGames}J)</div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 All-Play % (Mérito)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #60a5fa; margin: 4px 0 2px;">${myPlayerStats.apWinRate.toFixed(1)}%</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Vitórias Esp.: <b>${myPlayerStats.expWins.toFixed(1)} xW</b></div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">${luckIcon} Índice de Sorte</div>
+          <div style="font-size: 20px; font-weight: 900; color: ${luckColor}; margin: 4px 0 2px;">${myPlayerStats.luckDelta > 0 ? '+' : ''}${myPlayerStats.luckDelta.toFixed(1)}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${myPlayerStats.luckDelta >= 0 ? 'Acima do esperado' : 'Abaixo do esperado'}</div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🎯 Mediana (True Score)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #a78bfa; margin: 4px 0 2px;">${myPlayerStats.median.toFixed(1)} pts</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Média PF: <b>${avgPf.toFixed(1)}</b> • PA: <b>${avgPa.toFixed(1)}</b></div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">📉 Consistência (σ)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fbbf24; margin: 4px 0 2px;">${myPlayerStats.stdDev.toFixed(1)}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Média da Liga: <b>${leagueAvgStdDev.toFixed(1)}</b></div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">🏆 Win % nos Playoffs</div>
+          <div style="font-size: 20px; font-weight: 900; color: ${poWinRate >= 50 ? '#34d399' : '#f87171'}; margin: 4px 0 2px;">${poStats.games > 0 ? poWinRate.toFixed(0) + '%' : '—'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Jogos: <b>${poStats.wins}V-${poStats.losses}D</b> • Idas: <b>${playoffApps}/${seasonStandings.length} (${playoffAppPct}%)</b></div>
+        </div>
+
+        <div style="background: rgba(15,23,42,0.55); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">⚡ Fator Clutch (&lt;5 pts)</div>
+          <div style="font-size: 20px; font-weight: 900; color: ${clutchWinPct >= 50 ? '#34d399' : '#f87171'}; margin: 4px 0 2px;">${clutchGames.length > 0 ? clutchWinPct.toFixed(0) + '%' : '—'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Jogos apertados: <b>${clutchWins}V - ${clutchLosses}D</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTÃO DE VISITA & RESENHA (TODOS OS 11 ITENS EM FORMATO DE CARDS UNIFORMES) -->
+    <div class="table-card" style="margin-bottom: 24px;">
+      <div class="table-header-bar">
+        <div>
+          <div class="table-title">🃏 Cartão de Visita &amp; Curiosidades da Resenha</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Os momentos mais épicos, dolorosos e curiosos da franquia na história</div>
+        </div>
+      </div>
+      <div style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #34d399; text-transform: uppercase;">🚀 Recorde Histórico (Teto)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${maxScore.pts > 0 ? maxScore.pts.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${maxScore.pts > 0 ? `Contra <b>${maxScore.opp}</b> (${maxScore.year} • Sem ${maxScore.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">🥶 Pior Noite (Piso)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${minScore.pts < 9999 ? minScore.pts.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${minScore.pts < 9999 ? `Contra <b>${minScore.opp}</b> (${minScore.year} • Sem ${minScore.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase;">😬 Vitória Mais Feia</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${ugliestWin.pts < 9999 ? ugliestWin.pts.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${ugliestWin.pts < 9999 ? `Venceu <b>${ugliestWin.opp}</b> (${ugliestWin.pts.toFixed(1)} x ${ugliestWin.oppPts.toFixed(1)} • ${ugliestWin.year} S${ugliestWin.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #a78bfa; text-transform: uppercase;">💔 Bad Beat Mais Dolorosa</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${worstBadBeat.pts > 0 ? worstBadBeat.pts.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${worstBadBeat.pts > 0 ? `Perdeu p/ <b>${worstBadBeat.opp}</b> (${worstBadBeat.pts.toFixed(1)} x ${worstBadBeat.oppPts.toFixed(1)} • ${worstBadBeat.year} S${worstBadBeat.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #60a5fa; text-transform: uppercase;">💥 Maior Goleada Aplicada</div>
+          <div style="font-size: 20px; font-weight: 900; color: #34d399; margin: 4px 0;">${biggestWin.margin > 0 ? '+' + biggestWin.margin.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${biggestWin.margin > 0 ? `${biggestWin.myPts.toFixed(1)} x ${biggestWin.oppPts.toFixed(1)} vs <b>${biggestWin.opp}</b> (${biggestWin.year} S${biggestWin.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">💣 Pior Surra Sofrida</div>
+          <div style="font-size: 20px; font-weight: 900; color: #f87171; margin: 4px 0;">${worstLoss.margin > 0 ? '-' + worstLoss.margin.toFixed(2) + ' pts' : '--'}</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${worstLoss.margin > 0 ? `${worstLoss.myPts.toFixed(1)} x ${worstLoss.oppPts.toFixed(1)} vs <b>${worstLoss.opp}</b> (${worstLoss.year} S${worstLoss.week})` : 'Sem dados'}</div>
+        </div>
+
+        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #34d399; text-transform: uppercase;">🔥 Maior Invencibilidade</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${maxW} vitórias</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${maxWRange ? `Período: <b>${maxWRange}</b>` : 'Sem sequência'}</div>
+        </div>
+
+        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">🌧️ Maior Jejum</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${maxL} derrotas</div>
+          <div style="font-size: 12px; color: var(--text-muted);">${maxLRange ? `Período: <b>${maxLRange}</b>` : 'Sem sequência'}</div>
+        </div>
+
+        <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28); border-radius: 10px; padding: 12px 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase;">💓 Jogos no Fotochart (&lt;2 pts)</div>
+          <div style="font-size: 20px; font-weight: 900; color: #fff; margin: 4px 0;">${nailWins}V - ${nailLosses}D</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Decididos no detalhe (${nailBiters.length} ${nailBiters.length === 1 ? 'jogo' : 'jogos'})</div>
+        </div>
+
+        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.28); border-radius: 10px; padding: 12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size: 11px; font-weight: 800; color: #34d399; text-transform: uppercase;">🩸 Freguês Master</div>
+            ${topFregues ? `
+              <div style="font-size: 18px; font-weight: 900; color: #fff; margin: 4px 0;">${topFregues.name} (${topFregues.wins}V - ${topFregues.losses}D)</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Saldo de <b>+${topFregues.diff}</b> vitórias (${topFregues.wr.toFixed(0)}% aprov.)</div>
+            ` : `<div style="font-size: 14px; color: var(--text-muted); margin-top: 6px;">Nenhum freguês ainda</div>`}
+          </div>
+          ${topFregues ? `<button class="pill-btn" onclick="selectH2HOpponent('${player}', '${topFregues.name}')" style="margin-top:8px;font-size:11px;padding:4px 10px;align-self:flex-start;">⚔️ Ver Duelo</button>` : ''}
+        </div>
+
+        <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); border-radius: 10px; padding: 12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size: 11px; font-weight: 800; color: #f87171; text-transform: uppercase;">💀 Maior Carrasco</div>
+            ${topCarrasco ? `
+              <div style="font-size: 18px; font-weight: 900; color: #fff; margin: 4px 0;">${topCarrasco.name} (${topCarrasco.wins}V - ${topCarrasco.losses}D)</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Desvantagem de <b>${topCarrasco.diff}</b> vitórias (${topCarrasco.wr.toFixed(0)}% aprov.)</div>
+            ` : `<div style="font-size: 14px; color: var(--text-muted); margin-top: 6px;">Nenhum carrasco ainda</div>`}
+          </div>
+          ${topCarrasco ? `<button class="pill-btn" onclick="selectH2HOpponent('${player}', '${topCarrasco.name}')" style="margin-top:8px;font-size:11px;padding:4px 10px;align-self:flex-start;">⚔️ Ver Duelo</button>` : ''}
+        </div>
+      </div>
     </div>
 
     <!-- CONTROLE SEGMENTADO MOBILE -->
@@ -5248,7 +5554,7 @@ function renderFranchiseView() {
 
     <!-- 3-COLUMN GRID DESKTOP / TABS MOBILE -->
     <div class="franchise-stats-grid" style="margin-bottom: 24px;">
-      
+
       <!-- Card 1: Por Fase -->
       <div id="fra-fase" class="table-card">
         <div class="table-header-bar" style="padding: 12px 16px;">
@@ -5260,6 +5566,7 @@ function renderFranchiseView() {
               <tr>
                 <th>Fase</th>
                 <th style="text-align: center;">V-D</th>
+                <th style="text-align: right;">Média</th>
                 <th style="text-align: right;">Aprov.</th>
               </tr>
             </thead>
@@ -5267,6 +5574,7 @@ function renderFranchiseView() {
               ${['Temporada Regular', 'Playoffs', 'Consolation'].map(phase => {
                 const ps = phaseStats[phase];
                 const pWinRate = ps.games > 0 ? ((ps.wins + 0.5 * ps.ties) / ps.games) * 100 : 0;
+                const pAvg = ps.games > 0 ? ps.pf / ps.games : 0;
                 let badge = '<span class="badge-tag" style="font-size:11px;">Regular</span>';
                 if (phase === 'Playoffs') badge = '<span class="badge-tag" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-color: #fbbf24; font-size:11px;">Playoffs 🏆</span>';
                 if (phase === 'Consolation') badge = '<span class="badge-tag" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: #8b5cf6; font-size:11px;">Consolation</span>';
@@ -5274,6 +5582,7 @@ function renderFranchiseView() {
                   <tr>
                     <td>${badge}</td>
                     <td style="text-align: center; font-weight: 700; font-size: 13px;">${ps.wins}-${ps.losses}${ps.ties > 0 ? '-'+ps.ties : ''}</td>
+                    <td style="text-align: right; color: var(--text-muted); font-size: 12.5px;">${pAvg.toFixed(1)}</td>
                     <td style="text-align: right; font-weight: 800; font-size: 13px; color: ${pWinRate >= 50 ? '#34d399' : '#f87171'};">${pWinRate.toFixed(0)}%</td>
                   </tr>
                 `;
@@ -5294,6 +5603,7 @@ function renderFranchiseView() {
               <tr>
                 <th>Divisão</th>
                 <th style="text-align: center;">V-D</th>
+                <th style="text-align: right;">Aprov.</th>
                 <th style="text-align: right;">Saldo</th>
               </tr>
             </thead>
@@ -5302,14 +5612,16 @@ function renderFranchiseView() {
                 const ds = vsDivisionStats[divName];
                 if (!ds || ds.games === 0) return '';
                 const dDiff = ds.pf - ds.pa;
+                const dWr = ((ds.wins + 0.5 * ds.ties) / ds.games) * 100;
                 return `
                   <tr>
                     <td><strong style="color: #fff; font-size:13px;">Div. ${divName}</strong></td>
                     <td style="text-align: center; font-weight: 700; font-size:13px;">${ds.wins}-${ds.losses}${ds.ties > 0 ? '-'+ds.ties : ''}</td>
+                    <td style="text-align: right; font-weight: 700; font-size:12.5px; color:${dWr >= 50 ? '#34d399' : '#f87171'};">${dWr.toFixed(0)}%</td>
                     <td style="text-align: right; font-weight: 700; font-size:13px; color: ${dDiff >= 0 ? '#34d399' : '#f87171'};">${dDiff > 0 ? '+' : ''}${dDiff.toFixed(1)}</td>
                   </tr>
                 `;
-              }).join('') || '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 12px;">Sem histórico.</td></tr>'}
+              }).join('') || '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 12px;">Sem histórico.</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -5318,7 +5630,7 @@ function renderFranchiseView() {
       <!-- Card 3: Rivais -->
       <div id="fra-rivais" class="table-card mobile-hidden-sub">
         <div class="table-header-bar" style="padding: 12px 16px;">
-          <div class="table-title" style="font-size: 14px;">⚔️ Fregueses & Algozes (Top 4)</div>
+          <div class="table-title" style="font-size: 14px;">⚔️ Fregueses &amp; Algozes (Top 6)</div>
         </div>
         <div class="table-wrapper">
           <table>
@@ -5331,20 +5643,17 @@ function renderFranchiseView() {
             </thead>
             <tbody>
               ${(() => {
-                const oppList = Object.values(oppMap);
-                oppList.forEach(o => { o.diff = o.wins - o.losses; o.wr = ((o.wins + 0.5 * o.ties) / o.games) * 100; });
-                
-                const fregueses = oppList.filter(o => o.diff > 0).sort((a, b) => b.diff - a.diff || b.wins - a.wins).slice(0, 2);
-                const algozes = oppList.filter(o => o.diff < 0).sort((a, b) => a.diff - b.diff || b.losses - a.losses).slice(0, 2);
-                
+                const fregueses = oppList.filter(o => o.diff > 0).sort((a, b) => b.diff - a.diff || b.wins - a.wins).slice(0, 3);
+                const algozes = oppList.filter(o => o.diff < 0).sort((a, b) => a.diff - b.diff || b.losses - a.losses).slice(0, 3);
+
                 const rows = [];
                 fregueses.forEach(f => {
                   const tag = f.diff >= 4 ? '<span class="badge-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; border-color: #10b981; font-size:11px;">Freguês 🩸</span>' : '<span class="badge-tag" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-weight: 700; border-color: #3b82f6; font-size:11px;">Vítima 🟢</span>';
-                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${f.name}')">${f.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px;"><span style="color:#34d399;">${f.wins}</span>-<span style="color:#f87171;">${f.losses}</span></td></tr>`);
+                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${f.name}')">${f.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px; cursor:pointer;" onclick="selectH2HOpponent('${player}', '${f.name}')"><span style="color:#34d399;">${f.wins}</span>-<span style="color:#f87171;">${f.losses}</span></td></tr>`);
                 });
                 algozes.forEach(a => {
                   const tag = a.diff <= -4 ? '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; border-color: #ef4444; font-size:11px;">Carrasco 💀</span>' : '<span class="badge-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 700; border-color: rgba(239, 68, 68, 0.3); font-size:11px;">Algoz 🔴</span>';
-                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${a.name}')">${a.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px;"><span style="color:#34d399;">${a.wins}</span>-<span style="color:#f87171;">${a.losses}</span></td></tr>`);
+                  rows.push(`<tr><td>${tag}</td><td><strong style="color:#fff; font-size:13px; cursor:pointer;" onclick="inspectPlayer('${a.name}')">${a.name}</strong></td><td style="text-align: right; font-weight: 800; font-size:13px; cursor:pointer;" onclick="selectH2HOpponent('${player}', '${a.name}')"><span style="color:#34d399;">${a.wins}</span>-<span style="color:#f87171;">${a.losses}</span></td></tr>`);
                 });
                 if (rows.length === 0) return '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 12px;">Sem histórico suficiente.</td></tr>';
                 return rows.join('');
@@ -5355,12 +5664,12 @@ function renderFranchiseView() {
       </div>
     </div>
 
-    <!-- Tabela: Trajetória Ano a Ano Visual -->
+    <!-- Tabela: Trajetória Ano a Ano Visual (2016 - 2026) -->
     <div class="table-card">
       <div class="table-header-bar">
         <div>
-          <div class="table-title">📅 Trajetória da Franquia</div>
-          <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Gráfico de desempenho e posição final ano a ano</div>
+          <div class="table-title">📅 Trajetória da Franquia (2016 – 2026)</div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Desempenho histórico completo, evolução de colocação e temporada atual em andamento</div>
         </div>
       </div>
       <div class="table-wrapper">
@@ -5371,38 +5680,96 @@ function renderFranchiseView() {
               <th>Nome da Equipe</th>
               <th style="text-align: center;">Posição</th>
               <th style="text-align: center;">Campanha</th>
+              <th style="text-align: center;">Evolução</th>
               <th class="col-traj-desktop" style="text-align: left;">Aproveitamento (Win %)</th>
               <th class="col-traj-desktop" style="text-align: left;">Média PF Anual</th>
             </tr>
           </thead>
           <tbody>
             ${(() => {
-              if (seasonStandings.length === 0) return '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">Nenhum registro oficial encontrado.</td></tr>';
-              
-              // Find max PF for relative bar sizing
+              const allRows = seasonStandings.map(s => ({
+                ano: s[0],
+                pos: s[1],
+                time: s[3],
+                record: s[4],
+                isCurrent: false
+              }));
+
+              const has2026InStandings = allRows.some(r => r.ano === 2026);
+              if (!has2026InStandings) {
+                const games2026 = RAW_DATA.filter(r => r[0] === 2026 && (r[2] === player || r[5] === player));
+                if (games2026.length > 0) {
+                  let w26 = 0, l26 = 0, t26 = 0, lastTeam26 = player;
+                  games2026.forEach(r => {
+                    const isP1 = r[2] === player;
+                    const mp = isP1 ? r[4] : r[7];
+                    const op = isP1 ? r[7] : r[4];
+                    lastTeam26 = isP1 ? r[3] : r[6];
+                    if (mp > op) w26++;
+                    else if (op > mp) l26++;
+                    else t26++;
+                  });
+                  allRows.unshift({
+                    ano: 2026,
+                    pos: null,
+                    time: lastTeam26,
+                    record: `${w26}-${l26}${t26 > 0 ? '-' + t26 : ''}`,
+                    isCurrent: true
+                  });
+                }
+              }
+
+              if (allRows.length === 0) {
+                return '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 16px;">Nenhum registro oficial encontrado.</td></tr>';
+              }
+
               let maxAvgPfGlobal = 0;
-              seasonStandings.forEach(s => {
-                const yearGames = myGames.filter(g => g.year === s[0]);
-                const yPf = yearGames.length > 0 ? yearGames.reduce((acc, g) => acc + g.myPts, 0) / yearGames.length : 0;
-                if (yPf > maxAvgPfGlobal) maxAvgPfGlobal = yPf;
+              allRows.forEach(r => {
+                const yearGames = RAW_DATA.filter(g => g[0] === r.ano && (g[2] === player || g[5] === player));
+                if (yearGames.length > 0) {
+                  const sumPts = yearGames.reduce((acc, g) => acc + (g[2] === player ? g[4] : g[7]), 0);
+                  const yPf = sumPts / yearGames.length;
+                  if (yPf > maxAvgPfGlobal) maxAvgPfGlobal = yPf;
+                }
               });
 
-              return seasonStandings.map(s => {
-                const [ano, pos, jog, time, record, winPct] = s;
-                let posBadge = `<span class="rank-badge">${pos}º</span>`;
-                let rowBg = '';
-                if (pos === 1) { posBadge = `<span class="rank-badge rank-1" style="width: auto; padding: 0 10px; border-radius: 12px;">🥇 1º</span>`; rowBg = 'background: rgba(251, 191, 36, 0.07);'; } 
-                else if (pos === 2) { posBadge = `<span class="rank-badge rank-2" style="width: auto; padding: 0 10px; border-radius: 12px;">🥈 2º</span>`; rowBg = 'background: rgba(203, 213, 225, 0.05);'; } 
-                else if (pos === 3) { posBadge = `<span class="rank-badge rank-3" style="width: auto; padding: 0 10px; border-radius: 12px;">🥉 3º</span>`; rowBg = 'background: rgba(180, 83, 9, 0.05);'; }
+              return allRows.map(r => {
+                const { ano, pos, time, record, isCurrent } = r;
+                let posBadge = isCurrent
+                  ? `<span class="badge-tag" style="background: rgba(59,130,246,0.2); color: #60a5fa; border-color: #3b82f6; font-weight: 800;">⚡ Em Curso</span>`
+                  : `<span class="rank-badge">${pos}º</span>`;
+                let rowBg = isCurrent ? 'background: rgba(59, 130, 246, 0.06);' : '';
+                if (!isCurrent) {
+                  if (pos === 1) { posBadge = `<span class="rank-badge rank-1" style="width: auto; padding: 0 10px; border-radius: 12px;">🥇 1º</span>`; rowBg = 'background: rgba(251, 191, 36, 0.07);'; }
+                  else if (pos === 2) { posBadge = `<span class="rank-badge rank-2" style="width: auto; padding: 0 10px; border-radius: 12px;">🥈 2º</span>`; rowBg = 'background: rgba(203, 213, 225, 0.05);'; }
+                  else if (pos === 3) { posBadge = `<span class="rank-badge rank-3" style="width: auto; padding: 0 10px; border-radius: 12px;">🥉 3º</span>`; rowBg = 'background: rgba(180, 83, 9, 0.05);'; }
+                }
 
-                const yearGames = myGames.filter(g => g.year === ano);
-                const yWins = yearGames.filter(g => g.won).length;
-                const yTies = yearGames.filter(g => g.tied).length;
+                let evolBadge = `<span style="color: var(--text-muted);">➖</span>`;
+                if (!isCurrent && pos) {
+                  const prevRow = STANDINGS_DATA.find(x => x[0] === ano - 1 && x[2] === player);
+                  if (prevRow) {
+                    const diffPos = prevRow[1] - pos;
+                    if (diffPos > 0) evolBadge = `<span style="color:#34d399;font-weight:800;">▲ +${diffPos}</span>`;
+                    else if (diffPos < 0) evolBadge = `<span style="color:#f87171;font-weight:800;">▼ ${diffPos}</span>`;
+                    else evolBadge = `<span style="color:var(--text-muted);">=</span>`;
+                  }
+                }
+
+                const yearGames = RAW_DATA.filter(g => g[0] === ano && (g[2] === player || g[5] === player));
+                let yWins = 0, yTies = 0, sumPts = 0;
+                yearGames.forEach(g => {
+                  const isP1 = g[2] === player;
+                  const mp = isP1 ? g[4] : g[7];
+                  const op = isP1 ? g[7] : g[4];
+                  sumPts += mp;
+                  if (mp > op) yWins++;
+                  else if (mp === op) yTies++;
+                });
                 const yTotal = yearGames.length;
                 const yWinRate = yTotal > 0 ? ((yWins + 0.5 * yTies) / yTotal) * 100 : 0;
-                const yPf = yTotal > 0 ? yearGames.reduce((acc, g) => acc + g.myPts, 0) / yTotal : 0;
-                
-                // CSS Bar logic
+                const yPf = yTotal > 0 ? sumPts / yTotal : 0;
+
                 const wrColor = yWinRate >= 50 ? '#34d399' : '#f87171';
                 const pfWidth = maxAvgPfGlobal > 0 ? (yPf / maxAvgPfGlobal) * 100 : 0;
 
@@ -5412,6 +5779,7 @@ function renderFranchiseView() {
                     <td><strong style="color: #fff;">${time}</strong></td>
                     <td style="text-align: center;">${posBadge}</td>
                     <td style="text-align: center; font-weight: 700;">${record}</td>
+                    <td style="text-align: center; font-size: 12px;">${evolBadge}</td>
                     <td class="col-traj-desktop">
                       <div class="win-rate-bar-bg" style="width: 80px; margin-right: 10px;">
                         <div class="win-rate-bar-fill" style="width: ${yWinRate}%; background: ${wrColor};"></div>
@@ -8363,6 +8731,9 @@ async function tcLoadLeagueData(forceRefresh = false, sourceSuffix = 'Calc') {
     if (typeof renderDashboard2026 === 'function') {
       renderDashboard2026();
     }
+    if (typeof renderFranchiseView === 'function' && selectedFranchisePlayer) {
+      renderFranchiseView();
+    }
     const sourceLabel = isFantasyCalcSource
       ? 'Fonte ROS: FantasyCalc'
       : 'Fonte ROS: Fallback (Projeções Sleeper)';
@@ -10331,8 +10702,17 @@ function switchDashboard2026View(viewName, btn) {
 
 function openDashboard2026ForPlayer(playerName) {
   dash2026State.selectedPlayer = playerName;
+  const seasonTabEl = document.getElementById('tab-season');
+  if (seasonTabEl && !seasonTabEl.classList.contains('active')) {
+    switchTab('tab-season');
+  }
   const sel = document.getElementById('dash2026TeamSelect');
-  if (sel) sel.value = playerName;
+  if (sel) {
+    if (sel.options.length === 0 && typeof renderDashboard2026 === 'function') {
+      renderDashboard2026();
+    }
+    sel.value = playerName;
+  }
   switchSeasonSubpage('dashboard');
   switchDashboard2026View('team', document.getElementById('dashViewTeamBtn'));
   window.scrollTo({ top: 0, behavior: 'smooth' });
